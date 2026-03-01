@@ -1,6 +1,7 @@
 // lib/main.dart
 // Application entry point.
-// Initializes Sentry → Supabase → Riverpod.
+// Initializes Supabase → Sentry → Riverpod.
+// Anonymous session creation is handled by SplashScreen (Phase 2).
 // Mixpanel, RevenueCat, OneSignal deferred to Phase 6/9 when credentials available.
 
 import 'package:flutter/material.dart';
@@ -14,10 +15,8 @@ import 'core/config/env.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Supabase
-  // TODO MAS: SUPABASE_URL and SUPABASE_ANON_KEY must be provided via --dart-define
-  // when running locally. Use scripts/run_dev.sh. Without these the app will show
-  // "not connected" on the hello-world screen — expected until Phase 2 credentials exist.
+  // Initialize Supabase — required for Phase 2+ auth and data
+  // Run via scripts/run_dev.sh which loads .env.task credentials
   if (Env.supabaseUrl.isNotEmpty && Env.supabaseAnonKey.isNotEmpty) {
     await Supabase.initialize(
       url: Env.supabaseUrl,
