@@ -1,7 +1,7 @@
 # Project State
 Last updated: 2026-03-01
 Current phase: 1 — Project Setup (in progress)
-Current task branch: none — on dev
+Current task branch: task/phase1-build-verification (PR #1 open → dev)
 
 ---
 
@@ -30,7 +30,7 @@ Current task branch: none — on dev
 
 ## Open PRs
 
-None.
+- **PR #1** — "chore: Phase 1 build verification — smoke test + sentry upgrade" — https://github.com/masuggs515/puzzle-game/pull/1 — awaiting Adam review and merge
 
 ---
 
@@ -47,6 +47,10 @@ None.
 
 - [ ] **App name / codename** — Spec says "codename TBD". Needed before Phase 8/10. Useful to confirm earlier for consistent UI copy. — raised 2026-03-01
 
+- [ ] **iOS build verification** — `flutter build ios --no-codesign` must be run on a Mac to satisfy Phase 1 DoD item "Build succeeds for both iOS and Android targets". Android confirmed ✓. iOS requires Mac environment. — raised 2026-03-01
+
+- [ ] **Review and merge PR #1** — https://github.com/masuggs515/puzzle-game/pull/1 — Phase 1 build verification. Android debug build confirmed passing. — raised 2026-03-01
+
 ---
 
 ## Recent Sessions
@@ -54,6 +58,7 @@ None.
 | Date | Task | Branch | Outcome |
 |---|---|---|---|
 | 2026-03-01 | Phase 1 skeleton — Git init, Flutter create, README, project-state, push to GitHub | dev (initial commit eb42784) | Both branches pushed to https://github.com/masuggs515/puzzle-game |
+| 2026-03-01 | Phase 1 build verification — smoke test + sentry upgrade | task/phase1-build-verification | PR #1 open → dev. flutter analyze ✓ flutter test 1/1 ✓ flutter build apk ✓ |
 
 ---
 
@@ -62,8 +67,11 @@ None.
 - [ ] App launches on simulator and physical device without crashing
 - [ ] Supabase connection confirmed (status shows "connected" in hello world screen)
 - [x] No secrets committed to Git
-- [x] All dependencies installed and resolving (118 packages)
+- [x] All dependencies installed and resolving
 - [ ] Both dev and prod Supabase cloud projects created (pre-phase setup — Adam's action)
-- [ ] Build succeeds for both iOS and Android targets
+- [x] Android build succeeds — `flutter build apk --debug` ✓ (commit 391f064)
+- [ ] iOS build succeeds — requires Mac; TODO MAS raised
 - [x] Repository pushed to GitHub with main and dev branches — https://github.com/masuggs515/puzzle-game
 - [ ] Branch protection rules enabled on main and dev (TODO MAS above)
+- [x] `flutter analyze` clean — no issues
+- [x] `flutter test` passing — 1/1
