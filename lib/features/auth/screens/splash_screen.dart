@@ -1,9 +1,16 @@
 // lib/features/auth/screens/splash_screen.dart
-// Checks auth state on launch and routes accordingly.
-// Phase 1: always routes to home. Auth logic wired up in Phase 2.
+// Phase 2 — Foundation
+// Spec: master-development-plan.md § 2.3 Anonymous Session Flow
+//
+// Creates an anonymous session on first launch, then routes to home.
+// If Supabase is not configured (no credentials) the session step is skipped
+// and the app runs without auth — safe for development without .env.task.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../data/services/supabase_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,11 +23,21 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _navigate();
+    _initialize();
   }
 
-  Future<void> _navigate() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+  Future<void> _initialize() async {
+    // Only attempt auth if Supabase was initialized
+    try {
+      Supabase.instance.client;
+      await SupabaseService().ensureAnonymousSession();
+    } catch (_) {
+      // Supabase not initialized or sign-in failed — continue without auth
+    }
+
+    // Defer navigation so the initial splash frame is always visible,
+    // and so tests can observe the splash state before routing.
+    await Future<void>.delayed(Duration.zero);
     if (mounted) context.go('/home');
   }
 

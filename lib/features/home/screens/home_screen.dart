@@ -1,105 +1,182 @@
 // lib/features/home/screens/home_screen.dart
-// Phase 1 hello-world screen.
-// Shows app name, Supabase connection status, and auth status.
-// Will be replaced with full home/world-map screen in Phase 4+.
+// Phase 2 — Foundation
+// Spec: master-development-plan.md § 2.4 Player Profile Screen
+//
+// Replaces the Phase 1 hello-world with a real player profile screen.
+// All data is fetched from Supabase — no hardcoded values.
+// "Start Game" and navigation to auth screens wired up here.
 
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../core/config/env.dart';
+import '../../../features/auth/providers/auth_provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  String get _supabaseStatus {
-    if (Env.supabaseUrl.isEmpty) return 'not configured';
-    try {
-      // If Supabase.instance.client exists and is initialized, connection is up
-      Supabase.instance.client;
-      return 'connected';
-    } catch (_) {
-      return 'not connected';
-    }
-  }
-
-  String get _authStatus {
-    try {
-      final session = Supabase.instance.client.auth.currentSession;
-      if (session == null) return 'not authenticated';
-      final user = Supabase.instance.client.auth.currentUser;
-      final isAnon = user?.isAnonymous ?? false;
-      return isAnon ? 'guest (anonymous)' : 'signed in';
-    } catch (_) {
-      return 'not authenticated';
-    }
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(profileProvider);
+    final coinAsync = ref.watch(coinBalanceProvider);
+    final user = ref.watch(currentUserProvider);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Puzzle Game')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Hello World',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 32),
-              _StatusRow(
-                label: 'Supabase',
-                value: _supabaseStatus,
-                isOk: _supabaseStatus == 'connected',
-              ),
-              const SizedBox(height: 12),
-              _StatusRow(
-                label: 'Auth',
-                value: _authStatus,
-                isOk: _authStatus != 'not authenticated',
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'Phase 1 — Project Setup skeleton.\nFull game coming in Phase 4.',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ],
-          ),
+      appBar: AppBar(
+        title: const Text('Puzzle Game'),
+        actions: [
+          if (user != null && !(user.isAnonymous))
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'Sign out',
+              onPressed: () async {
+                await ref.read(supabaseServiceProvider).signOut();
+              },
+            ),
+        ],
+      ),
+      body: profileAsync.when(
+        data: (profile) => _ProfileBody(
+          profile: profile,
+          coinAsync: coinAsync,
+          isGuest: profile?.isGuest ?? true,
         ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(child: Text('Error loading profile: $err')),
       ),
     );
   }
 }
 
-class _StatusRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool isOk;
+class _ProfileBody extends StatelessWidget {
+  final dynamic profile; // PlayerProfile?
+  final AsyncValue<int> coinAsync;
+  final bool isGuest;
 
-  const _StatusRow({
-    required this.label,
-    required this.value,
-    required this.isOk,
+  const _ProfileBody({
+    required this.profile,
+    required this.coinAsync,
+    required this.isGuest,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Welcome banner
+          Text(
+            'Welcome, ${profile?.welcomeName ?? 'Guest'}',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 8),
+          if (isGuest)
+            Text(
+              'Playing as guest — create an account to save your progress across devices.',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Colors.grey),
+            ),
+          const SizedBox(height: 32),
+
+          // Stats
+          _StatsRow(
+            coins: coinAsync.whenData((v) => v).value ?? 0,
+            streak: profile?.currentStreak ?? 0,
+            wordsFound: profile?.totalWordsFound ?? 0,
+            loading: profile == null,
+          ),
+          const SizedBox(height: 40),
+
+          // Start Game (placeholder — wired up in Phase 4)
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: null, // TODO Phase 4: navigate to game
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Text('Start Game', style: TextStyle(fontSize: 18)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Create Account / already signed in
+          if (isGuest)
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => context.push('/signup'),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text('Create Account'),
+                ),
+              ),
+            ),
+
+          if (isGuest) ...[
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton(
+                onPressed: () => context.push('/signin'),
+                child: const Text('Already have an account? Sign in'),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _StatsRow extends StatelessWidget {
+  final int coins;
+  final int streak;
+  final int wordsFound;
+  final bool loading;
+
+  const _StatsRow({
+    required this.coins,
+    required this.streak,
+    required this.wordsFound,
+    required this.loading,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Icon(
-          isOk ? Icons.check_circle : Icons.cancel,
-          color: isOk ? Colors.green : Colors.red,
-          size: 20,
-        ),
-        const SizedBox(width: 8),
+        _StatCard(label: 'Coins', value: loading ? '—' : '$coins'),
+        _StatCard(label: 'Streak', value: loading ? '—' : '$streak days'),
+        _StatCard(label: 'Words', value: loading ? '—' : '$wordsFound'),
+      ],
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _StatCard({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
         Text(
-          '$label: ',
-          style: const TextStyle(fontWeight: FontWeight.w600),
+          value,
+          style: Theme.of(context)
+              .textTheme
+              .headlineSmall
+              ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        Text(value),
+        const SizedBox(height: 4),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }
