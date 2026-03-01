@@ -1,7 +1,7 @@
 # Project State
 Last updated: 2026-03-01
 Current phase: 1 — Project Setup (in progress)
-Current task branch: task/phase1-build-verification (PR #1 open → dev)
+Current task branch: task/claude-agent-setup (PR #2 open → dev)
 
 ---
 
@@ -31,6 +31,7 @@ Current task branch: task/phase1-build-verification (PR #1 open → dev)
 ## Open PRs
 
 - **PR #1** — "chore: Phase 1 build verification — smoke test + sentry upgrade" — https://github.com/masuggs515/puzzle-game/pull/1 — awaiting Adam review and merge
+- **PR #2** — "chore: add .claude/agents/ spec files and settings.json" — https://github.com/masuggs515/puzzle-game/pull/2 — awaiting Adam review and merge
 
 ---
 
@@ -51,6 +52,8 @@ Current task branch: task/phase1-build-verification (PR #1 open → dev)
 
 - [ ] **Review and merge PR #1** — https://github.com/masuggs515/puzzle-game/pull/1 — Phase 1 build verification. Android debug build confirmed passing. — raised 2026-03-01
 
+- [ ] **Review and merge PR #2** — https://github.com/masuggs515/puzzle-game/pull/2 — .claude/agents/ spec files + settings.json. No code changes, safe to merge. — raised 2026-03-01
+
 ---
 
 ## Recent Sessions
@@ -59,6 +62,7 @@ Current task branch: task/phase1-build-verification (PR #1 open → dev)
 |---|---|---|---|
 | 2026-03-01 | Phase 1 skeleton — Git init, Flutter create, README, project-state, push to GitHub | dev (initial commit eb42784) | Both branches pushed to https://github.com/masuggs515/puzzle-game |
 | 2026-03-01 | Phase 1 build verification — smoke test + sentry upgrade | task/phase1-build-verification | PR #1 open → dev. flutter analyze ✓ flutter test 1/1 ✓ flutter build apk ✓ |
+| 2026-03-01 | Claude agent infrastructure — .claude/agents/ + settings.json | task/claude-agent-setup | PR #2 open → dev. 8 agent spec files + skipPermissions setting. |
 
 ---
 
