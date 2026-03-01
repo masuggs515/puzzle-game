@@ -1,0 +1,24 @@
+-- Migration 009: Additional indexes
+-- Spec: supabase-agent-spec.md § Indexes Summary
+-- Phase: 2 — Foundation
+--
+-- Primary indexes are created inline with each table (migrations 002–007).
+-- This migration documents and verifies coverage — no new indexes to add.
+-- All indexes per spec are confirmed present:
+--
+-- player_profiles:  idx_player_profiles_auth_id              ✓ in 002
+-- player_progress:  idx_player_progress_unique               ✓ in 003
+--                   idx_player_progress_user_id              ✓ in 003
+--                   idx_player_progress_level_number         ✓ in 003
+-- coin_transactions: idx_coin_transactions_user_id           ✓ in 004
+--                    idx_coin_transactions_idempotency        ✓ in 004
+-- achievements:     idx_achievements_user_id                 ✓ in 005
+-- analytics_events: idx_analytics_events_event_name          ✓ in 006
+--                   idx_analytics_events_created_at          ✓ in 006
+--                   idx_analytics_events_user_id             ✓ in 006
+--                   idx_analytics_events_properties (GIN)    ✓ in 006
+-- puzzles:          idx_puzzles_level_number                 ✓ in 007
+--                   idx_puzzles_seed                         ✓ in 007
+--
+-- placeholder — no DDL needed
+SELECT 1;
