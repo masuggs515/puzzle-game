@@ -1,0 +1,61 @@
+name: puzzle_game
+description: "Word and logic puzzle mobile game."
+publish_to: 'none'
+
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Game engine
+  flame: ^1.22.0
+
+  # Backend
+  supabase_flutter: ^2.8.0
+
+  # State management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.4.1
+
+  # Navigation
+  go_router: ^14.3.0
+
+  # Analytics
+  mixpanel_flutter: ^2.3.4
+
+  # Monetization
+  purchases_flutter: ^8.4.0
+
+  # Push notifications
+  onesignal_flutter: ^5.2.10
+
+  # Crash reporting
+  sentry_flutter: ^8.10.0
+
+  # Local storage
+  shared_preferences: ^2.3.2
+
+  # Animations
+  flutter_animate: ^4.5.0
+
+  # Utilities
+  uuid: ^4.5.0
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.13
+  riverpod_generator: ^2.4.3
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/puzzles/
+    - assets/word_lists/
