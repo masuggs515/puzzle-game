@@ -36,18 +36,16 @@ None.
 
 ## Open TODO MAS Items
 
-- [ ] **GitHub repo URL** — Adam must provide the real GitHub repo URL. The placeholder "[paste your GitHub repo URL here]" was in the session prompt. Without this I cannot push to GitHub. Once provided: run `git remote add origin [url] && git push origin dev && git push origin main`. — raised 2026-03-01
-
-- [ ] **Branch protection rules** — After GitHub push, go to GitHub → Settings → Branches and add:
-  - Branch `main`: Require PR, Require 1 approval, Do not allow bypassing
-  - Branch `dev`: Require PR, Do not allow force pushes
+- [ ] **Branch protection rules** — Go to https://github.com/masuggs515/puzzle-game → Settings → Branches and add:
+  - Branch `main`: Require PR before merging, Require 1 approval, Do not allow bypassing
+  - Branch `dev`: Require PR before merging, Do not allow force pushes
   — raised 2026-03-01
 
-- [ ] **Supabase credentials** — SUPABASE_URL and SUPABASE_ANON_KEY needed for local dev. These come from running `supabase start` (after Docker is running). Until Phase 2 this is not blocking — the hello-world screen shows "not configured" which is expected. — raised 2026-03-01
+- [ ] **Supabase credentials for local dev** — Docker Desktop must be running, then run `supabase start` in the project folder. It will print a local URL and anon key. Create `.env.task` (gitignored) with those values. Not blocking until Phase 2. — raised 2026-03-01
 
-- [ ] **Confirm app brand colors** — Placeholder colors used in `lib/core/theme/app_colors.dart`. Confirm final palette before Phase 4 (polish). — raised 2026-03-01
+- [ ] **Confirm app brand colors** — Placeholder colors in `lib/core/theme/app_colors.dart`. Confirm palette before Phase 4. — raised 2026-03-01
 
-- [ ] **App codename / name** — Spec documents say "codename TBD". Needed before App Store submission (Phase 10) but useful to confirm earlier so UI copy is consistent. — raised 2026-03-01
+- [ ] **App name / codename** — Spec says "codename TBD". Needed before Phase 8/10. Useful to confirm earlier for consistent UI copy. — raised 2026-03-01
 
 ---
 
@@ -55,7 +53,7 @@ None.
 
 | Date | Task | Branch | Outcome |
 |---|---|---|---|
-| 2026-03-01 | Phase 1 skeleton — Git init, Flutter create, README, project-state | dev (initial) | Awaiting GitHub URL to push |
+| 2026-03-01 | Phase 1 skeleton — Git init, Flutter create, README, project-state, push to GitHub | dev (initial commit eb42784) | Both branches pushed to https://github.com/masuggs515/puzzle-game |
 
 ---
 
@@ -63,11 +61,9 @@ None.
 
 - [ ] App launches on simulator and physical device without crashing
 - [ ] Supabase connection confirmed (status shows "connected" in hello world screen)
-- [ ] No secrets committed to Git
-- [ ] All dependencies installed and resolving
+- [x] No secrets committed to Git
+- [x] All dependencies installed and resolving (118 packages)
 - [ ] Both dev and prod Supabase cloud projects created (pre-phase setup — Adam's action)
 - [ ] Build succeeds for both iOS and Android targets
-- [ ] Repository pushed to GitHub with main and dev branches
-- [ ] Branch protection rules enabled on main and dev
-
-> TODO MAS: Items above marked [ ] that are agent-actionable will be completed in subsequent Phase 1 sessions once GitHub URL and Supabase credentials are provided.
+- [x] Repository pushed to GitHub with main and dev branches — https://github.com/masuggs515/puzzle-game
+- [ ] Branch protection rules enabled on main and dev (TODO MAS above)
