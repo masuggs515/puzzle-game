@@ -2,14 +2,14 @@
 // Spec: supabase-agent-spec.md § Function: create-player-profile
 // Phase: 2 — Foundation
 //
-// Triggered by Supabase Auth webhook on new user creation.
-// A database trigger (migration 011) also handles this locally — this Edge Function
-// is the supplemental mechanism for cloud environments.
+// Triggered by Supabase Auth hook_after_user_created.
+// A database trigger (migration 011) also handles this for safety — the upsert
+// with ignoreDuplicates ensures both can fire without conflict.
 //
-// TODO MAS: Configure the Auth webhook in Supabase dashboard for puzzle-game-dev and
-// puzzle-game-prod. Go to Authentication → Webhooks → Add webhook → select the
-// "User created" event → point to this function's URL. Without this, profile creation
-// in cloud environments relies on the fallback ensureProfile call in SupabaseService.
+// Deployed with --no-verify-jwt because auth hooks are called by Supabase's auth
+// service using HMAC-signed requests, not standard Supabase JWTs.
+// Security: the upsert is constrained by the auth_id FK → auth.users(id), so a
+// forged payload with a non-existent UUID will fail at the DB level.
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -17,7 +17,10 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 serve(async (req: Request) => {
   try {
     const payload = await req.json();
-    const user = payload?.record;
+
+    // Auth hook format: payload.user
+    // Database webhook format (fallback): payload.record
+    const user = payload?.user ?? payload?.record;
 
     if (!user?.id) {
       return new Response(
