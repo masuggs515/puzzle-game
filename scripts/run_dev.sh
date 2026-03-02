@@ -7,9 +7,10 @@
 
 set -e
 
-# Load .env.task if it exists
+# Load .env.task if it exists.
+# tr -d '\r' strips Windows CRLF so values aren't poisoned with a trailing ^M.
 if [ -f .env.task ]; then
-  export $(grep -v '^#' .env.task | xargs)
+  export $(grep -v '^#' .env.task | tr -d '\r' | xargs)
 fi
 
 flutter run \

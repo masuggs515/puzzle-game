@@ -5,6 +5,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/config/env.dart';
 import '../../../data/models/player_profile.dart';
 import '../../../data/services/supabase_service.dart';
 
@@ -13,8 +14,13 @@ final supabaseServiceProvider = Provider<SupabaseService>(
   (ref) => SupabaseService(),
 );
 
-// Stream of Supabase auth state changes
+// Stream of Supabase auth state changes.
+// Returns an empty stream when credentials are absent (Supabase not initialized).
+// Supabase.instance has its own assert guard so we must check before calling it.
 final authStateProvider = StreamProvider<AuthState>((ref) {
+  if (Env.supabaseUrl.isEmpty || Env.supabaseAnonKey.isEmpty) {
+    return const Stream.empty();
+  }
   return Supabase.instance.client.auth.onAuthStateChange;
 });
 
