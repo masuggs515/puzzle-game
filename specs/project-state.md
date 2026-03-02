@@ -1,7 +1,7 @@
 # Project State
-Last updated: 2026-03-01
+Last updated: 2026-03-02
 Current phase: 2 — Foundation (in progress)
-Current task branch: task/phase2-flutter-foundation (PR #4 open → dev)
+Current task branch: dev (all Phase 2 PRs merged)
 
 ---
 
@@ -24,26 +24,24 @@ Current task branch: task/phase2-flutter-foundation (PR #4 open → dev)
 
 | Migration | local db | puzzle-game-dev | puzzle-game-prod |
 |---|---|---|---|
-| 20260301000001_create_enums | ✓ applied | pending Adam approval | not yet |
-| 20260301000002_create_player_profiles | ✓ applied | pending Adam approval | not yet |
-| 20260301000003_create_player_progress | ✓ applied | pending Adam approval | not yet |
-| 20260301000004_create_coin_transactions | ✓ applied | pending Adam approval | not yet |
-| 20260301000005_create_achievements | ✓ applied | pending Adam approval | not yet |
-| 20260301000006_create_analytics_events | ✓ applied | pending Adam approval | not yet |
-| 20260301000007_create_puzzles | ✓ applied | pending Adam approval | not yet |
-| 20260301000008_rls_policies | ✓ applied | pending Adam approval | not yet |
-| 20260301000009_indexes | ✓ applied | pending Adam approval | not yet |
-| 20260301000010_stored_procedures | ✓ applied | pending Adam approval | not yet |
-| 20260301000011_triggers | ✓ applied | pending Adam approval | not yet |
-| 20260301000012_auto_rls_trigger | ✓ applied | pending Adam approval | not yet |
+| 20260301000001_create_enums | ✓ applied | ✓ applied 2026-03-01 | not yet |
+| 20260301000002_create_player_profiles | ✓ applied | ✓ applied 2026-03-01 | not yet |
+| 20260301000003_create_player_progress | ✓ applied | ✓ applied 2026-03-01 | not yet |
+| 20260301000004_create_coin_transactions | ✓ applied | ✓ applied 2026-03-01 | not yet |
+| 20260301000005_create_achievements | ✓ applied | ✓ applied 2026-03-01 | not yet |
+| 20260301000006_create_analytics_events | ✓ applied | ✓ applied 2026-03-01 | not yet |
+| 20260301000007_create_puzzles | ✓ applied | ✓ applied 2026-03-01 | not yet |
+| 20260301000008_rls_policies | ✓ applied | ✓ applied 2026-03-01 | not yet |
+| 20260301000009_indexes | ✓ applied | ✓ applied 2026-03-01 | not yet |
+| 20260301000010_stored_procedures | ✓ applied | ✓ applied 2026-03-01 | not yet |
+| 20260301000011_triggers | ✓ applied | ✓ applied 2026-03-01 | not yet |
+| 20260301000012_auto_rls_trigger | ✓ applied | ✓ applied 2026-03-01 | not yet |
 
 ---
 
 ## Open PRs
 
-- **PR #1** — "chore: Phase 1 build verification — smoke test + sentry upgrade" — https://github.com/masuggs515/puzzle-game/pull/1 — awaiting Adam review and merge
-- **PR #3** — "schema: Phase 2 database schema — tables, RLS, stored procedures, triggers" — https://github.com/masuggs515/puzzle-game/pull/3 — awaiting Adam review and merge
-- **PR #4** — "feat: Phase 2 Flutter foundation — auth, services, screens" — https://github.com/masuggs515/puzzle-game/pull/4 — awaiting Adam review and merge (merge PR #3 first)
+None — all PRs merged 2026-03-02.
 
 ---
 
@@ -56,9 +54,9 @@ Current task branch: task/phase2-flutter-foundation (PR #4 open → dev)
 
 - [ ] **Supabase cloud projects** — Create `puzzle-game-dev` and `puzzle-game-prod` in Supabase dashboard (supabase.com). Save URLs, anon keys, and service role keys in credentials.txt. Required before applying migrations to cloud environments. — raised 2026-03-01
 
-- [ ] **Apply migrations to puzzle-game-dev** — After merging PR #3 to dev and after creating the cloud project, confirm and I will run `supabase db push --linked` against puzzle-game-dev. — raised 2026-03-01
+- [x] **Apply migrations to puzzle-game-dev** — All 12 migrations applied 2026-03-01. Verified: `supabase migration list` shows 12/12 local+remote in sync.
 
-- [ ] **Configure Auth webhook (create-player-profile Edge Function)** — In puzzle-game-dev and puzzle-game-prod dashboards: Authentication → Hooks → add hook for "User created" event → point to `create-player-profile` function URL. The DB trigger (migration 011) handles local dev without this. — raised 2026-03-01
+- [x] **Configure Auth webhook (create-player-profile Edge Function)** — Done 2026-03-01. Function deployed to puzzle-game-dev (--no-verify-jwt). `hook_after_user_created` enabled via Management API → `https://xgqqpyehkmzyrtvqsofe.supabase.co/functions/v1/create-player-profile`. PR #3 updated with payload format fix.
 
 - [ ] **Disable email confirmation for development** — In puzzle-game-dev dashboard: Authentication → Providers → Email → disable "Enable email confirmations". Prevents needing to click a confirmation link when testing sign-up. — raised 2026-03-01
 
@@ -72,11 +70,10 @@ Current task branch: task/phase2-flutter-foundation (PR #4 open → dev)
 
 - [ ] **iOS build verification** — `flutter build ios --no-codesign` must be run on a Mac. Android confirmed ✓. — raised 2026-03-01
 
-- [ ] **Review and merge PR #1** — https://github.com/masuggs515/puzzle-game/pull/1 — Phase 1 build verification. — raised 2026-03-01
-
-- [ ] **Review and merge PR #3** — https://github.com/masuggs515/puzzle-game/pull/3 — Phase 2 DB schema. Merge before PR #4. — raised 2026-03-01
-
-- [ ] **Review and merge PR #4** — https://github.com/masuggs515/puzzle-game/pull/4 — Phase 2 Flutter foundation. Merge after PR #3. — raised 2026-03-01
+- [x] **Review and merge PR #1** — merged 2026-03-02.
+- [x] **Review and merge PR #3** — merged 2026-03-02.
+- [x] **Review and merge PR #4** — merged 2026-03-02.
+- [x] **Review and merge PR #5** — fix: LF line endings for shell scripts — merged 2026-03-02.
 
 ---
 
@@ -121,3 +118,5 @@ Current task branch: task/phase2-flutter-foundation (PR #4 open → dev)
 | 2026-03-01 | Claude agent infrastructure — .claude/agents/ + settings.json | task/claude-agent-setup | PR #2 merged to dev. 8 agent spec files + skipPermissions setting. |
 | 2026-03-01 | Phase 2 DB schema — 12 migrations, 2 Edge Functions, local DB verified | task/phase2-supabase-schema | PR #3 open → dev. supabase migration list 12/12 applied locally. |
 | 2026-03-01 | Phase 2 Flutter foundation — auth, services, 4 screens, 5 tests | task/phase2-flutter-foundation | PR #4 open → dev. flutter analyze clean, 5/5 tests passing. |
+| 2026-03-02 | Fix CRLF line endings on scripts/run_dev.sh | task/fix-script-line-endings | PR #5 merged. Added .gitattributes *.sh eol=lf. |
+| 2026-03-02 | All PRs merged (#1, #3, #4, #5) | dev | dev branch up to date. Phase 2 code fully merged. |
