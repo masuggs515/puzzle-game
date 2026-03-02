@@ -5,7 +5,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../core/config/env.dart';
 import '../../../data/models/player_profile.dart';
 import '../../../data/services/supabase_service.dart';
 
@@ -15,13 +14,17 @@ final supabaseServiceProvider = Provider<SupabaseService>(
 );
 
 // Stream of Supabase auth state changes.
-// Returns an empty stream when credentials are absent (Supabase not initialized).
-// Supabase.instance has its own assert guard so we must check before calling it.
+// Returns an empty stream when Supabase is not initialized for any reason
+// (missing credentials, failed init, stale web build, etc.).
+// Supabase.instance asserts initialization so we guard with try-catch rather
+// than an Env check — the Env check only catches missing credentials, not a
+// failed or skipped Supabase.initialize() call.
 final authStateProvider = StreamProvider<AuthState>((ref) {
-  if (Env.supabaseUrl.isEmpty || Env.supabaseAnonKey.isEmpty) {
+  try {
+    return Supabase.instance.client.auth.onAuthStateChange;
+  } on AssertionError catch (_) {
     return const Stream.empty();
   }
-  return Supabase.instance.client.auth.onAuthStateChange;
 });
 
 // Current Supabase User — null when signed out
@@ -29,7 +32,9 @@ final currentUserProvider = Provider<User?>((ref) {
   return ref.watch(authStateProvider).whenData((s) => s.session?.user).value;
 });
 
-// Player profile — re-fetched on every auth state change
+// Player profile — re-fetched on every auth state change.
+// SupabaseService.getProfile() returns null safely when Supabase is not
+// initialized, so no guard is needed here.
 final profileProvider = FutureProvider<PlayerProfile?>((ref) async {
   // Watch auth state so this re-runs on sign-in / sign-out
   ref.watch(authStateProvider);
