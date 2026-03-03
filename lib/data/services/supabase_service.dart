@@ -8,7 +8,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/player_profile.dart';
 
 class SupabaseService {
-  SupabaseClient get _client => Supabase.instance.client;
+  // Returns null when Supabase is not initialized (missing credentials, failed
+  // init, or running without .env.task). All methods below check for null so
+  // callers never see an AssertionError from Supabase.instance.
+  SupabaseClient? get _client {
+    try {
+      return Supabase.instance.client;
+    } on AssertionError catch (_) {
+      return null;
+    }
+  }
 
   // ──────────────────────────────────────
   // Auth
@@ -17,8 +26,10 @@ class SupabaseService {
   /// Ensures an anonymous session exists on app launch.
   /// If a session is already persisted (e.g. from a previous launch) this is a no-op.
   Future<void> ensureAnonymousSession() async {
-    if (_client.auth.currentSession == null) {
-      await _client.auth.signInAnonymously();
+    final client = _client;
+    if (client == null) return;
+    if (client.auth.currentSession == null) {
+      await client.auth.signInAnonymously();
     }
   }
 
@@ -34,13 +45,15 @@ class SupabaseService {
     required String email,
     required String password,
   }) async {
-    await _client.auth.updateUser(
+    final client = _client;
+    if (client == null) return;
+    await client.auth.updateUser(
       UserAttributes(email: email, password: password),
     );
     // Mark the profile as no longer a guest
-    final user = _client.auth.currentUser;
+    final user = client.auth.currentUser;
     if (user != null) {
-      await _client
+      await client
           .from('player_profiles')
           .update({'is_guest': false})
           .eq('auth_id', user.id);
@@ -52,12 +65,16 @@ class SupabaseService {
     required String email,
     required String password,
   }) async {
-    await _client.auth.signInWithPassword(email: email, password: password);
+    final client = _client;
+    if (client == null) return;
+    await client.auth.signInWithPassword(email: email, password: password);
   }
 
   /// Signs out. Anonymous session data is NOT preserved after sign-out.
   Future<void> signOut() async {
-    await _client.auth.signOut();
+    final client = _client;
+    if (client == null) return;
+    await client.auth.signOut();
   }
 
   // ──────────────────────────────────────
@@ -65,12 +82,15 @@ class SupabaseService {
   // ──────────────────────────────────────
 
   /// Fetches the player profile for the currently authenticated user.
-  /// Returns null if not authenticated or profile does not exist.
+  /// Returns null if not authenticated, profile does not exist, or Supabase
+  /// is not initialized.
   Future<PlayerProfile?> getProfile() async {
-    final user = _client.auth.currentUser;
+    final client = _client;
+    if (client == null) return null;
+    final user = client.auth.currentUser;
     if (user == null) return null;
 
-    final data = await _client
+    final data = await client
         .from('player_profiles')
         .select()
         .eq('auth_id', user.id)
@@ -82,9 +102,11 @@ class SupabaseService {
 
   /// Updates the player's display name.
   Future<void> updateDisplayName(String name) async {
-    final user = _client.auth.currentUser;
+    final client = _client;
+    if (client == null) return;
+    final user = client.auth.currentUser;
     if (user == null) return;
-    await _client
+    await client
         .from('player_profiles')
         .update({'display_name': name})
         .eq('auth_id', user.id);
@@ -97,7 +119,9 @@ class SupabaseService {
   /// Returns the current coin balance for a player.
   /// Calls the compute_coin_balance stored procedure (server-side SUM).
   Future<int> getCoinBalance(String profileId) async {
-    final result = await _client.rpc(
+    final client = _client;
+    if (client == null) return 0;
+    final result = await client.rpc(
       'compute_coin_balance',
       params: {'p_user_id': profileId},
     );
