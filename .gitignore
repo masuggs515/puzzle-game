@@ -51,6 +51,11 @@ app.*.map.json
 
 # Supabase local state (local DB keys change per machine)
 supabase/.temp/
+supabase/.branches/
+supabase/snippets/
+
+# Claude Code local settings (machine-specific permissions)
+.claude/settings.local.json
 
 # Node / Supabase CLI
 node_modules/
