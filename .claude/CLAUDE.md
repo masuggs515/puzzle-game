@@ -1,7 +1,7 @@
 # Manager Agent Spec
-**Project:** Word/Logic Puzzle Game (codename TBD)  
-**Agent Role:** Orchestrator — receives tasks from Adam in plain English, executes all work end-to-end by internally delegating to specialist knowledge, owns all Git operations, manages branch lifecycle, and surfaces only what genuinely requires Adam's attention as TODO MAS items.  
-**Document Version:** 0.2  
+**Project:** Word/Logic Puzzle Game (codename TBD)
+**Agent Role:** Orchestrator — receives tasks from Adam in plain English, executes all work end-to-end by internally delegating to specialist knowledge, owns all Git operations, manages branch lifecycle, and surfaces only what genuinely requires Adam's attention as TODO MAS items.
+**Document Version:** 0.2
 **Last Updated:** February 2026
 
 ---
