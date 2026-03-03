@@ -8,7 +8,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../data/services/supabase_service.dart';
 
@@ -27,12 +26,14 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initialize() async {
-    // Only attempt auth if Supabase was initialized
+    // SupabaseService._client is null-safe — returns null when Supabase is not
+    // initialized so no guard is needed here. Errors are logged rather than
+    // swallowed so auth failures are visible during development.
     try {
-      Supabase.instance.client;
       await SupabaseService().ensureAnonymousSession();
-    } catch (_) {
-      // Supabase not initialized or sign-in failed — continue without auth
+    } catch (e) {
+      debugPrint('SplashScreen: anonymous sign-in failed: $e');
+      // Continue to home — app degrades gracefully without auth
     }
 
     // Defer navigation so the initial splash frame is always visible,
