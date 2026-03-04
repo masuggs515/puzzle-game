@@ -97,8 +97,8 @@ class PuzzleGame extends FlameGame with DragCallbacks {
   @override
   void onDragUpdate(DragUpdateEvent event) {
     super.onDragUpdate(event);
-    // canvasStartPosition is the position of the update in the canvas
-    final tile = _tileAtPosition(event.canvasStartPosition);
+    // canvasEndPosition is the current finger position (end of this delta)
+    final tile = _tileAtPosition(event.canvasEndPosition);
     final currentState = getState();
     if (tile != null && !currentState.currentPath.contains(tile.index)) {
       notifier.onTileDragEnter(tile.index);

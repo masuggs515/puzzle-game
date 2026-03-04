@@ -3,10 +3,11 @@
 // Do not hardcode these anywhere else — always reference this class.
 
 class GameConstants {
-  // Coin economy
-  static const int hintCostCoins = 10;
-  static const int skipCostCoins = 25;
-  static const int coinsPerLevelComplete = 5;
+  // Coin economy (spec: flutter-agent-spec.md § Game Constants)
+  static const int hintCost = 5;            // 5–10 TBD — confirm via Phase 4 playtesting
+  static const int skipCost = 50;
+  static const int coinsPerStandardLevel = 10;
+  static const int coinsPerBossLevel = 20;
   static const int streakBonusCoins = 10;
 
   // Star rating thresholds (hints used)
