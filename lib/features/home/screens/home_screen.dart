@@ -6,11 +6,13 @@
 // All data is fetched from Supabase — no hardcoded values.
 // "Start Game" and navigation to auth screens wired up here.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../features/auth/providers/auth_provider.dart';
+import '../../../features/puzzle_engine/screens/puzzle_debug_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -123,6 +125,27 @@ class _ProfileBody extends StatelessWidget {
               child: TextButton(
                 onPressed: () => context.push('/signin'),
                 child: const Text('Already have an account? Sign in'),
+              ),
+            ),
+          ],
+
+          // Debug-only: puzzle inspector — never shown in release builds
+          if (kDebugMode) ...[
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const PuzzleDebugScreen(),
+                  ),
+                ),
+                icon: const Icon(Icons.search, size: 18),
+                label: const Text('Debug Puzzles'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.deepPurple.shade300,
+                ),
               ),
             ),
           ],

@@ -1,0 +1,2369 @@
+{
+  "format_version": "1.0",
+  "generated_at": "2026-03-03",
+  "total_puzzles": 50,
+  "puzzles": [
+    {
+      "seed": "hc_001",
+      "level_number": 1,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["a", "b", "e", "l", "r", "u"],
+      "metadata": {
+        "solution": ["bear", "blue"],
+        "hand_crafted": true,
+        "notes": "Tutorial level. BEAR[0]=B matches BLUE[0]=B. Exact letter pool teaches drag mechanic. Two ultra-common words. Players learn what a constraint is."
+      }
+    },
+    {
+      "seed": "hc_002",
+      "level_number": 2,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_food",
+          "constraint_tier": 1,
+          "constraint_display": "Something you can eat",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 2,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["c", "d", "k", "n", "o", "r", "u"],
+      "metadata": {
+        "solution": ["duck", "corn"],
+        "hand_crafted": true,
+        "notes": "Tutorial level 2. DUCK[2]=C matches CORN[0]=C. Mid-word intersection teaches that shared letter can appear anywhere. Two very common words."
+      }
+    },
+    {
+      "seed": "hc_003",
+      "level_number": 3,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 2,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["a", "e", "l", "o", "r", "s"],
+      "metadata": {
+        "solution": ["rose", "seal"],
+        "hand_crafted": true,
+        "notes": "Tutorial level 3. ROSE[2]=S matches SEAL[0]=S. Reverses category order from L1 to show constraints apply to any slot. ROSE is also a common wrong guess for the animal slot (teaching amber feedback)."
+      }
+    },
+    {
+      "seed": "hc_004",
+      "level_number": 4,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A type of weather",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 3
+        }
+      ],
+      "letter_pool": ["a", "e", "i", "n", "p", "r"],
+      "metadata": {
+        "solution": ["rain", "pear"],
+        "hand_crafted": true,
+        "notes": "Tutorial level 4. RAIN[0]=R matches PEAR[3]=R. End-of-word intersection position is new. Introduces weather and fruit categories. RAIN is a very natural first guess for weather."
+      }
+    },
+    {
+      "seed": "hc_005",
+      "level_number": 5,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A type of weather",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 2,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["e", "i", "l", "m", "s", "t"],
+      "metadata": {
+        "solution": ["lime", "mist"],
+        "hand_crafted": true,
+        "notes": "Tutorial level 5. LIME[2]=M matches MIST[0]=M. Completes the tutorial arc. Player has now seen 5 different category pairs. LIME is a pleasingly unexpected fruit answer."
+      }
+    },
+    {
+      "seed": "hc_006",
+      "level_number": 6,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "Something you wear",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["a", "c", "o", "r", "t", "w"],
+      "metadata": {
+        "solution": ["crow", "coat"],
+        "hand_crafted": true,
+        "notes": "Early sprint. CROW[0]=C matches COAT[0]=C. Introduces clothing category. Player may first try COAT for animal (amber feedback teaching moment) before switching to CROW."
+      }
+    },
+    {
+      "seed": "hc_007",
+      "level_number": 7,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A part of the body",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["a", "c", "e", "h", "p", "s", "t"],
+      "metadata": {
+        "solution": ["peach", "chest"],
+        "hand_crafted": true,
+        "notes": "First 5-letter words. PEACH[3]=C matches CHEST[0]=C. Introduces body_part category. Player now accustomed to mid-and-end intersections. Length bump from 4 to 5."
+      }
+    },
+    {
+      "seed": "hc_008",
+      "level_number": 8,
+      "level_type": "puzzle",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A type of weather",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 1,
+          "position_in_b": 1
+        },
+        {
+          "slot_a": 0,
+          "slot_b": 2,
+          "position_in_a": 0,
+          "position_in_b": 3
+        }
+      ],
+      "letter_pool": ["d", "f", "g", "l", "n", "o", "s", "w"],
+      "metadata": {
+        "solution": ["wolf", "gold", "snow"],
+        "hand_crafted": true,
+        "notes": "First boss level. WOLF[1]=O matches GOLD[1]=O. WOLF[0]=W matches SNOW[3]=W. WOLF is the hub word sharing letters with both other words. Gold treatment, 20-coin reward. Teaches multi-intersection solving."
+      }
+    },
+    {
+      "seed": "hc_009",
+      "level_number": 9,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "Something you wear",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 3
+        }
+      ],
+      "letter_pool": ["a", "c", "d", "o", "t"],
+      "metadata": {
+        "solution": ["toad", "coat"],
+        "hand_crafted": true,
+        "notes": "Post-boss recovery level. TOAD[0]=T matches COAT[3]=T. T-O-A-D pos0=T, C-O-A-T pos3=T. Very tight pool — only 5 unique letters across both words. TOAD and COAT share three letters (O, A, T) in different positions, generating useful amber feedback."
+      }
+    },
+    {
+      "seed": "hc_010",
+      "level_number": 10,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["a", "e", "h", "k", "l", "w"],
+      "metadata": {
+        "solution": ["hawk", "kale"],
+        "hand_crafted": true,
+        "notes": "Level 10 milestone. HAWK[3]=K matches KALE[0]=K. K is a less common shared letter, teaching that intersections are not always vowels. Introduces vegetable category."
+      }
+    },
+    {
+      "seed": "hc_011",
+      "level_number": 11,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_kitchen_item",
+          "constraint_tier": 1,
+          "constraint_display": "Something found in a kitchen",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["b", "f", "l", "o", "w"],
+      "metadata": {
+        "solution": ["wolf", "bowl"],
+        "hand_crafted": true,
+        "notes": "Introduces kitchen_item category. WOLF[0]=W matches BOWL[2]=W. W-O-L-F pos0=W, B-O-W-L pos2=W. Very tight 5-letter pool for 2 four-letter words sharing W. Teaches that W can be a meaningful intersection."
+      }
+    },
+    {
+      "seed": "hc_012",
+      "level_number": 12,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["a", "e", "k", "l", "s"],
+      "metadata": {
+        "solution": ["seal", "lake"],
+        "hand_crafted": true,
+        "notes": "Introduces water_body category. SEAL[3]=L matches LAKE[0]=L. S-E-A-L pos3=L, L-A-K-E pos0=L. Only 5 unique letters in the pool — very tight. Player must find the end-of-word shared letter."
+      }
+    },
+    {
+      "seed": "hc_013",
+      "level_number": 13,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A type of weather",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 1,
+          "position_in_b": 1
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 2,
+          "position_in_b": 1
+        }
+      ],
+      "letter_pool": ["a", "e", "f", "g", "i", "n", "o", "p", "r"],
+      "metadata": {
+        "solution": ["frog", "grape", "rain"],
+        "hand_crafted": true,
+        "notes": "First 3-word puzzle. FROG[1]=R matches GRAPE[1]=R. F-R-O-G pos1=R, G-R-A-P-E pos1=R. GRAPE[2]=A matches RAIN[1]=A. G-R-A-P-E pos2=A, R-A-I-N pos1=A. Chain structure: animal links to fruit, fruit links to weather."
+      }
+    },
+    {
+      "seed": "hc_014",
+      "level_number": 14,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A part of the body",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 1,
+          "position_in_b": 1
+        }
+      ],
+      "letter_pool": ["d", "e", "h", "l", "r"],
+      "metadata": {
+        "solution": ["deer", "heel"],
+        "hand_crafted": true,
+        "notes": "Near-identical letter sets teach the amber feedback distinction. DEER[1]=E matches HEEL[1]=E. D-E-E-R pos1=E, H-E-E-L pos1=E. Player may try HEEL for animal (amber) and DEER for body part (amber) before solving correctly."
+      }
+    },
+    {
+      "seed": "hc_015",
+      "level_number": 15,
+      "level_type": "puzzle",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A part of the body",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 1,
+          "position_in_b": 1
+        }
+      ],
+      "letter_pool": ["a", "c", "e", "k", "l", "n", "r", "t"],
+      "metadata": {
+        "solution": ["crane", "neck", "teal"],
+        "hand_crafted": true,
+        "notes": "Boss level 15. CRANE[3]=N matches NECK[0]=N. C-R-A-N-E pos3=N, N-E-C-K pos0=N. NECK[1]=E matches TEAL[1]=E. N-E-C-K pos1=E, T-E-A-L pos1=E. Chain: animal-body_part-color. Gold treatment."
+      }
+    },
+    {
+      "seed": "hc_016",
+      "level_number": 16,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["e", "l", "m", "n", "o"],
+      "metadata": {
+        "solution": ["mole", "melon"],
+        "hand_crafted": true,
+        "notes": "MOLE[0]=M matches MELON[0]=M. M-O-L-E pos0=M, M-E-L-O-N pos0=M. Tiny pool of 5 letters covering a 4-letter and 5-letter word. Near-anagram relationship teaches letter reuse."
+      }
+    },
+    {
+      "seed": "hc_017",
+      "level_number": 17,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A type of weather",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "Something you wear",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["f", "h", "i", "o", "r", "s", "t"],
+      "metadata": {
+        "solution": ["frost", "shirt"],
+        "hand_crafted": true,
+        "notes": "First two 5-letter words together. FROST[3]=S matches SHIRT[0]=S. F-R-O-S-T pos3=S, S-H-I-R-T pos0=S. 7-letter pool for 10 letters-worth of words — teaches deduplication. Winter weather with winter clothing is thematically satisfying."
+      }
+    },
+    {
+      "seed": "hc_018",
+      "level_number": 18,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A type of weather",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 1,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["a", "e", "i", "n", "r", "w"],
+      "metadata": {
+        "solution": ["wren", "rain"],
+        "hand_crafted": true,
+        "notes": "WREN[1]=R matches RAIN[0]=R. W-R-E-N pos1=R, R-A-I-N pos0=R. Wren is a less common animal choice — player must think beyond obvious answers. Reinforces that small/unusual animals count."
+      }
+    },
+    {
+      "seed": "hc_019",
+      "level_number": 19,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["a", "b", "e", "n", "r"],
+      "metadata": {
+        "solution": ["bean", "bear"],
+        "hand_crafted": true,
+        "notes": "BEAN[0]=B matches BEAR[0]=B. B-E-A-N pos0=B, B-E-A-R pos0=B. Minimal 5-letter pool for two nearly identical words. Key teaching moment: BEAN satisfies vegetable but fails animal, BEAR vice versa. Amber feedback on both wrong guesses drives understanding."
+      }
+    },
+    {
+      "seed": "hc_020",
+      "level_number": 20,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_food",
+          "constraint_tier": 1,
+          "constraint_display": "Something you can eat",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "Something you wear",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 1
+        }
+      ],
+      "letter_pool": ["a", "c", "f", "n", "o", "r", "s"],
+      "metadata": {
+        "solution": ["corn", "scarf"],
+        "hand_crafted": true,
+        "notes": "Level 20 milestone. CORN[0]=C matches SCARF[1]=C. C-O-R-N pos0=C, S-C-A-R-F pos1=C. First time the shared letter is at position 1 in the second word rather than position 0. Teaches varied intersection positions."
+      }
+    },
+    {
+      "seed": "hc_021",
+      "level_number": 21,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_sport",
+          "constraint_tier": 1,
+          "constraint_display": "A type of sport",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "Something you wear",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 2,
+          "position_in_b": 2
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 1,
+          "position_in_b": 1
+        }
+      ],
+      "letter_pool": ["a", "c", "f", "g", "l", "o", "t", "w"],
+      "metadata": {
+        "solution": ["wolf", "golf", "coat"],
+        "hand_crafted": true,
+        "notes": "Introduces sport category. WOLF[2]=L matches GOLF[2]=L. W-O-L-F pos2=L, G-O-L-F pos2=L. GOLF[1]=O matches COAT[1]=O. G-O-L-F pos1=O, C-O-A-T pos1=O. Chain: animal-sport-clothing."
+      }
+    },
+    {
+      "seed": "hc_022",
+      "level_number": 22,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A type of weather",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 1,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["a", "b", "e", "i", "n", "p", "r"],
+      "metadata": {
+        "solution": ["pear", "rain", "bear"],
+        "hand_crafted": true,
+        "notes": "PEAR[3]=R matches RAIN[0]=R. P-E-A-R pos3=R, R-A-I-N pos0=R. RAIN[1]=A matches BEAR[2]=A. R-A-I-N pos1=A, B-E-A-R pos2=A. Near-anagram set — PEAR/BEAR share almost all letters. The shared A between RAIN and BEAR is a satisfying discovery."
+      }
+    },
+    {
+      "seed": "hc_023",
+      "level_number": 23,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A part of the body",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 2,
+          "position_in_b": 1
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 0,
+          "position_in_b": 3
+        }
+      ],
+      "letter_pool": ["d", "e", "h", "k", "l", "r"],
+      "metadata": {
+        "solution": ["deer", "leek", "heel"],
+        "hand_crafted": true,
+        "notes": "DEER[2]=E matches LEEK[1]=E. D-E-E-R pos2=E, L-E-E-K pos1=E. LEEK[0]=L matches HEEL[3]=L. L-E-E-K pos0=L, H-E-E-L pos3=L. All three words share heavy E usage — elegant vowel-chain design. 6-letter pool for 12 letters of words."
+      }
+    },
+    {
+      "seed": "hc_024",
+      "level_number": 24,
+      "level_type": "puzzle",
+      "is_boss": true,
+      "word_count": 4,
+      "intersection_count": 3,
+      "constraint_tiers": [1],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_food",
+          "constraint_tier": 1,
+          "constraint_display": "Something you can eat",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 3,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 1,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 3,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 3,
+          "position_in_a": 2,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["a", "e", "k", "l", "s", "t"],
+      "metadata": {
+        "solution": ["steak", "teal", "lake", "kale"],
+        "hand_crafted": true,
+        "notes": "Boss level 24. Chain of 4 words, 3 intersections. STEAK[1]=T matches TEAL[0]=T. S-T-E-A-K pos1=T, T-E-A-L pos0=T. TEAL[3]=L matches LAKE[0]=L. T-E-A-L pos3=L, L-A-K-E pos0=L. LAKE[2]=K matches KALE[0]=K. L-A-K-E pos2=K, K-A-L-E pos0=K. Only 6 unique letters for 18 letter-slots — remarkable compression. Gold treatment."
+      }
+    },
+    {
+      "seed": "hc_025",
+      "level_number": 25,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "has_double_letter",
+          "constraint_tier": 2,
+          "constraint_display": "Contains a double letter",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["e", "m", "n", "o", "p", "r", "s"],
+      "metadata": {
+        "solution": ["moose", "spoon"],
+        "hand_crafted": true,
+        "notes": "First Tier 2 constraint. MOOSE[3]=S matches SPOON[0]=S. M-O-O-S-E pos3=S, S-P-O-O-N pos0=S. MOOSE satisfies is_animal (and incidentally has double O). SPOON satisfies has_double_letter (double O). Decoy letter R added. Introduces the concept of letter-rule constraints."
+      }
+    },
+    {
+      "seed": "hc_026",
+      "level_number": 26,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "has_double_letter",
+          "constraint_tier": 2,
+          "constraint_display": "Contains a double letter",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["a", "b", "d", "l", "o", "t"],
+      "metadata": {
+        "solution": ["boot", "toad"],
+        "hand_crafted": true,
+        "notes": "Tier 2 constraint now in slot 0. BOOT[3]=T matches TOAD[0]=T. B-O-O-T pos3=T, T-O-A-D pos0=T. BOOT has double O, satisfying has_double_letter. Decoy L added. Player learns to search for double-letter words systematically."
+      }
+    },
+    {
+      "seed": "hc_027",
+      "level_number": 27,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "no_repeated_letters",
+          "constraint_tier": 2,
+          "constraint_display": "Has no repeated letters",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 2,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["a", "c", "e", "f", "l", "n", "r", "s"],
+      "metadata": {
+        "solution": ["scarf", "crane"],
+        "hand_crafted": true,
+        "notes": "Introduces no_repeated_letters constraint. SCARF[2]=A matches CRANE[2]=A. S-C-A-R-F pos2=A, C-R-A-N-E pos2=A. SCARF: S,C,A,R,F — all unique. Decoy L added. Player must verify no letter repeats, not just find a word."
+      }
+    },
+    {
+      "seed": "hc_028",
+      "level_number": 28,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A type of weather",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "exact_length_5",
+          "constraint_tier": 2,
+          "constraint_display": "Exactly 5 letters long",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 1,
+          "position_in_b": 1
+        }
+      ],
+      "letter_pool": ["f", "n", "o", "r", "s", "t", "u"],
+      "metadata": {
+        "solution": ["frost", "trout"],
+        "hand_crafted": true,
+        "notes": "Introduces exact_length_5 constraint. FROST[1]=R matches TROUT[1]=R. F-R-O-S-T pos1=R, T-R-O-U-T pos1=R. TROUT is 5 letters, satisfying the constraint. Note TROUT also satisfies is_animal — the Tier 2 constraint is deliberately broader to allow multiple valid solutions. Decoy N added."
+      }
+    },
+    {
+      "seed": "hc_029",
+      "level_number": 29,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "has_double_letter",
+          "constraint_tier": 2,
+          "constraint_display": "Contains a double letter",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 4,
+          "position_in_b": 3
+        }
+      ],
+      "letter_pool": ["c", "e", "k", "l", "r", "s"],
+      "metadata": {
+        "solution": ["creek", "leek"],
+        "hand_crafted": true,
+        "notes": "CREEK[4]=K matches LEEK[3]=K. C-R-E-E-K pos4=K, L-E-E-K pos3=K. Both words feature double E — CREEK satisfies is_water_body, LEEK satisfies has_double_letter. Elegant thematic cohesion around double-E words. Decoy S added."
+      }
+    },
+    {
+      "seed": "hc_030",
+      "level_number": 30,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_sport",
+          "constraint_tier": 1,
+          "constraint_display": "A type of sport",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_kitchen_item",
+          "constraint_tier": 1,
+          "constraint_display": "Something found in a kitchen",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 3
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 0,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["b", "f", "g", "l", "o", "r", "w"],
+      "metadata": {
+        "solution": ["golf", "wolf", "bowl"],
+        "hand_crafted": true,
+        "notes": "GOLF[3]=F matches WOLF[3]=F. G-O-L-F pos3=F, W-O-L-F pos3=F. WOLF[0]=W matches BOWL[2]=W. W-O-L-F pos0=W, B-O-W-L pos2=W. Three 4-letter words, 7-letter pool. GOLF/WOLF share almost identical spelling — a strong amber-feedback moment. Decoy R added."
+      }
+    },
+    {
+      "seed": "hc_031",
+      "level_number": 31,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "exact_length_4",
+          "constraint_tier": 2,
+          "constraint_display": "Exactly 4 letters long",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 2,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["c", "d", "e", "l", "o", "v"],
+      "metadata": {
+        "solution": ["dove", "cove"],
+        "hand_crafted": true,
+        "notes": "DOVE[2]=V matches COVE[2]=V. D-O-V-E pos2=V, C-O-V-E pos2=V. COVE satisfies exact_length_4 (it is 4 letters). V is an uncommon intersection letter — elegant constraint. DOVE is a gentler animal than the predators seen so far."
+      }
+    },
+    {
+      "seed": "hc_032",
+      "level_number": 32,
+      "level_type": "puzzle",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 3,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A type of weather",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "no_repeated_letters",
+          "constraint_tier": 2,
+          "constraint_display": "Has no repeated letters",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 1
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 2,
+          "position_in_b": 2
+        },
+        {
+          "slot_a": 0,
+          "slot_b": 2,
+          "position_in_a": 1,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["a", "c", "e", "f", "i", "l", "n", "r", "s"],
+      "metadata": {
+        "solution": ["rain", "crane", "scarf"],
+        "hand_crafted": true,
+        "notes": "Boss level 32. Triangle intersection — all three pairs share a letter. RAIN[0]=R matches CRANE[1]=R. R-A-I-N pos0=R, C-R-A-N-E pos1=R. CRANE[2]=A matches SCARF[2]=A. C-R-A-N-E pos2=A, S-C-A-R-F pos2=A. RAIN[1]=A matches SCARF[2]=A. R-A-I-N pos1=A, S-C-A-R-F pos2=A. Triangle on letter A/R. SCARF: S,C,A,R,F — all unique. Decoy L added. First boss with Tier 2 constraint."
+      }
+    },
+    {
+      "seed": "hc_033",
+      "level_number": 33,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "has_double_letter",
+          "constraint_tier": 2,
+          "constraint_display": "Contains a double letter",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 1
+        }
+      ],
+      "letter_pool": ["l", "n", "o", "p", "r", "s"],
+      "metadata": {
+        "solution": ["pool", "spoon"],
+        "hand_crafted": true,
+        "notes": "POOL[0]=P matches SPOON[1]=P. P-O-O-L pos0=P, S-P-O-O-N pos1=P. POOL is a water body, SPOON has double O. Both words feature OO — thematic double-vowel cohesion. Decoy R added."
+      }
+    },
+    {
+      "seed": "hc_034",
+      "level_number": 34,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "exact_length_4",
+          "constraint_tier": 2,
+          "constraint_display": "Exactly 4 letters long",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["a", "e", "k", "l", "n", "r"],
+      "metadata": {
+        "solution": ["kale", "lake"],
+        "hand_crafted": true,
+        "notes": "KALE[0]=K matches LAKE[2]=K. K-A-L-E pos0=K, L-A-K-E pos2=K. Perfect anagram pair — same letters, different order. KALE is a vegetable. LAKE is exactly 4 letters. Pool of 4 unique letters plus decoys N,R. Strong amber-feedback opportunity when player swaps the two words."
+      }
+    },
+    {
+      "seed": "hc_035",
+      "level_number": 35,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 1,
+          "position_in_b": 1
+        }
+      ],
+      "letter_pool": ["a", "e", "g", "k", "l", "r", "t"],
+      "metadata": {
+        "solution": ["eagle", "leek", "teal"],
+        "hand_crafted": true,
+        "notes": "EAGLE[3]=L matches LEEK[0]=L. E-A-G-L-E pos3=L, L-E-E-K pos0=L. LEEK[1]=E matches TEAL[1]=E. L-E-E-K pos1=E, T-E-A-L pos1=E. Three-word chain with consistent E-rich vocabulary. Decoy R added. Eagle is a satisfying discovery for players who first try shorter animals."
+      }
+    },
+    {
+      "seed": "hc_036",
+      "level_number": 36,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A part of the body",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["b", "h", "i", "n", "o", "r", "s"],
+      "metadata": {
+        "solution": ["robin", "shin"],
+        "hand_crafted": true,
+        "notes": "ROBIN[3]=I matches SHIN[2]=I. R-O-B-I-N pos3=I, S-H-I-N pos2=I. I is a less common intersection letter — teaches players to look at interior vowels. SHIN is a confirmed body part in the category list. 7-letter pool for two words."
+      }
+    },
+    {
+      "seed": "hc_037",
+      "level_number": 37,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A type of weather",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "Something you wear",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 1,
+          "position_in_b": 1
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 4,
+          "position_in_b": 3
+        }
+      ],
+      "letter_pool": ["a", "c", "f", "n", "o", "r", "s", "t", "u"],
+      "metadata": {
+        "solution": ["frost", "trout", "coat"],
+        "hand_crafted": true,
+        "notes": "FROST[1]=R matches TROUT[1]=R. F-R-O-S-T pos1=R, T-R-O-U-T pos1=R. TROUT[4]=T matches COAT[3]=T. T-R-O-U-T pos4=T, C-O-A-T pos3=T. Three-word chain across weather-animal-clothing. End-to-end intersection (pos4 in TROUT) is a satisfying advanced technique. Decoy N added."
+      }
+    },
+    {
+      "seed": "hc_038",
+      "level_number": 38,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A part of the body",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 2,
+          "position_in_b": 1
+        }
+      ],
+      "letter_pool": ["a", "l", "m", "n", "p", "r", "u"],
+      "metadata": {
+        "solution": ["palm", "plum"],
+        "hand_crafted": true,
+        "notes": "PALM[2]=L matches PLUM[1]=L. P-A-L-M pos2=L, P-L-U-M pos1=L. Near-anagram pair — both start with PL blend (after rearrangement). Both 4-letter words sharing P and L. Decoys N,R added. Thematic: PALM tree produces fruit — satisfying indirect connection."
+      }
+    },
+    {
+      "seed": "hc_039",
+      "level_number": 39,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "Something you wear",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A type of weather",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 2
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 3,
+          "position_in_b": 1
+        }
+      ],
+      "letter_pool": ["a", "c", "g", "n", "o", "r", "s", "w"],
+      "metadata": {
+        "solution": ["crow", "gown", "snow"],
+        "hand_crafted": true,
+        "notes": "CROW[3]=W matches GOWN[2]=W. C-R-O-W pos3=W, G-O-W-N pos2=W. GOWN[3]=N matches SNOW[1]=N. G-O-W-N pos3=N, S-N-O-W pos1=N. Chain: animal-clothing-weather. W and N are meaningful uncommon connectors. Decoy A added."
+      }
+    },
+    {
+      "seed": "hc_040",
+      "level_number": 40,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "has_double_letter",
+          "constraint_tier": 2,
+          "constraint_display": "Contains a double letter",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "Something you wear",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 3
+        }
+      ],
+      "letter_pool": ["a", "b", "e", "l", "r", "t"],
+      "metadata": {
+        "solution": ["beet", "belt"],
+        "hand_crafted": true,
+        "notes": "Level 40 milestone. BEET[3]=T matches BELT[3]=T. B-E-E-T pos3=T, B-E-L-T pos3=T. BEET has double E. Both words share B,E,T and differ only at position 2 (E vs L). End-of-word T intersection. Decoys A,R added."
+      }
+    },
+    {
+      "seed": "hc_041",
+      "level_number": 41,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_food",
+          "constraint_tier": 1,
+          "constraint_display": "Something you can eat",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 1,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["b", "h", "m", "n", "o", "r", "t"],
+      "metadata": {
+        "solution": ["moth", "broth"],
+        "hand_crafted": true,
+        "notes": "MOTH[1]=O matches BROTH[2]=O. M-O-T-H pos1=O, B-R-O-T-H pos2=O. MOTH is a small, easily overlooked animal — players who default to large animals will struggle. BROTH is a satisfying food answer. Decoy N added."
+      }
+    },
+    {
+      "seed": "hc_042",
+      "level_number": 42,
+      "level_type": "puzzle",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 3,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_food",
+          "constraint_tier": 1,
+          "constraint_display": "Something you can eat",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 1,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 3,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 0,
+          "position_in_a": 2,
+          "position_in_b": 4
+        }
+      ],
+      "letter_pool": ["a", "e", "k", "l", "n", "r", "s", "t"],
+      "metadata": {
+        "solution": ["steak", "teal", "lake"],
+        "hand_crafted": true,
+        "notes": "Boss level 42. Triangle intersection — all three pairs connected. STEAK[1]=T matches TEAL[0]=T. S-T-E-A-K pos1=T, T-E-A-L pos0=T. TEAL[3]=L matches LAKE[0]=L. T-E-A-L pos3=L, L-A-K-E pos0=L. LAKE[2]=K matches STEAK[4]=K. L-A-K-E pos2=K, S-T-E-A-K pos4=K. Perfect triangle. Decoys N,R added. Gold treatment."
+      }
+    },
+    {
+      "seed": "hc_043",
+      "level_number": 43,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "no_repeated_letters",
+          "constraint_tier": 2,
+          "constraint_display": "Has no repeated letters",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 1,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["a", "c", "f", "n", "p", "r", "s"],
+      "metadata": {
+        "solution": ["scarf", "carp"],
+        "hand_crafted": true,
+        "notes": "SCARF[1]=C matches CARP[0]=C. S-C-A-R-F pos1=C, C-A-R-P pos0=C. SCARF: S,C,A,R,F — all unique letters. CARP is a freshwater fish, satisfying is_animal. The C intersection at position 1 forces players to think about interior letters. Decoy N added."
+      }
+    },
+    {
+      "seed": "hc_044",
+      "level_number": 44,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 3
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 2,
+          "position_in_b": 1
+        }
+      ],
+      "letter_pool": ["a", "e", "k", "l", "n", "r", "s", "t"],
+      "metadata": {
+        "solution": ["kale", "snake", "lake"],
+        "hand_crafted": true,
+        "notes": "KALE[0]=K matches SNAKE[3]=K. K-A-L-E pos0=K, S-N-A-K-E pos3=K. SNAKE[2]=A matches LAKE[1]=A. S-N-A-K-E pos2=A, L-A-K-E pos1=A. KALE and LAKE share all same letters (anagram) which creates strong amber-feedback opportunity. Decoys R,T added."
+      }
+    },
+    {
+      "seed": "hc_045",
+      "level_number": 45,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "has_double_letter",
+          "constraint_tier": 2,
+          "constraint_display": "Contains a double letter",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 3,
+          "position_in_b": 4
+        }
+      ],
+      "letter_pool": ["c", "e", "h", "k", "l", "n", "r"],
+      "metadata": {
+        "solution": ["heel", "leek", "creek"],
+        "hand_crafted": true,
+        "notes": "HEEL[3]=L matches LEEK[0]=L. H-E-E-L pos3=L, L-E-E-K pos0=L. LEEK[3]=K matches CREEK[4]=K. L-E-E-K pos3=K, C-R-E-E-K pos4=K. All three words feature double E — a thematic triple. HEEL satisfies has_double_letter (EE), LEEK is a vegetable, CREEK is a water body. Decoy N added."
+      }
+    },
+    {
+      "seed": "hc_046",
+      "level_number": 46,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": ["e", "i", "l", "n", "o", "p", "r", "v"],
+      "metadata": {
+        "solution": ["olive", "viper"],
+        "hand_crafted": true,
+        "notes": "OLIVE[3]=V matches VIPER[0]=V. O-L-I-V-E pos3=V, V-I-P-E-R pos0=V. V is an uncommon intersection letter — among the more satisfying discoveries. OLIVE is a fruit (and also a color — excellent amber confusion). VIPER is a snake, satisfying is_animal. Decoy N added."
+      }
+    },
+    {
+      "seed": "hc_047",
+      "level_number": 47,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 1,
+          "position_in_b": 1
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 2,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["b", "c", "k", "n", "o", "r", "s", "w"],
+      "metadata": {
+        "solution": ["brook", "crow", "brown"],
+        "hand_crafted": true,
+        "notes": "BROOK[1]=R matches CROW[1]=R. B-R-O-O-K pos1=R, C-R-O-W pos1=R. CROW[2]=O matches BROWN[2]=O. C-R-O-W pos2=O, B-R-O-W-N pos2=O. Chain: water_body-animal-color. BROWN is both a color and a common surname — any 5-letter color with O at position 2 works. Decoy S added."
+      }
+    },
+    {
+      "seed": "hc_048",
+      "level_number": 48,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "no_repeated_letters",
+          "constraint_tier": 2,
+          "constraint_display": "Has no repeated letters",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 2,
+          "position_in_b": 1
+        },
+        {
+          "slot_a": 0,
+          "slot_b": 2,
+          "position_in_a": 3,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["a", "b", "c", "f", "l", "n", "o", "r", "s"],
+      "metadata": {
+        "solution": ["coral", "crab", "scarf"],
+        "hand_crafted": true,
+        "notes": "CORAL[2]=R matches CRAB[1]=R. C-O-R-A-L pos2=R, C-R-A-B pos1=R. CORAL[3]=A matches SCARF[2]=A. C-O-R-A-L pos3=A, S-C-A-R-F pos2=A. CORAL is the hub. SCARF: S,C,A,R,F — all unique letters. CORAL is also an animal (coral reef) — useful amber moment for is_color slot. Decoy N added."
+      }
+    },
+    {
+      "seed": "hc_049",
+      "level_number": 49,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A part of the body",
+          "required_length": 4,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 3,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 2,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["b", "h", "i", "n", "o", "r", "s"],
+      "metadata": {
+        "solution": ["bison", "onion", "shin"],
+        "hand_crafted": true,
+        "notes": "BISON[3]=O matches ONION[0]=O. B-I-S-O-N pos3=O, O-N-I-O-N pos0=O. ONION[2]=I matches SHIN[2]=I. O-N-I-O-N pos2=I, S-H-I-N pos2=I. ONION has repeated letters — interesting contrast with no_repeated_letters puzzles. SHIN is a confirmed body part. Chain: animal-vegetable-body_part. Decoy R added."
+      }
+    },
+    {
+      "seed": "hc_050",
+      "level_number": 50,
+      "level_type": "puzzle",
+      "is_boss": true,
+      "word_count": 4,
+      "intersection_count": 4,
+      "constraint_tiers": [1, 2],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A type of weather",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A part of the body",
+          "required_length": 4,
+          "constraint_params": null
+        },
+        {
+          "id": 3,
+          "constraint_id": "no_repeated_letters",
+          "constraint_tier": 2,
+          "constraint_display": "Has no repeated letters",
+          "required_length": 5,
+          "constraint_params": null
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 1,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 1,
+          "slot_b": 2,
+          "position_in_a": 2,
+          "position_in_b": 2
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 0,
+          "position_in_a": 3,
+          "position_in_b": 3
+        },
+        {
+          "slot_a": 0,
+          "slot_b": 3,
+          "position_in_a": 2,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": ["a", "c", "e", "f", "h", "i", "l", "n", "o", "r", "s"],
+      "metadata": {
+        "solution": ["crane", "rain", "shin", "scarf"],
+        "hand_crafted": true,
+        "notes": "Final boss — 4 words, 4 intersections. CRANE[1]=R matches RAIN[0]=R. C-R-A-N-E pos1=R, R-A-I-N pos0=R. RAIN[2]=I matches SHIN[2]=I. R-A-I-N pos2=I, S-H-I-N pos2=I. SHIN[3]=N matches CRANE[3]=N. S-H-I-N pos3=N, C-R-A-N-E pos3=N. CRANE[2]=A matches SCARF[2]=A. C-R-A-N-E pos2=A, S-C-A-R-F pos2=A. CRANE is the hub connecting to all three other words. SCARF: S,C,A,R,F all unique letters. SHIN confirmed in body_parts list. Decoys L,O added. Gold treatment, 20-coin reward."
+      }
+    }
+  ]
+}
