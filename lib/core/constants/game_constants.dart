@@ -9,6 +9,13 @@ class GameConstants {
   static const int coinsPerLevelComplete = 5;
   static const int streakBonusCoins = 10;
 
+  // Star rating thresholds (hints used)
+  static const int threeStarMaxHints = 0;
+  static const int twoStarMaxHints = 2;
+
+  // Feedback duration
+  static const int feedbackDurationMs = 2000;
+
   // Hint behaviour
   static const int maxHintsPerLevel = 3;
 

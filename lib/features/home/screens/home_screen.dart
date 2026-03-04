@@ -93,11 +93,11 @@ class _ProfileBody extends StatelessWidget {
           ),
           const SizedBox(height: 40),
 
-          // Start Game (placeholder — wired up in Phase 4)
+          // Start Game — navigates to level 1
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: null, // TODO Phase 4: navigate to game
+              onPressed: () => context.go('/game/1'),
               child: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12),
                 child: Text('Start Game', style: TextStyle(fontSize: 18)),

@@ -20,10 +20,15 @@ class AppColors {
   static const Color feedbackAmber = Color(0xFFFFC107);     // amber — real word, wrong constraint
   static const Color feedbackIncorrect = Color(0xFFF44336); // red — not a valid word
 
+  // Feedback state aliases (from spec)
+  static const Color feedbackWrongWord = feedbackIncorrect;       // red — not a word
+  static const Color feedbackWrongConstraint = feedbackAmber;     // amber — wrong constraint
+
   // Tile states
   static const Color tileDefault = Color(0xFFE0E0E0);
   static const Color tileSelected = Color(0xFF4A90D9);
   static const Color tileLocked = Color(0xFF9E9E9E);
+  static const Color tileConnected = Color(0xFF81C784); // green — locked in solved word
 
   // Text
   static const Color textPrimary = Color(0xFF212121);
