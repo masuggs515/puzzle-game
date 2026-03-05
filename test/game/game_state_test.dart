@@ -1,7 +1,7 @@
 // test/game/game_state_test.dart
-// Phase 4 — Core Game
-// Pure Dart unit tests for GameState, FeedbackMessage, GamePhase,
-// and LevelCompleteArgs. No Flutter widgets, no Flame.
+// Phase 4 — Core Game (tile-placement redesign)
+// Pure Dart unit tests for GameState, CellKey, PoolTile, FeedbackMessage,
+// SlotResult, GamePhase, and LevelCompleteArgs. No Flutter widgets, no Flame.
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle_game/features/game/models/game_state.dart';
@@ -13,6 +13,7 @@ import 'package:puzzle_game/puzzle_engine/models/puzzle.dart';
 // ---------------------------------------------------------------------------
 // Minimal constraint used only in tests — always returns true.
 // ---------------------------------------------------------------------------
+
 class _MockConstraint extends Constraint {
   const _MockConstraint()
       : super(id: 'mock', tier: 1, displayText: 'A mock constraint');
@@ -39,40 +40,67 @@ Puzzle _minimalPuzzle({int wordCount = 2}) => Puzzle(
       isBoss: false,
       wordSlots: List.generate(
         wordCount,
-        (i) => WordSlot(id: i, constraint: _mockAssignment()),
+        (i) => WordSlot(
+          id: i,
+          constraint: _mockAssignment(),
+          requiredLength: 3,
+          gridRow: i,
+          gridCol: 0,
+          isHorizontal: true,
+        ),
       ),
       intersections: const [],
-      letterPool: const ['a', 'b', 'c', 'd'],
+      letterPool: const ['a', 'b', 'c', 'd', 'e', 'f'],
       constraintTiers: const [1],
       metadata: const {},
     );
 
+/// Build a base state with an empty tile list (sufficient for most model tests).
 GameState _baseState({int wordCount = 2, int hintsUsed = 0}) => GameState(
       phase: GamePhase.idle,
       puzzle: _minimalPuzzle(wordCount: wordCount),
       solvedWords: const {},
-      currentPath: const [],
-      currentWord: '',
+      tiles: const [],
+      slotResults: const {},
       hintsUsedThisLevel: hintsUsed,
       attemptsThisLevel: 0,
-      activeHintSlotId: null,
-      hintedTileIndices: const {},
       feedbackMessage: null,
       levelStartTime: DateTime(2026, 1, 1),
       coinBalance: 100,
     );
+
+/// Build a state with a real tile list for tile-placement tests.
+GameState _stateWithTiles({int wordCount = 1}) {
+  final puzzle = _minimalPuzzle(wordCount: wordCount);
+  final tiles = List.generate(
+    puzzle.letterPool.length,
+    (i) => PoolTile(id: i, letter: puzzle.letterPool[i]),
+  );
+  return GameState(
+    phase: GamePhase.idle,
+    puzzle: puzzle,
+    solvedWords: const {},
+    tiles: tiles,
+    slotResults: const {},
+    hintsUsedThisLevel: 0,
+    attemptsThisLevel: 0,
+    feedbackMessage: null,
+    levelStartTime: DateTime(2026, 1, 1),
+    coinBalance: 0,
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
 void main() {
+  // -------------------------------------------------------------------------
   group('GamePhase enum', () {
     test('contains all required values', () {
       const values = GamePhase.values;
       expect(values, contains(GamePhase.loading));
       expect(values, contains(GamePhase.idle));
-      expect(values, contains(GamePhase.dragging));
       expect(values, contains(GamePhase.submitted));
       expect(values, contains(GamePhase.feedbackCorrect));
       expect(values, contains(GamePhase.feedbackWrongWord));
@@ -82,52 +110,211 @@ void main() {
       expect(values, contains(GamePhase.paused));
     });
 
-    test('has exactly 10 values', () {
-      expect(GamePhase.values.length, 10);
+    test('does not contain dragging (removed in redesign)', () {
+      expect(GamePhase.values.map((v) => v.name), isNot(contains('dragging')));
+    });
+
+    test('has exactly 9 values', () {
+      expect(GamePhase.values.length, 9);
     });
   });
 
   // -------------------------------------------------------------------------
-
-  group('FeedbackMessage', () {
-    test('stores type, message, and constraintText correctly', () {
-      const msg = FeedbackMessage(
-        type: FeedbackType.wrongWord,
-        message: 'Not a real word',
-        constraintText: null,
-      );
-
-      expect(msg.type, FeedbackType.wrongWord);
-      expect(msg.message, 'Not a real word');
-      expect(msg.constraintText, isNull);
-    });
-
-    test('stores constraintText when provided', () {
-      const msg = FeedbackMessage(
-        type: FeedbackType.wrongConstraint,
-        message: 'Valid word, wrong constraint',
-        constraintText: 'Must start with a vowel',
-      );
-
-      expect(msg.type, FeedbackType.wrongConstraint);
-      expect(msg.message, 'Valid word, wrong constraint');
-      expect(msg.constraintText, 'Must start with a vowel');
-    });
-
-    test('feedbackCorrect type can be constructed', () {
-      const msg = FeedbackMessage(
-        type: FeedbackType.correct,
-        message: 'Great!',
-      );
-
-      expect(msg.type, FeedbackType.correct);
-      expect(msg.message, 'Great!');
-      expect(msg.constraintText, isNull);
+  group('SlotResult enum', () {
+    test('contains all required values', () {
+      expect(SlotResult.values, contains(SlotResult.unvalidated));
+      expect(SlotResult.values, contains(SlotResult.correct));
+      expect(SlotResult.values, contains(SlotResult.wrongWord));
+      expect(SlotResult.values, contains(SlotResult.wrongConstraint));
     });
   });
 
   // -------------------------------------------------------------------------
+  group('CellKey', () {
+    test('equality — same slotId and positionInSlot are equal', () {
+      const a = CellKey(slotId: 0, positionInSlot: 2);
+      const b = CellKey(slotId: 0, positionInSlot: 2);
+      expect(a, equals(b));
+    });
 
+    test('equality — different slotId are not equal', () {
+      const a = CellKey(slotId: 0, positionInSlot: 2);
+      const b = CellKey(slotId: 1, positionInSlot: 2);
+      expect(a, isNot(equals(b)));
+    });
+
+    test('equality — different positionInSlot are not equal', () {
+      const a = CellKey(slotId: 0, positionInSlot: 0);
+      const b = CellKey(slotId: 0, positionInSlot: 1);
+      expect(a, isNot(equals(b)));
+    });
+
+    test('hashCode — equal keys have same hashCode', () {
+      const a = CellKey(slotId: 3, positionInSlot: 1);
+      const b = CellKey(slotId: 3, positionInSlot: 1);
+      expect(a.hashCode, equals(b.hashCode));
+    });
+
+    test('hashCode — different keys typically have different hashCode', () {
+      const a = CellKey(slotId: 0, positionInSlot: 0);
+      const b = CellKey(slotId: 1, positionInSlot: 0);
+      expect(a.hashCode, isNot(equals(b.hashCode)));
+    });
+
+    test('toString returns human-readable string', () {
+      const k = CellKey(slotId: 2, positionInSlot: 3);
+      expect(k.toString(), contains('2'));
+      expect(k.toString(), contains('3'));
+    });
+
+    test('can be used as a Map key', () {
+      final map = <CellKey, String>{};
+      const k = CellKey(slotId: 0, positionInSlot: 0);
+      map[k] = 'hello';
+      expect(map[const CellKey(slotId: 0, positionInSlot: 0)], 'hello');
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  group('PoolTile', () {
+    test('isInPool is true when placedAt is null', () {
+      const tile = PoolTile(id: 0, letter: 'A');
+      expect(tile.isInPool, isTrue);
+    });
+
+    test('isInPool is false when placedAt is set', () {
+      const tile = PoolTile(
+        id: 0,
+        letter: 'A',
+        placedAt: CellKey(slotId: 0, positionInSlot: 0),
+      );
+      expect(tile.isInPool, isFalse);
+    });
+
+    test('withPlacement returns new tile placed at cell', () {
+      const tile = PoolTile(id: 1, letter: 'B');
+      const cell = CellKey(slotId: 0, positionInSlot: 1);
+      final placed = tile.withPlacement(cell);
+
+      expect(placed.id, 1);
+      expect(placed.letter, 'B');
+      expect(placed.placedAt, equals(cell));
+      expect(placed.isInPool, isFalse);
+    });
+
+    test('returnToPool clears placement', () {
+      const cell = CellKey(slotId: 0, positionInSlot: 0);
+      const tile = PoolTile(id: 2, letter: 'C', placedAt: cell);
+      final returned = tile.returnToPool();
+
+      expect(returned.id, 2);
+      expect(returned.letter, 'C');
+      expect(returned.isInPool, isTrue);
+      expect(returned.placedAt, isNull);
+    });
+
+    test('withPlacement does not mutate original', () {
+      const tile = PoolTile(id: 0, letter: 'A');
+      const cell = CellKey(slotId: 0, positionInSlot: 0);
+      tile.withPlacement(cell);
+      expect(tile.isInPool, isTrue); // original unchanged
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  group('GameState.tileAt', () {
+    test('returns tile placed at matching CellKey', () {
+      const cell = CellKey(slotId: 0, positionInSlot: 0);
+      const tile = PoolTile(id: 0, letter: 'A', placedAt: cell);
+      final state = _baseState().copyWith(tiles: [tile]);
+
+      expect(state.tileAt(cell), equals(tile));
+    });
+
+    test('returns null when no tile at that cell', () {
+      const cell = CellKey(slotId: 0, positionInSlot: 0);
+      const otherCell = CellKey(slotId: 0, positionInSlot: 1);
+      const tile = PoolTile(id: 0, letter: 'A', placedAt: cell);
+      final state = _baseState().copyWith(tiles: [tile]);
+
+      expect(state.tileAt(otherCell), isNull);
+    });
+
+    test('returns null for pool tiles', () {
+      const tile = PoolTile(id: 0, letter: 'A'); // placedAt == null
+      final state = _baseState().copyWith(tiles: [tile]);
+      expect(
+        state.tileAt(const CellKey(slotId: 0, positionInSlot: 0)),
+        isNull,
+      );
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  group('GameState.wordForSlot', () {
+    test('returns null when slot has no requiredLength', () {
+      final puzzle = Puzzle(
+        seed: 'test',
+        levelNumber: 1,
+        levelType: LevelType.sprint,
+        isBoss: false,
+        wordSlots: [
+          WordSlot(
+            id: 0,
+            constraint: _mockAssignment(),
+            // requiredLength intentionally omitted → null
+          ),
+        ],
+        intersections: const [],
+        letterPool: const ['a', 'b', 'c'],
+        constraintTiers: const [1],
+        metadata: const {},
+      );
+      final state = GameState(
+        phase: GamePhase.idle,
+        puzzle: puzzle,
+        solvedWords: const {},
+        tiles: const [],
+        slotResults: const {},
+        hintsUsedThisLevel: 0,
+        attemptsThisLevel: 0,
+        feedbackMessage: null,
+        levelStartTime: DateTime(2026, 1, 1),
+        coinBalance: 0,
+      );
+
+      expect(state.wordForSlot(puzzle.wordSlots[0]), isNull);
+    });
+
+    test('returns null when not all cells are filled', () {
+      final state = _stateWithTiles();
+      final slot = state.puzzle.wordSlots[0]; // requiredLength = 3
+
+      // Only place tile in position 0
+      final tiles = List<PoolTile>.from(state.tiles);
+      tiles[0] = tiles[0].withPlacement(CellKey(slotId: slot.id, positionInSlot: 0));
+      final s = state.copyWith(tiles: tiles);
+
+      expect(s.wordForSlot(slot), isNull);
+    });
+
+    test('returns assembled word when all cells are filled', () {
+      final state = _stateWithTiles();
+      final slot = state.puzzle.wordSlots[0]; // requiredLength = 3, letters a,b,c,d,e,f
+
+      final tiles = List<PoolTile>.from(state.tiles);
+      // Place tiles 0,1,2 at positions 0,1,2 of slot 0
+      for (int i = 0; i < 3; i++) {
+        tiles[i] = tiles[i].withPlacement(CellKey(slotId: slot.id, positionInSlot: i));
+      }
+      final s = state.copyWith(tiles: tiles);
+
+      // letterPool is ['a','b','c','d','e','f'], tiles 0,1,2 are a,b,c
+      expect(s.wordForSlot(slot), 'abc');
+    });
+  });
+
+  // -------------------------------------------------------------------------
   group('GameState.stars', () {
     test('returns 3 stars when 0 hints used (threeStarMaxHints = 0)', () {
       final state = _baseState(hintsUsed: 0);
@@ -156,7 +343,6 @@ void main() {
   });
 
   // -------------------------------------------------------------------------
-
   group('GameState.isComplete', () {
     test('false when no words solved', () {
       final state = _baseState(wordCount: 2);
@@ -164,65 +350,28 @@ void main() {
     });
 
     test('false when only some words solved', () {
-      final puzzle = _minimalPuzzle(wordCount: 3);
-      final state = GameState(
-        phase: GamePhase.idle,
-        puzzle: puzzle,
-        solvedWords: const {0: 'cat'},
-        currentPath: const [],
-        currentWord: '',
-        hintsUsedThisLevel: 0,
-        attemptsThisLevel: 0,
-        activeHintSlotId: null,
-        hintedTileIndices: const {},
-        feedbackMessage: null,
-        levelStartTime: DateTime(2026, 1, 1),
-        coinBalance: 100,
+      final state = _baseState(wordCount: 3).copyWith(
+        solvedWords: {0: 'cat'},
       );
       expect(state.isComplete, isFalse);
     });
 
-    test('true when all words solved (2 slots, 2 solved)', () {
-      final puzzle = _minimalPuzzle(wordCount: 2);
-      final state = GameState(
-        phase: GamePhase.idle,
-        puzzle: puzzle,
-        solvedWords: const {0: 'cat', 1: 'dog'},
-        currentPath: const [],
-        currentWord: '',
-        hintsUsedThisLevel: 0,
-        attemptsThisLevel: 0,
-        activeHintSlotId: null,
-        hintedTileIndices: const {},
-        feedbackMessage: null,
-        levelStartTime: DateTime(2026, 1, 1),
-        coinBalance: 100,
+    test('true when all words solved (2 slots)', () {
+      final state = _baseState(wordCount: 2).copyWith(
+        solvedWords: {0: 'cat', 1: 'dog'},
       );
       expect(state.isComplete, isTrue);
     });
 
-    test('true when all words solved (4 slots, 4 solved)', () {
-      final puzzle = _minimalPuzzle(wordCount: 4);
-      final state = GameState(
-        phase: GamePhase.idle,
-        puzzle: puzzle,
-        solvedWords: const {0: 'cat', 1: 'dog', 2: 'rat', 3: 'bat'},
-        currentPath: const [],
-        currentWord: '',
-        hintsUsedThisLevel: 0,
-        attemptsThisLevel: 0,
-        activeHintSlotId: null,
-        hintedTileIndices: const {},
-        feedbackMessage: null,
-        levelStartTime: DateTime(2026, 1, 1),
-        coinBalance: 100,
+    test('true when all words solved (4 slots)', () {
+      final state = _baseState(wordCount: 4).copyWith(
+        solvedWords: {0: 'cat', 1: 'dog', 2: 'rat', 3: 'bat'},
       );
       expect(state.isComplete, isTrue);
     });
   });
 
   // -------------------------------------------------------------------------
-
   group('GameState.copyWith', () {
     test('preserves all fields when nothing is overridden', () {
       final original = _baseState(hintsUsed: 1);
@@ -231,12 +380,10 @@ void main() {
       expect(copy.phase, original.phase);
       expect(copy.puzzle, original.puzzle);
       expect(copy.solvedWords, original.solvedWords);
-      expect(copy.currentPath, original.currentPath);
-      expect(copy.currentWord, original.currentWord);
+      expect(copy.tiles, original.tiles);
+      expect(copy.slotResults, original.slotResults);
       expect(copy.hintsUsedThisLevel, original.hintsUsedThisLevel);
       expect(copy.attemptsThisLevel, original.attemptsThisLevel);
-      expect(copy.activeHintSlotId, original.activeHintSlotId);
-      expect(copy.hintedTileIndices, original.hintedTileIndices);
       expect(copy.feedbackMessage, original.feedbackMessage);
       expect(copy.levelStartTime, original.levelStartTime);
       expect(copy.coinBalance, original.coinBalance);
@@ -244,10 +391,9 @@ void main() {
 
     test('updates phase without touching other fields', () {
       final original = _baseState();
-      final copy = original.copyWith(phase: GamePhase.dragging);
+      final copy = original.copyWith(phase: GamePhase.submitted);
 
-      expect(copy.phase, GamePhase.dragging);
-      expect(copy.currentWord, original.currentWord);
+      expect(copy.phase, GamePhase.submitted);
       expect(copy.hintsUsedThisLevel, original.hintsUsedThisLevel);
       expect(copy.coinBalance, original.coinBalance);
     });
@@ -260,12 +406,22 @@ void main() {
       expect(copy.phase, original.phase);
     });
 
-    test('updates hintsUsedThisLevel', () {
+    test('updates hintsUsedThisLevel and stars reflect new value', () {
       final original = _baseState(hintsUsed: 0);
       final copy = original.copyWith(hintsUsedThisLevel: 2);
 
       expect(copy.hintsUsedThisLevel, 2);
       expect(copy.stars, 2);
+    });
+
+    test('updates slotResults', () {
+      final original = _baseState();
+      final copy = original.copyWith(
+        slotResults: {0: SlotResult.correct, 1: SlotResult.wrongWord},
+      );
+
+      expect(copy.slotResults[0], SlotResult.correct);
+      expect(copy.slotResults[1], SlotResult.wrongWord);
     });
 
     test('clears feedbackMessage when clearFeedbackMessage is true', () {
@@ -274,7 +430,6 @@ void main() {
         message: 'Not a word',
       );
       final original = _baseState().copyWith(feedbackMessage: feedback);
-
       expect(original.feedbackMessage, isNotNull);
 
       final cleared = original.copyWith(clearFeedbackMessage: true);
@@ -294,26 +449,6 @@ void main() {
       expect(copy.feedbackMessage!.message, 'Wrong logic');
     });
 
-    test('clears activeHintSlotId when clearActiveHintSlotId is true', () {
-      final original = _baseState().copyWith(activeHintSlotId: 3);
-
-      expect(original.activeHintSlotId, 3);
-
-      final cleared = original.copyWith(clearActiveHintSlotId: true);
-      expect(cleared.activeHintSlotId, isNull);
-    });
-
-    test('updates currentWord and currentPath together', () {
-      final original = _baseState();
-      final copy = original.copyWith(
-        currentWord: 'cat',
-        currentPath: [0, 1, 2],
-      );
-
-      expect(copy.currentWord, 'cat');
-      expect(copy.currentPath, [0, 1, 2]);
-    });
-
     test('updates coinBalance', () {
       final original = _baseState();
       final copy = original.copyWith(coinBalance: 250);
@@ -321,10 +456,54 @@ void main() {
       expect(copy.coinBalance, 250);
       expect(copy.phase, original.phase);
     });
+
+    test('updates tiles list', () {
+      final original = _baseState();
+      const newTile = PoolTile(id: 99, letter: 'Z');
+      final copy = original.copyWith(tiles: [newTile]);
+
+      expect(copy.tiles.length, 1);
+      expect(copy.tiles.first.letter, 'Z');
+    });
   });
 
   // -------------------------------------------------------------------------
+  group('FeedbackMessage', () {
+    test('stores type, message, and constraintText correctly', () {
+      const msg = FeedbackMessage(
+        type: FeedbackType.wrongWord,
+        message: 'Not a real word',
+        constraintText: null,
+      );
 
+      expect(msg.type, FeedbackType.wrongWord);
+      expect(msg.message, 'Not a real word');
+      expect(msg.constraintText, isNull);
+    });
+
+    test('stores constraintText when provided', () {
+      const msg = FeedbackMessage(
+        type: FeedbackType.wrongConstraint,
+        message: 'Valid word, wrong constraint',
+        constraintText: 'Must start with a vowel',
+      );
+
+      expect(msg.type, FeedbackType.wrongConstraint);
+      expect(msg.constraintText, 'Must start with a vowel');
+    });
+
+    test('feedbackCorrect type can be constructed', () {
+      const msg = FeedbackMessage(
+        type: FeedbackType.correct,
+        message: 'Great!',
+      );
+
+      expect(msg.type, FeedbackType.correct);
+      expect(msg.constraintText, isNull);
+    });
+  });
+
+  // -------------------------------------------------------------------------
   group('LevelCompleteArgs', () {
     test('required fields are set correctly', () {
       const args = LevelCompleteArgs(levelNumber: 5, stars: 3);

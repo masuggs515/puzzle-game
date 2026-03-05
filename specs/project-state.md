@@ -44,7 +44,7 @@ Current task branch: task/phase4-core-game
 
 ## Open PRs
 
-- **PR #13** — "feat: Phase 4 — core game mechanic, Flame drag, feedback states, level complete" — awaiting Adam review and merge
+- **PR #14** — "feat: Phase 4 — core game mechanic, Flame drag, feedback states, level complete" — targeting dev — DO NOT MERGE YET (mechanic redesign in progress)
 
 ---
 
@@ -74,7 +74,7 @@ Current task branch: task/phase4-core-game
 - [ ] **App name / codename** — Before Phase 8/10. — raised 2026-03-01
 - [ ] **iOS build verification** — Requires Mac. — raised 2026-03-01
 
-- [ ] **Merge PR #13** — Phase 4 core game — awaiting Adam
+- [ ] **Merge PR #14** — Phase 4 core game — awaiting mechanic redesign completion first
 
 ---
 

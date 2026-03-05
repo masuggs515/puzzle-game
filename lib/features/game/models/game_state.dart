@@ -1,5 +1,5 @@
 // lib/features/game/models/game_state.dart
-// Phase 4 — Core Game
+// Phase 4 — Core Game (tile-placement redesign)
 // Spec: flutter-agent-spec.md § Game State Machine
 
 import 'package:puzzle_game/core/constants/game_constants.dart';
@@ -8,7 +8,6 @@ import 'package:puzzle_game/puzzle_engine/models/puzzle.dart';
 enum GamePhase {
   loading,
   idle,
-  dragging,
   submitted,
   feedbackCorrect,
   feedbackWrongWord,
@@ -19,6 +18,47 @@ enum GamePhase {
 }
 
 enum FeedbackType { correct, wrongWord, wrongConstraint }
+
+/// Which grid cell a tile is placed in.
+/// Identifies a specific letter position within a specific word slot.
+class CellKey {
+  final int slotId;
+  final int positionInSlot;
+
+  const CellKey({required this.slotId, required this.positionInSlot});
+
+  @override
+  bool operator ==(Object other) =>
+      other is CellKey &&
+      slotId == other.slotId &&
+      positionInSlot == other.positionInSlot;
+
+  @override
+  int get hashCode => Object.hash(slotId, positionInSlot);
+
+  @override
+  String toString() => 'CellKey($slotId, $positionInSlot)';
+}
+
+/// A letter tile. Can be in the pool (placedAt == null) or in a grid cell.
+class PoolTile {
+  final int id;
+  final String letter;
+  final CellKey? placedAt;
+
+  const PoolTile({required this.id, required this.letter, this.placedAt});
+
+  PoolTile withPlacement(CellKey cell) =>
+      PoolTile(id: id, letter: letter, placedAt: cell);
+
+  PoolTile returnToPool() =>
+      PoolTile(id: id, letter: letter, placedAt: null);
+
+  bool get isInPool => placedAt == null;
+}
+
+/// Per-slot validation result, shown after submit.
+enum SlotResult { unvalidated, correct, wrongWord, wrongConstraint }
 
 class FeedbackMessage {
   final FeedbackType type;
@@ -35,13 +75,11 @@ class FeedbackMessage {
 class GameState {
   final GamePhase phase;
   final Puzzle puzzle;
-  final Map<int, String> solvedWords;       // slotId → word
-  final List<int> currentPath;              // tile indices in current drag path
-  final String currentWord;
+  final Map<int, String> solvedWords;       // slotId → confirmed correct word
+  final List<PoolTile> tiles;              // all tiles (pool + placed)
+  final Map<int, SlotResult> slotResults; // per-slot feedback after submit
   final int hintsUsedThisLevel;
   final int attemptsThisLevel;
-  final int? activeHintSlotId;
-  final Set<int> hintedTileIndices;
   final FeedbackMessage? feedbackMessage;
   final DateTime levelStartTime;
   final int coinBalance;
@@ -50,51 +88,34 @@ class GameState {
     required this.phase,
     required this.puzzle,
     required this.solvedWords,
-    required this.currentPath,
-    required this.currentWord,
+    required this.tiles,
+    required this.slotResults,
     required this.hintsUsedThisLevel,
     required this.attemptsThisLevel,
-    required this.activeHintSlotId,
-    required this.hintedTileIndices,
     required this.feedbackMessage,
     required this.levelStartTime,
     required this.coinBalance,
   });
 
-  GameState copyWith({
-    GamePhase? phase,
-    Puzzle? puzzle,
-    Map<int, String>? solvedWords,
-    List<int>? currentPath,
-    String? currentWord,
-    int? hintsUsedThisLevel,
-    int? attemptsThisLevel,
-    int? activeHintSlotId,
-    bool clearActiveHintSlotId = false,
-    Set<int>? hintedTileIndices,
-    FeedbackMessage? feedbackMessage,
-    bool clearFeedbackMessage = false,
-    DateTime? levelStartTime,
-    int? coinBalance,
-  }) {
-    return GameState(
-      phase: phase ?? this.phase,
-      puzzle: puzzle ?? this.puzzle,
-      solvedWords: solvedWords ?? this.solvedWords,
-      currentPath: currentPath ?? this.currentPath,
-      currentWord: currentWord ?? this.currentWord,
-      hintsUsedThisLevel: hintsUsedThisLevel ?? this.hintsUsedThisLevel,
-      attemptsThisLevel: attemptsThisLevel ?? this.attemptsThisLevel,
-      activeHintSlotId: clearActiveHintSlotId
-          ? null
-          : (activeHintSlotId ?? this.activeHintSlotId),
-      hintedTileIndices: hintedTileIndices ?? this.hintedTileIndices,
-      feedbackMessage: clearFeedbackMessage
-          ? null
-          : (feedbackMessage ?? this.feedbackMessage),
-      levelStartTime: levelStartTime ?? this.levelStartTime,
-      coinBalance: coinBalance ?? this.coinBalance,
-    );
+  /// Returns the tile placed at [cell], or null if the cell is empty.
+  PoolTile? tileAt(CellKey cell) {
+    for (final t in tiles) {
+      if (t.placedAt == cell) return t;
+    }
+    return null;
+  }
+
+  /// Returns the word assembled for [slot], or null if any cell is empty.
+  String? wordForSlot(WordSlot slot) {
+    final length = slot.requiredLength;
+    if (length == null) return null;
+    final buf = StringBuffer();
+    for (int i = 0; i < length; i++) {
+      final tile = tileAt(CellKey(slotId: slot.id, positionInSlot: i));
+      if (tile == null) return null;
+      buf.write(tile.letter);
+    }
+    return buf.toString();
   }
 
   /// True when all word slots are solved.
@@ -105,5 +126,34 @@ class GameState {
     if (hintsUsedThisLevel <= GameConstants.threeStarMaxHints) return 3;
     if (hintsUsedThisLevel <= GameConstants.twoStarMaxHints) return 2;
     return 1;
+  }
+
+  GameState copyWith({
+    GamePhase? phase,
+    Puzzle? puzzle,
+    Map<int, String>? solvedWords,
+    List<PoolTile>? tiles,
+    Map<int, SlotResult>? slotResults,
+    int? hintsUsedThisLevel,
+    int? attemptsThisLevel,
+    FeedbackMessage? feedbackMessage,
+    bool clearFeedbackMessage = false,
+    DateTime? levelStartTime,
+    int? coinBalance,
+  }) {
+    return GameState(
+      phase: phase ?? this.phase,
+      puzzle: puzzle ?? this.puzzle,
+      solvedWords: solvedWords ?? this.solvedWords,
+      tiles: tiles ?? this.tiles,
+      slotResults: slotResults ?? this.slotResults,
+      hintsUsedThisLevel: hintsUsedThisLevel ?? this.hintsUsedThisLevel,
+      attemptsThisLevel: attemptsThisLevel ?? this.attemptsThisLevel,
+      feedbackMessage: clearFeedbackMessage
+          ? null
+          : (feedbackMessage ?? this.feedbackMessage),
+      levelStartTime: levelStartTime ?? this.levelStartTime,
+      coinBalance: coinBalance ?? this.coinBalance,
+    );
   }
 }

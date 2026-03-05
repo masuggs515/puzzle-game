@@ -18,7 +18,10 @@
           "constraint_tier": 1,
           "constraint_display": "A type of animal",
           "required_length": 4,
-          "constraint_params": null
+          "constraint_params": null,
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
         },
         {
           "id": 1,
@@ -26,7 +29,10 @@
           "constraint_tier": 1,
           "constraint_display": "A color",
           "required_length": 4,
-          "constraint_params": null
+          "constraint_params": null,
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
         }
       ],
       "intersections": [
