@@ -6,6 +6,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle_game/features/game/models/game_state.dart';
 import 'package:puzzle_game/features/game/models/level_complete_args.dart';
+import 'package:puzzle_game/features/game/providers/game_provider.dart';
 import 'package:puzzle_game/puzzle_engine/constraints/constraint.dart';
 import 'package:puzzle_game/puzzle_engine/models/constraint_assignment.dart';
 import 'package:puzzle_game/puzzle_engine/models/puzzle.dart';
@@ -527,7 +528,7 @@ void main() {
       expect(args.achievementsUnlocked, isEmpty);
     });
 
-    test('explicit non-default values are stored correctly', () {
+    test('explicit non-default values stored correctly', () {
       const args = LevelCompleteArgs(
         levelNumber: 10,
         stars: 1,
@@ -541,6 +542,106 @@ void main() {
       expect(args.coinsEarned, 20);
       expect(args.wasSkipped, isTrue);
       expect(args.achievementsUnlocked, ['first_level', 'speed_run']);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Regression test: tile pool must contain one tile per grid cell, not one
+  // per unique letter. Level 1 (BEAR × BLUE, sharing B at pos 0) needs 7
+  // tiles — not 6 — because E appears in both words at different positions.
+  // -------------------------------------------------------------------------
+  group('GameNotifier tile generation', () {
+    Puzzle _level1Like() => Puzzle(
+          seed: 'hc_001',
+          levelNumber: 1,
+          levelType: LevelType.sprint,
+          isBoss: false,
+          wordSlots: [
+            WordSlot(
+              id: 0,
+              constraint: _mockAssignment(),
+              requiredLength: 4,
+              assignedWord: 'bear',
+              gridRow: 0,
+              gridCol: 0,
+              isHorizontal: true,
+            ),
+            WordSlot(
+              id: 1,
+              constraint: _mockAssignment(),
+              requiredLength: 4,
+              assignedWord: 'blue',
+              gridRow: 0,
+              gridCol: 0,
+              isHorizontal: false,
+            ),
+          ],
+          intersections: const [
+            Intersection(
+              slotAId: 0,
+              slotBId: 1,
+              positionInA: 0,
+              positionInB: 0,
+            ),
+          ],
+          // letterPool kept for fallback; primary source is assignedWord
+          letterPool: const ['b', 'e', 'a', 'r', 'l', 'u', 'e'],
+          constraintTiers: const [1],
+          metadata: const {},
+        );
+
+    GameNotifier _makeNotifier(Puzzle puzzle) => GameNotifier(
+          puzzle: puzzle,
+          wordValidator: (_) async => true,
+        );
+
+    test('Level 1 produces 7 tiles (4 + 4 words − 1 shared intersection)', () {
+      final notifier = _makeNotifier(_level1Like());
+      expect(notifier.currentState.tiles.length, 7);
+      notifier.dispose();
+    });
+
+    test('tile letters match both words minus the shared intersection letter', () {
+      final notifier = _makeNotifier(_level1Like());
+      final letters = notifier.currentState.tiles.map((t) => t.letter).toList()
+        ..sort();
+      // BEAR(b,e,a,r) + BLUE(b,l,u,e) − shared B = a,b,e,e,l,r,u
+      expect(letters, ['a', 'b', 'e', 'e', 'l', 'r', 'u']);
+      notifier.dispose();
+    });
+
+    test('all tiles start in the pool (placedAt is null)', () {
+      final notifier = _makeNotifier(_level1Like());
+      expect(notifier.currentState.tiles.every((t) => t.isInPool), isTrue);
+      notifier.dispose();
+    });
+
+    test('tile ids are unique', () {
+      final notifier = _makeNotifier(_level1Like());
+      final ids = notifier.currentState.tiles.map((t) => t.id).toSet();
+      expect(ids.length, notifier.currentState.tiles.length);
+      notifier.dispose();
+    });
+
+    test('falls back to letterPool when assignedWord is missing', () {
+      // A puzzle with no assignedWord should fall back to letterPool (6 items).
+      final puzzle = Puzzle(
+        seed: 'fallback-seed',
+        levelNumber: 99,
+        levelType: LevelType.sprint,
+        isBoss: false,
+        wordSlots: [
+          WordSlot(id: 0, constraint: _mockAssignment(), requiredLength: 3),
+          WordSlot(id: 1, constraint: _mockAssignment(), requiredLength: 3),
+        ],
+        intersections: const [],
+        letterPool: const ['x', 'y', 'z'],
+        constraintTiers: const [1],
+        metadata: const {},
+      );
+      final notifier = _makeNotifier(puzzle);
+      expect(notifier.currentState.tiles.length, 3);
+      notifier.dispose();
     });
   });
 }

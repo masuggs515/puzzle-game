@@ -19,6 +19,7 @@
           "constraint_display": "A type of animal",
           "required_length": 4,
           "constraint_params": null,
+          "assigned_word": "bear",
           "grid_row": 0,
           "grid_col": 0,
           "is_horizontal": true
@@ -30,6 +31,7 @@
           "constraint_display": "A color",
           "required_length": 4,
           "constraint_params": null,
+          "assigned_word": "blue",
           "grid_row": 0,
           "grid_col": 0,
           "is_horizontal": false
@@ -43,7 +45,7 @@
           "position_in_b": 0
         }
       ],
-      "letter_pool": ["a", "b", "e", "l", "r", "u"],
+      "letter_pool": ["b", "e", "a", "r", "l", "u", "e"],
       "metadata": {
         "solution": ["bear", "blue"],
         "hand_crafted": true,

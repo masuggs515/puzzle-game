@@ -6,6 +6,7 @@
 // No code generation — plain StateNotifier / FutureProvider.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle_game/core/constants/game_constants.dart';
@@ -43,7 +44,7 @@ class GameNotifier extends StateNotifier<GameState> {
           phase: GamePhase.idle,
           puzzle: puzzle,
           solvedWords: const {},
-          tiles: _buildTiles(puzzle.letterPool),
+          tiles: _buildTilesFromPuzzle(puzzle),
           slotResults: const {},
           hintsUsedThisLevel: 0,
           attemptsThisLevel: 0,
@@ -55,11 +56,62 @@ class GameNotifier extends StateNotifier<GameState> {
   final WordValidator _wordValidator;
   Timer? _feedbackTimer;
 
-  static List<PoolTile> _buildTiles(List<String> letterPool) {
-    return List.generate(
-      letterPool.length,
-      (i) => PoolTile(id: i, letter: letterPool[i]),
-    );
+  /// Derives one tile per grid cell from the puzzle's word slots and
+  /// intersections. Shared intersection cells contribute exactly one tile
+  /// regardless of how many words pass through them.
+  ///
+  /// Requires [WordSlot.assignedWord] to be set on all slots. Falls back to
+  /// [Puzzle.letterPool] (the pre-computed list) if any slot lacks a word —
+  /// this handles puzzles that haven't had assigned_word set in the JSON yet.
+  static List<PoolTile> _buildTilesFromPuzzle(Puzzle puzzle) {
+    final hasAllWords = puzzle.wordSlots.every((s) => s.assignedWord != null);
+    if (!hasAllWords) {
+      // Fallback: build directly from the pre-computed letter pool.
+      final letters = List<String>.from(puzzle.letterPool)
+        ..shuffle(Random(puzzle.seed.hashCode));
+      return List.generate(
+        letters.length,
+        (i) => PoolTile(id: i, letter: letters[i]),
+      );
+    }
+
+    int tileId = 0;
+    final tiles = <PoolTile>[];
+    // Track processed intersection cells by their canonical key (slotA:posA).
+    final intersectionsDone = <String>{};
+
+    for (final slot in puzzle.wordSlots) {
+      final word = slot.assignedWord!;
+      final length = slot.requiredLength ?? word.length;
+
+      for (int pos = 0; pos < length; pos++) {
+        // Find the intersection that involves this (slot.id, pos), if any.
+        Intersection? found;
+        for (final ix in puzzle.intersections) {
+          if ((ix.slotAId == slot.id && ix.positionInA == pos) ||
+              (ix.slotBId == slot.id && ix.positionInB == pos)) {
+            found = ix;
+            break;
+          }
+        }
+
+        if (found != null) {
+          // Always use the slot-A side as the canonical key so both words
+          // refer to the same tile for this shared cell.
+          final key = '${found.slotAId}:${found.positionInA}';
+          if (intersectionsDone.contains(key)) continue;
+          intersectionsDone.add(key);
+        }
+
+        final letter = pos < word.length ? word[pos] : '?';
+        tiles.add(PoolTile(id: tileId++, letter: letter));
+      }
+    }
+
+    // Shuffle with a reproducible seed so the pool order doesn't reveal
+    // the solution but is consistent for the same puzzle across sessions.
+    tiles.shuffle(Random(puzzle.seed.hashCode));
+    return tiles;
   }
 
   @override
