@@ -1,7 +1,7 @@
 # Project State
-Last updated: 2026-03-04
+Last updated: 2026-03-10
 Current phase: 4 — Core Game
-Current task branch: task/phase4-core-game
+Current task branch: task/phase4-tile-placement
 
 ---
 
@@ -10,7 +10,7 @@ Current task branch: task/phase4-core-game
 - [ ] Phase 1 — Project Setup (in progress — Phase 2 started per Adam's instruction)
 - [ ] Phase 2 — Foundation (code merged; end-to-end verification requires device)
 - [ ] Phase 3 — Puzzle Engine (PR #12 merged; levels_001_200.json and Supabase seeding still blocked — see TODO MAS)
-- [ ] Phase 4 — Core Game (in progress — PR open, awaiting Adam)
+- [ ] Phase 4 — Core Game (in progress — PR #15 open, awaiting Level 1 playtesting)
 - [ ] Phase 5 — Economy & Progression
 - [ ] Phase 6 — Analytics
 - [ ] Phase 7 — The Vault
@@ -44,7 +44,7 @@ Current task branch: task/phase4-core-game
 
 ## Open PRs
 
-- **PR #13** — "feat: Phase 4 — core game mechanic, Flame drag, feedback states, level complete" — awaiting Adam review and merge
+- **PR #15** — "feat: Phase 4 — tile-placement mechanic, crossword grid, drag-and-drop" — targeting dev — DO NOT MERGE YET (Level 1 playtesting required first)
 
 ---
 
@@ -67,14 +67,15 @@ Current task branch: task/phase4-core-game
 
 - [ ] **Hint cost (5 or 10 coins)** — GameConstants.hintCost set to 5 (spec default). GDD says 5–10 TBD. Confirm via Phase 4 playtesting. — raised 2026-03-04
 
-- [ ] **Phase 4 playtesting (all 50 levels)** — Manual step: play every level, record findings. Required for Phase 4 DoD. Do on physical device after PR #13 merges. — raised 2026-03-04
+- [ ] **Phase 4 playtesting (all 50 levels)** — Manual step: play every level, record findings. Required for Phase 4 DoD. Do on physical device after PR #15 merges. — raised 2026-03-04
 
 - [ ] **Sign in with Apple** — Phase 8/9. — raised 2026-03-01
 - [ ] **Sign in with Google** — Phase 8/9. — raised 2026-03-01
 - [ ] **App name / codename** — Before Phase 8/10. — raised 2026-03-01
 - [ ] **iOS build verification** — Requires Mac. — raised 2026-03-01
 
-- [ ] **Merge PR #13** — Phase 4 core game — awaiting Adam
+- [ ] **Level 1 playtesting** — Test PR #15 on physical device: grid layout, drag feel, tile displacement, intersection cell visual, submit feedback. Required before merging. — raised 2026-03-05
+- [ ] **Merge PR #15** — Phase 4 tile-placement — after Level 1 playtesting confirmed — raised 2026-03-05
 
 ---
 
@@ -146,4 +147,5 @@ Current task branch: task/phase4-core-game
 | 2026-03-02 | Fix CRLF line endings | task/fix-script-line-endings | PR #5 merged |
 | 2026-03-02 | All PRs merged (#1, #3, #4, #5) | dev | dev branch up to date |
 | 2026-03-03 | Phase 3 puzzle engine — full engine, 50 levels, debug screen | task/phase3-puzzle-engine | PR #12 merged. 100/100 tests. |
-| 2026-03-04 | Phase 4 core game — Flame drag, game state, feedback, level complete | task/phase4-core-game | PR #13 open. 128/128 tests. |
+| 2026-03-04 | Phase 4 core game — Flame drag, game state, feedback, level complete | task/phase4-core-game | PR #14 merged. 128/128 tests. |
+| 2026-03-05 | Phase 4 tile-placement redesign — crossword grid, drag-and-drop, tile pool fix | task/phase4-tile-placement | PR #15 open. 153/153 tests. |

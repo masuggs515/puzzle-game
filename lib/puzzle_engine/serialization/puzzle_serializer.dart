@@ -36,6 +36,9 @@ class PuzzleSerializer {
             'constraint_display': slot.constraint.displayText,
             'required_length': slot.requiredLength,
             'assigned_word': slot.assignedWord,
+            'grid_row': slot.gridRow,
+            'grid_col': slot.gridCol,
+            'is_horizontal': slot.isHorizontal,
           }).toList(),
       'intersections': puzzle.intersections.map((i) => {
             'slot_a': i.slotAId,
@@ -91,6 +94,9 @@ class PuzzleSerializer {
         ),
         requiredLength: map['required_length'] as int?,
         assignedWord: map['assigned_word'] as String?,
+        gridRow: (map['grid_row'] as int?) ?? 0,
+        gridCol: (map['grid_col'] as int?) ?? 0,
+        isHorizontal: (map['is_horizontal'] as bool?) ?? true,
       );
     }).toList();
 

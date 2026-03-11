@@ -6,12 +6,18 @@ class WordSlot {
   final int id;
   final ConstraintAssignment constraint;
   final int? requiredLength;
+  final int gridRow;       // starting row of this word in crossword grid
+  final int gridCol;       // starting column of this word in crossword grid
+  final bool isHorizontal; // true = horizontal, false = vertical
   String? assignedWord;
 
   WordSlot({
     required this.id,
     required this.constraint,
     this.requiredLength,
+    this.gridRow = 0,
+    this.gridCol = 0,
+    this.isHorizontal = true,
     this.assignedWord,
   });
 
@@ -19,6 +25,9 @@ class WordSlot {
     id: id,
     constraint: constraint,
     requiredLength: requiredLength,
+    gridRow: gridRow,
+    gridCol: gridCol,
+    isHorizontal: isHorizontal,
     assignedWord: assignedWord ?? this.assignedWord,
   );
 }

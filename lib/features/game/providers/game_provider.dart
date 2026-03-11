@@ -1,11 +1,12 @@
 // lib/features/game/providers/game_provider.dart
-// Phase 4 — Core Game
+// Phase 4 — Core Game (tile-placement redesign)
 // Spec: flutter-agent-spec.md § Game State Machine
 //
 // Async puzzle loader + synchronous game state notifier.
 // No code generation — plain StateNotifier / FutureProvider.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle_game/core/constants/game_constants.dart';
@@ -43,12 +44,10 @@ class GameNotifier extends StateNotifier<GameState> {
           phase: GamePhase.idle,
           puzzle: puzzle,
           solvedWords: const {},
-          currentPath: const [],
-          currentWord: '',
+          tiles: _buildTilesFromPuzzle(puzzle),
+          slotResults: const {},
           hintsUsedThisLevel: 0,
           attemptsThisLevel: 0,
-          activeHintSlotId: null,
-          hintedTileIndices: const {},
           feedbackMessage: null,
           levelStartTime: DateTime.now(),
           coinBalance: 0,
@@ -56,6 +55,64 @@ class GameNotifier extends StateNotifier<GameState> {
 
   final WordValidator _wordValidator;
   Timer? _feedbackTimer;
+
+  /// Derives one tile per grid cell from the puzzle's word slots and
+  /// intersections. Shared intersection cells contribute exactly one tile
+  /// regardless of how many words pass through them.
+  ///
+  /// Requires [WordSlot.assignedWord] to be set on all slots. Falls back to
+  /// [Puzzle.letterPool] (the pre-computed list) if any slot lacks a word —
+  /// this handles puzzles that haven't had assigned_word set in the JSON yet.
+  static List<PoolTile> _buildTilesFromPuzzle(Puzzle puzzle) {
+    final hasAllWords = puzzle.wordSlots.every((s) => s.assignedWord != null);
+    if (!hasAllWords) {
+      // Fallback: build directly from the pre-computed letter pool.
+      final letters = List<String>.from(puzzle.letterPool)
+        ..shuffle(Random(puzzle.seed.hashCode));
+      return List.generate(
+        letters.length,
+        (i) => PoolTile(id: i, letter: letters[i]),
+      );
+    }
+
+    int tileId = 0;
+    final tiles = <PoolTile>[];
+    // Track processed intersection cells by their canonical key (slotA:posA).
+    final intersectionsDone = <String>{};
+
+    for (final slot in puzzle.wordSlots) {
+      final word = slot.assignedWord!;
+      final length = slot.requiredLength ?? word.length;
+
+      for (int pos = 0; pos < length; pos++) {
+        // Find the intersection that involves this (slot.id, pos), if any.
+        Intersection? found;
+        for (final ix in puzzle.intersections) {
+          if ((ix.slotAId == slot.id && ix.positionInA == pos) ||
+              (ix.slotBId == slot.id && ix.positionInB == pos)) {
+            found = ix;
+            break;
+          }
+        }
+
+        if (found != null) {
+          // Always use the slot-A side as the canonical key so both words
+          // refer to the same tile for this shared cell.
+          final key = '${found.slotAId}:${found.positionInA}';
+          if (intersectionsDone.contains(key)) continue;
+          intersectionsDone.add(key);
+        }
+
+        final letter = pos < word.length ? word[pos] : '?';
+        tiles.add(PoolTile(id: tileId++, letter: letter));
+      }
+    }
+
+    // Shuffle with a reproducible seed so the pool order doesn't reveal
+    // the solution but is consistent for the same puzzle across sessions.
+    tiles.shuffle(Random(puzzle.seed.hashCode));
+    return tiles;
+  }
 
   @override
   void dispose() {
@@ -68,223 +125,144 @@ class GameNotifier extends StateNotifier<GameState> {
   GameState get currentState => state;
 
   // -------------------------------------------------------------------------
-  // Drag mechanic
+  // Tile placement
   // -------------------------------------------------------------------------
 
-  void onTileDragStart(int tileIndex) {
-    final letters = state.puzzle.letterPool;
-    final letter = tileIndex < letters.length ? letters[tileIndex] : '';
-    state = state.copyWith(
-      phase: GamePhase.dragging,
-      currentPath: [tileIndex],
-      currentWord: letter,
-    );
-  }
+  /// Place [tileId] into [targetCell]. If the cell is already occupied by a
+  /// different tile, that tile is displaced back to the pool.
+  void placeTile(int tileId, CellKey targetCell) {
+    final tiles = List<PoolTile>.from(state.tiles);
 
-  void onTileDragEnter(int tileIndex) {
-    if (state.phase != GamePhase.dragging) return;
-    // No revisiting tiles already in the path
-    if (state.currentPath.contains(tileIndex)) return;
-
-    final newPath = List<int>.from(state.currentPath)..add(tileIndex);
-    final letters = state.puzzle.letterPool;
-    final newWord = newPath
-        .map((i) => i < letters.length ? letters[i] : '')
-        .join();
-    state = state.copyWith(
-      currentPath: newPath,
-      currentWord: newWord,
-    );
-  }
-
-  void onTileDragEnd() {
-    // Path stays visible — player submits or clears manually
-    if (state.phase == GamePhase.dragging) {
-      state = state.copyWith(phase: GamePhase.idle);
+    // Displace any tile already occupying the target cell
+    for (int i = 0; i < tiles.length; i++) {
+      if (tiles[i].id != tileId && tiles[i].placedAt == targetCell) {
+        tiles[i] = tiles[i].returnToPool();
+        break;
+      }
     }
+
+    // Place the moving tile at the target cell
+    final movingIdx = tiles.indexWhere((t) => t.id == tileId);
+    if (movingIdx == -1) return;
+    tiles[movingIdx] = tiles[movingIdx].withPlacement(targetCell);
+
+    state = state.copyWith(tiles: tiles, slotResults: const {});
   }
 
-  void onPathCleared() {
+  /// Return [tileId] to the pool.
+  void returnTile(int tileId) {
+    final tiles = List<PoolTile>.from(state.tiles);
+    final idx = tiles.indexWhere((t) => t.id == tileId);
+    if (idx == -1) return;
+    tiles[idx] = tiles[idx].returnToPool();
+    state = state.copyWith(tiles: tiles, slotResults: const {});
+  }
+
+  /// Return all tiles to the pool.
+  void clearAll() {
     state = state.copyWith(
-      phase: GamePhase.idle,
-      currentPath: const [],
-      currentWord: '',
+      tiles: state.tiles.map((t) => t.returnToPool()).toList(),
+      slotResults: const {},
     );
   }
 
   // -------------------------------------------------------------------------
-  // Submission
+  // Submission — order-agnostic validation
+  //
+  // Validation is holistic across all placed words:
+  //   1. All slots must be filled.
+  //   2. Every placed word must be in the dictionary.
+  //   3. Every placed word must satisfy at least one of the puzzle's constraints.
+  //   4. Every constraint must be satisfied by at least one placed word.
+  // Intersection consistency is guaranteed by the tile-placement model
+  // (one tile per cell, so shared letters are always the same).
   // -------------------------------------------------------------------------
 
-  Future<void> onSubmit(int targetSlotId) async {
-    final word = state.currentWord;
-    if (word.length < GameConstants.minWordLength) return;
-
-    // Don't submit during active feedback phases
-    if (state.phase == GamePhase.feedbackWrongWord ||
-        state.phase == GamePhase.feedbackWrongConstraint ||
-        state.phase == GamePhase.feedbackCorrect) {
-      return;
-    }
+  Future<void> onSubmit() async {
+    if (state.phase == GamePhase.submitted) return;
 
     state = state.copyWith(
       phase: GamePhase.submitted,
       attemptsThisLevel: state.attemptsThisLevel + 1,
     );
 
-    // Step 1: Dictionary check
-    final isValidWord = await _wordValidator(word);
-    if (!mounted) return;
-    if (!isValidWord) {
-      _showFeedback(FeedbackType.wrongWord, 'Not a valid word');
+    final slots = state.puzzle.wordSlots;
+
+    // 1. Collect placed words — return to idle silently if any slot is empty.
+    final placed = <int, String>{}; // slotId → word
+    for (final slot in slots) {
+      final word = state.wordForSlot(slot);
+      if (word == null) {
+        state = state.copyWith(phase: GamePhase.idle, slotResults: const {});
+        return;
+      }
+      placed[slot.id] = word;
+    }
+
+    // 2. Dictionary check — every word must be a recognised word.
+    final dictFail = <int>{};
+    for (final slot in slots) {
+      final inDict = await _wordValidator(placed[slot.id]!);
+      if (!mounted) return;
+      if (!inDict) dictFail.add(slot.id);
+    }
+
+    if (dictFail.isNotEmpty) {
+      _showFeedback({
+        for (final slot in slots)
+          slot.id: dictFail.contains(slot.id)
+              ? SlotResult.wrongWord
+              : SlotResult.unvalidated,
+      });
       return;
     }
 
-    // Step 2: Find the target slot
-    final matchingSlots = state.puzzle.wordSlots
-        .where((s) => s.id == targetSlotId)
-        .toList();
-    if (matchingSlots.isEmpty) {
-      _showFeedback(FeedbackType.wrongWord, 'Invalid slot');
-      return;
-    }
-    final slot = matchingSlots.first;
+    // 3 & 4. Order-agnostic constraint check.
+    final words = placed.values.toList();
+    final constraints = slots.map((s) => s.constraint).toList();
 
-    // Step 3: Constraint check (real word that fails the slot's constraint)
-    final passesConstraint = slot.constraint.validator.validate(word);
-    if (!passesConstraint) {
-      _showFeedback(
-        FeedbackType.wrongConstraint,
-        'Wrong — ${slot.constraint.displayText}',
-        constraintText: slot.constraint.displayText,
-      );
-      return;
-    }
-
-    // Step 4: Required-length check (constraint-class violation)
-    final requiredLength = slot.requiredLength;
-    if (requiredLength != null && word.length != requiredLength) {
-      _showFeedback(
-        FeedbackType.wrongConstraint,
-        'Word must be $requiredLength letters',
-      );
-      return;
-    }
-
-    // Step 5: Intersection consistency (valid word, wrong crossing letter)
-    if (!_validateIntersections(word, targetSlotId)) {
-      _showFeedback(
-        FeedbackType.wrongConstraint,
-        "Letters don't match the crossing word",
-      );
-      return;
-    }
-
-    // Correct!
-    final newSolved = Map<int, String>.from(state.solvedWords)
-      ..[targetSlotId] = word;
-    state = state.copyWith(
-      phase: GamePhase.feedbackCorrect,
-      solvedWords: newSolved,
-      currentPath: const [],
-      currentWord: '',
-      feedbackMessage: const FeedbackMessage(
-        type: FeedbackType.correct,
-        message: 'Correct!',
-      ),
+    final allWordsSatisfySome = words.every(
+      (w) => constraints.any((c) => c.validator.validate(w)),
+    );
+    final allConstraintsCovered = constraints.every(
+      (c) => words.any((w) => c.validator.validate(w)),
     );
 
+    if (!allWordsSatisfySome || !allConstraintsCovered) {
+      // Mark slots whose word satisfies no constraint; if every word is
+      // individually fine but the combination doesn't cover all constraints,
+      // mark all slots to signal the mismatch.
+      final perSlot = {
+        for (final slot in slots)
+          slot.id: constraints.any(
+                  (c) => c.validator.validate(placed[slot.id]!))
+              ? SlotResult.unvalidated
+              : SlotResult.wrongConstraint,
+      };
+      final results = allWordsSatisfySome
+          ? {for (final slot in slots) slot.id: SlotResult.wrongConstraint}
+          : perSlot;
+      _showFeedback(results);
+      return;
+    }
+
+    // All checks passed — level complete.
+    state = state.copyWith(
+      phase: GamePhase.levelComplete,
+      solvedWords: placed,
+      slotResults: {for (final slot in slots) slot.id: SlotResult.correct},
+    );
+  }
+
+  void _showFeedback(Map<int, SlotResult> results) {
+    state = state.copyWith(phase: GamePhase.idle, slotResults: results);
     _feedbackTimer?.cancel();
     _feedbackTimer = Timer(
       const Duration(milliseconds: GameConstants.feedbackDurationMs),
       () {
         if (!mounted) return;
-        if (state.isComplete) {
-          state = state.copyWith(
-            phase: GamePhase.levelComplete,
-            clearFeedbackMessage: true,
-          );
-        } else {
-          state = state.copyWith(
-            phase: GamePhase.idle,
-            clearFeedbackMessage: true,
-          );
-        }
+        state = state.copyWith(slotResults: const {});
       },
     );
-  }
-
-  // -------------------------------------------------------------------------
-  // Feedback helpers
-  // -------------------------------------------------------------------------
-
-  void _showFeedback(
-    FeedbackType type,
-    String message, {
-    String? constraintText,
-  }) {
-    _feedbackTimer?.cancel();
-
-    final phase = type == FeedbackType.wrongWord
-        ? GamePhase.feedbackWrongWord
-        : GamePhase.feedbackWrongConstraint;
-
-    state = state.copyWith(
-      phase: phase,
-      currentPath: const [],
-      currentWord: '',
-      feedbackMessage: FeedbackMessage(
-        type: type,
-        message: message,
-        constraintText: constraintText,
-      ),
-    );
-
-    _feedbackTimer = Timer(
-      const Duration(milliseconds: GameConstants.feedbackDurationMs),
-      () {
-        if (!mounted) return;
-        state = state.copyWith(
-          phase: GamePhase.idle,
-          clearFeedbackMessage: true,
-        );
-      },
-    );
-  }
-
-  // -------------------------------------------------------------------------
-  // Intersection validation
-  // -------------------------------------------------------------------------
-
-  /// Validates that [word] placed in [slotId] is consistent with all
-  /// already-solved words at their shared intersection positions.
-  bool _validateIntersections(String word, int slotId) {
-    for (final intersection in state.puzzle.intersections) {
-      final int myPos;
-      final int otherSlotId;
-      final int otherPos;
-
-      if (intersection.slotAId == slotId) {
-        myPos = intersection.positionInA;
-        otherSlotId = intersection.slotBId;
-        otherPos = intersection.positionInB;
-      } else if (intersection.slotBId == slotId) {
-        myPos = intersection.positionInB;
-        otherSlotId = intersection.slotAId;
-        otherPos = intersection.positionInA;
-      } else {
-        continue;
-      }
-
-      final otherWord = state.solvedWords[otherSlotId];
-      if (otherWord == null) continue; // other slot not yet solved
-
-      if (myPos >= word.length || otherPos >= otherWord.length) return false;
-
-      if (word[myPos].toLowerCase() != otherWord[otherPos].toLowerCase()) {
-        return false;
-      }
-    }
-    return true;
   }
 }
