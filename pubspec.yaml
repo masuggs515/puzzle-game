@@ -59,3 +59,4 @@ flutter:
   assets:
     - assets/puzzles/
     - assets/word_lists/
+    - assets/word_lists/category_lists/
