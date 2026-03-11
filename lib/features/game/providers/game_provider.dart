@@ -208,12 +208,23 @@ class GameNotifier extends StateNotifier<GameState> {
     }
 
     if (dictFail.isNotEmpty) {
-      _showFeedback({
-        for (final slot in slots)
-          slot.id: dictFail.contains(slot.id)
-              ? SlotResult.wrongWord
-              : SlotResult.unvalidated,
-      });
+      final badWords = dictFail
+          .map((id) => placed[id]!.toUpperCase())
+          .join(', ');
+      final verb = dictFail.length == 1 ? "isn't" : "aren't";
+      _showFeedback(
+        results: {
+          for (final slot in slots)
+            slot.id: dictFail.contains(slot.id)
+                ? SlotResult.wrongWord
+                : SlotResult.unvalidated,
+        },
+        message: FeedbackMessage(
+          type: FeedbackType.wrongWord,
+          message: 'Not a valid word',
+          constraintText: '$badWords $verb in the dictionary',
+        ),
+      );
       return;
     }
 
@@ -228,21 +239,43 @@ class GameNotifier extends StateNotifier<GameState> {
       (c) => words.any((w) => c.validator.validate(w)),
     );
 
-    if (!allWordsSatisfySome || !allConstraintsCovered) {
-      // Mark slots whose word satisfies no constraint; if every word is
-      // individually fine but the combination doesn't cover all constraints,
-      // mark all slots to signal the mismatch.
-      final perSlot = {
-        for (final slot in slots)
-          slot.id: constraints.any(
-                  (c) => c.validator.validate(placed[slot.id]!))
-              ? SlotResult.unvalidated
-              : SlotResult.wrongConstraint,
-      };
-      final results = allWordsSatisfySome
-          ? {for (final slot in slots) slot.id: SlotResult.wrongConstraint}
-          : perSlot;
-      _showFeedback(results);
+    if (!allWordsSatisfySome) {
+      // Find which words fail every constraint.
+      final badWords = placed.entries
+          .where((e) => !constraints.any((c) => c.validator.validate(e.value)))
+          .map((e) => e.value.toUpperCase())
+          .join(', ');
+      _showFeedback(
+        results: {
+          for (final slot in slots)
+            slot.id: constraints.any(
+                    (c) => c.validator.validate(placed[slot.id]!))
+                ? SlotResult.unvalidated
+                : SlotResult.wrongConstraint,
+        },
+        message: FeedbackMessage(
+          type: FeedbackType.wrongConstraint,
+          message: 'Wrong',
+          constraintText: "$badWords doesn't fit any of the categories",
+        ),
+      );
+      return;
+    }
+
+    if (!allConstraintsCovered) {
+      // All words are individually valid but the set doesn't cover every constraint.
+      final uncovered = constraints
+          .where((c) => !words.any((w) => c.validator.validate(w)))
+          .map((c) => c.displayText)
+          .join(', ');
+      _showFeedback(
+        results: {for (final slot in slots) slot.id: SlotResult.wrongConstraint},
+        message: FeedbackMessage(
+          type: FeedbackType.wrongConstraint,
+          message: 'Wrong',
+          constraintText: 'No word satisfies: $uncovered',
+        ),
+      );
       return;
     }
 
@@ -254,14 +287,24 @@ class GameNotifier extends StateNotifier<GameState> {
     );
   }
 
-  void _showFeedback(Map<int, SlotResult> results) {
-    state = state.copyWith(phase: GamePhase.idle, slotResults: results);
+  void _showFeedback({
+    required Map<int, SlotResult> results,
+    required FeedbackMessage message,
+  }) {
+    state = state.copyWith(
+      phase: GamePhase.idle,
+      slotResults: results,
+      feedbackMessage: message,
+    );
     _feedbackTimer?.cancel();
     _feedbackTimer = Timer(
       const Duration(milliseconds: GameConstants.feedbackDurationMs),
       () {
         if (!mounted) return;
-        state = state.copyWith(slotResults: const {});
+        state = state.copyWith(
+          slotResults: const {},
+          clearFeedbackMessage: true,
+        );
       },
     );
   }

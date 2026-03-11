@@ -13,6 +13,7 @@ import 'package:puzzle_game/core/theme/app_colors.dart';
 import 'package:puzzle_game/features/game/models/game_state.dart';
 import 'package:puzzle_game/features/game/models/level_complete_args.dart';
 import 'package:puzzle_game/features/game/providers/game_provider.dart';
+import 'package:puzzle_game/features/game/providers/category_lists_provider.dart';
 import 'package:puzzle_game/features/game/providers/valid_words_provider.dart';
 import 'package:puzzle_game/features/game/widgets/crossword_grid_widget.dart';
 import 'package:puzzle_game/features/game/widgets/letter_pool_widget.dart';
@@ -66,6 +67,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   @override
   Widget build(BuildContext context) {
     final puzzleAsync = ref.watch(gamePuzzleProvider(widget.levelNumber));
+    // categoryListsProvider preloads CategoryListLoader so constraint
+    // validation works. Both must be ready before showing the game.
+    final categoriesAsync = ref.watch(categoryListsProvider);
 
     return PopScope(
       canPop: false,
@@ -77,7 +81,16 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       child: Scaffold(
         backgroundColor: AppColors.background,
         body: puzzleAsync.when(
-          data: (puzzle) => _buildGameBody(context, puzzle),
+          data: (puzzle) => categoriesAsync.when(
+            data: (_) => _buildGameBody(context, puzzle),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Center(
+              child: Text(
+                'Error loading word lists: $e',
+                style: const TextStyle(color: AppColors.textPrimary),
+              ),
+            ),
+          ),
           loading: () => const Center(
             child: CircularProgressIndicator(),
           ),
