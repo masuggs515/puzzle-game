@@ -313,6 +313,66 @@ void main() {
       // letterPool is ['a','b','c','d','e','f'], tiles 0,1,2 are a,b,c
       expect(s.wordForSlot(slot), 'abc');
     });
+
+    // Regression: intersection cells are stored under slot A's CellKey.
+    // wordForSlot(slotB) must find the tile via the intersection definition.
+    test('intersection cell — tile stored under slot-A key is found by slot B', () {
+      // Slot 0: BEAR horizontal (0,0) — 4 letters
+      // Slot 1: BLUE vertical   (0,0) — 4 letters
+      // Intersection: slot 0 pos 0 ↔ slot 1 pos 0 (both share the 'B')
+      final puzzle = Puzzle(
+        seed: 'ix-test',
+        levelNumber: 1,
+        levelType: LevelType.sprint,
+        isBoss: false,
+        wordSlots: [
+          WordSlot(
+            id: 0, constraint: _mockAssignment(), requiredLength: 4,
+            gridRow: 0, gridCol: 0, isHorizontal: true,
+          ),
+          WordSlot(
+            id: 1, constraint: _mockAssignment(), requiredLength: 4,
+            gridRow: 0, gridCol: 0, isHorizontal: false,
+          ),
+        ],
+        intersections: const [
+          Intersection(slotAId: 0, slotBId: 1, positionInA: 0, positionInB: 0),
+        ],
+        letterPool: const [],
+        constraintTiers: const [1],
+        metadata: const {},
+      );
+
+      // The grid drops the 'B' tile using the primary (slot 0) CellKey.
+      // Slot 1's remaining letters are placed under slot 1 CellKeys.
+      final tiles = [
+        PoolTile(id: 0, letter: 'b', placedAt: const CellKey(slotId: 0, positionInSlot: 0)),
+        PoolTile(id: 1, letter: 'e', placedAt: const CellKey(slotId: 0, positionInSlot: 1)),
+        PoolTile(id: 2, letter: 'a', placedAt: const CellKey(slotId: 0, positionInSlot: 2)),
+        PoolTile(id: 3, letter: 'r', placedAt: const CellKey(slotId: 0, positionInSlot: 3)),
+        // Slot 1 positions 1,2,3 (pos 0 shared with slot 0)
+        PoolTile(id: 4, letter: 'l', placedAt: const CellKey(slotId: 1, positionInSlot: 1)),
+        PoolTile(id: 5, letter: 'u', placedAt: const CellKey(slotId: 1, positionInSlot: 2)),
+        PoolTile(id: 6, letter: 'e', placedAt: const CellKey(slotId: 1, positionInSlot: 3)),
+      ];
+
+      final state = GameState(
+        phase: GamePhase.idle,
+        puzzle: puzzle,
+        solvedWords: const {},
+        tiles: tiles,
+        slotResults: const {},
+        hintsUsedThisLevel: 0,
+        attemptsThisLevel: 0,
+        feedbackMessage: null,
+        levelStartTime: DateTime(2026, 1, 1),
+        coinBalance: 0,
+      );
+
+      expect(state.wordForSlot(puzzle.wordSlots[0]), 'bear');
+      // Key assertion: slot 1 reads 'b' from slot-0's CellKey via intersection.
+      expect(state.wordForSlot(puzzle.wordSlots[1]), 'blue');
+    });
   });
 
   // -------------------------------------------------------------------------

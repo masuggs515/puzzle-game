@@ -106,12 +106,34 @@ class GameState {
   }
 
   /// Returns the word assembled for [slot], or null if any cell is empty.
+  ///
+  /// Intersection cells are stored under whichever slot's key the grid used
+  /// as the drop target (always slot A's key). If a direct lookup misses, we
+  /// consult [puzzle.intersections] to find the alternate CellKey and retry.
   String? wordForSlot(WordSlot slot) {
     final length = slot.requiredLength;
     if (length == null) return null;
     final buf = StringBuffer();
     for (int i = 0; i < length; i++) {
-      final tile = tileAt(CellKey(slotId: slot.id, positionInSlot: i));
+      PoolTile? tile = tileAt(CellKey(slotId: slot.id, positionInSlot: i));
+
+      // If not found, check whether this position is an intersection cell and
+      // the tile was stored under the other slot's CellKey.
+      if (tile == null) {
+        for (final ix in puzzle.intersections) {
+          CellKey? altKey;
+          if (ix.slotAId == slot.id && ix.positionInA == i) {
+            altKey = CellKey(slotId: ix.slotBId, positionInSlot: ix.positionInB);
+          } else if (ix.slotBId == slot.id && ix.positionInB == i) {
+            altKey = CellKey(slotId: ix.slotAId, positionInSlot: ix.positionInA);
+          }
+          if (altKey != null) {
+            tile = tileAt(altKey);
+            break;
+          }
+        }
+      }
+
       if (tile == null) return null;
       buf.write(tile.letter);
     }
