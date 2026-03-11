@@ -128,23 +128,35 @@ class GameNotifier extends StateNotifier<GameState> {
   // Tile placement
   // -------------------------------------------------------------------------
 
-  /// Place [tileId] into [targetCell]. If the cell is already occupied by a
-  /// different tile, that tile is displaced back to the pool.
+  /// Place [tileId] into [targetCell].
+  ///
+  /// - Grid → occupied grid: swap the two tiles (both stay on the grid).
+  /// - Pool → occupied grid: displaced tile returns to the pool.
+  /// - Any → empty grid: place normally.
   void placeTile(int tileId, CellKey targetCell) {
     final tiles = List<PoolTile>.from(state.tiles);
 
-    // Displace any tile already occupying the target cell
-    for (int i = 0; i < tiles.length; i++) {
-      if (tiles[i].id != tileId && tiles[i].placedAt == targetCell) {
-        tiles[i] = tiles[i].returnToPool();
-        break;
+    final movingIdx = tiles.indexWhere((t) => t.id == tileId);
+    if (movingIdx == -1) return;
+
+    final movingTile = tiles[movingIdx];
+    final movingFrom = movingTile.placedAt; // null if coming from pool
+
+    // Find any tile already at the target cell.
+    final occupantIdx =
+        tiles.indexWhere((t) => t.id != tileId && t.placedAt == targetCell);
+
+    if (occupantIdx != -1) {
+      if (movingFrom != null) {
+        // Grid → occupied grid: swap.
+        tiles[occupantIdx] = tiles[occupantIdx].withPlacement(movingFrom);
+      } else {
+        // Pool → occupied grid: displaced tile returns to pool.
+        tiles[occupantIdx] = tiles[occupantIdx].returnToPool();
       }
     }
 
-    // Place the moving tile at the target cell
-    final movingIdx = tiles.indexWhere((t) => t.id == tileId);
-    if (movingIdx == -1) return;
-    tiles[movingIdx] = tiles[movingIdx].withPlacement(targetCell);
+    tiles[movingIdx] = movingTile.withPlacement(targetCell);
 
     state = state.copyWith(tiles: tiles, slotResults: const {});
   }
