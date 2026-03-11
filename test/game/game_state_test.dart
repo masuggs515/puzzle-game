@@ -644,4 +644,316 @@ void main() {
       notifier.dispose();
     });
   });
+
+  // -------------------------------------------------------------------------
+  // Order-agnostic validation (onSubmit)
+  //
+  // Puzzles are solved holistically: every word must satisfy at least one
+  // constraint AND every constraint must be satisfied by at least one word.
+  // Which word goes in which slot direction does not matter.
+  // -------------------------------------------------------------------------
+
+  group('GameNotifier onSubmit — order-agnostic validation', () {
+    // Two constraints: one that accepts only 'bear'/'bird' (animals),
+    // one that accepts only 'blue'/'red' (colors).
+    late ConstraintAssignment animalConstraint;
+    late ConstraintAssignment colorConstraint;
+
+    setUp(() {
+      animalConstraint = ConstraintAssignment(
+        tier: 1,
+        constraintId: 'animal',
+        displayText: 'A type of animal',
+        validator: _PredicateConstraint((w) => {'bear', 'bird', 'cat'}.contains(w)),
+      );
+      colorConstraint = ConstraintAssignment(
+        tier: 1,
+        constraintId: 'color',
+        displayText: 'A color',
+        validator: _PredicateConstraint((w) => {'blue', 'red', 'green'}.contains(w)),
+      );
+    });
+
+    /// Build a 2-slot puzzle where slot 0 has [c0] and slot 1 has [c1].
+    /// Tiles are pre-placed so wordForSlot returns [word0] for slot 0 and
+    /// [word1] for slot 1.
+    GameNotifier _make2SlotNotifier({
+      required String word0,
+      required String word1,
+      required ConstraintAssignment c0,
+      required ConstraintAssignment c1,
+      bool allInDict = true,
+    }) {
+      final slots = [
+        WordSlot(
+          id: 0,
+          constraint: c0,
+          requiredLength: word0.length,
+          gridRow: 0,
+          gridCol: 0,
+          isHorizontal: true,
+        ),
+        WordSlot(
+          id: 1,
+          constraint: c1,
+          requiredLength: word1.length,
+          gridRow: 1,
+          gridCol: 0,
+          isHorizontal: true,
+        ),
+      ];
+      final puzzle = Puzzle(
+        seed: 'test',
+        levelNumber: 1,
+        levelType: LevelType.sprint,
+        isBoss: false,
+        wordSlots: slots,
+        intersections: const [],
+        letterPool: const [],
+        constraintTiers: const [1],
+        metadata: const {},
+      );
+
+      // Pre-place tiles so wordForSlot returns the desired words.
+      int tileId = 0;
+      final tiles = <PoolTile>[];
+      for (int i = 0; i < word0.length; i++) {
+        tiles.add(PoolTile(
+          id: tileId++,
+          letter: word0[i],
+          placedAt: CellKey(slotId: 0, positionInSlot: i),
+        ));
+      }
+      for (int i = 0; i < word1.length; i++) {
+        tiles.add(PoolTile(
+          id: tileId++,
+          letter: word1[i],
+          placedAt: CellKey(slotId: 1, positionInSlot: i),
+        ));
+      }
+
+      // Manually create notifier and patch its state with pre-placed tiles.
+      final notifier = GameNotifier(
+        puzzle: puzzle,
+        wordValidator: (w) async => allInDict,
+      );
+      // Replace tile list — placeTile won't work here since tile ids differ.
+      // We access state via a listener-based setter workaround by rebuilding.
+      // Instead, create a separate GameState with the tiles already placed.
+      // Since GameNotifier.state is protected, we use the placeTile API:
+      // clear generated tiles and re-place with our words.
+
+      // The notifier starts with generated tiles (empty since letterPool=[]).
+      // We add our manually-placed tiles by building a fresh state.
+      // Use the internal addListener trick to capture and then force state.
+      // Simplest: build the notifier with no tiles then call placeTile
+      // via the public API for each character position.
+      //
+      // Since tiles are pre-placed above and the notifier was built with
+      // letterPool=[], its internal tile list is empty. We need a different
+      // approach: expose the tiles via a test helper or use the public API.
+      //
+      // Approach: build tiles using the notifier's own placeTile once we
+      // add tiles to the pool via a custom subclass. Instead, simplest: use
+      // a subclass that accepts an initial tile list.
+      notifier.dispose();
+
+      return _GameNotifierWithTiles(
+        puzzle: puzzle,
+        tiles: tiles,
+        wordValidator: (w) async => allInDict,
+      );
+    }
+
+    test('BEAR+BLUE — correct order — solves the puzzle', () async {
+      final n = _make2SlotNotifier(
+        word0: 'bear',
+        word1: 'blue',
+        c0: animalConstraint,
+        c1: colorConstraint,
+      );
+      await n.onSubmit();
+      expect(n.currentState.phase, GamePhase.levelComplete);
+      expect(n.currentState.slotResults[0], SlotResult.correct);
+      expect(n.currentState.slotResults[1], SlotResult.correct);
+      n.dispose();
+    });
+
+    test('BLUE+BEAR — reversed order — also solves the puzzle', () async {
+      // slot 0 has color constraint, slot 1 has animal constraint,
+      // but BLUE satisfies color and BEAR satisfies animal → valid regardless.
+      final n = _make2SlotNotifier(
+        word0: 'blue',   // in the "animal" slot
+        word1: 'bear',   // in the "color" slot
+        c0: animalConstraint,
+        c1: colorConstraint,
+      );
+      await n.onSubmit();
+      expect(n.currentState.phase, GamePhase.levelComplete,
+          reason: 'Reversed arrangement should still be valid');
+      n.dispose();
+    });
+
+    test('BIRD+RED — different valid words — also solves the puzzle', () async {
+      final n = _make2SlotNotifier(
+        word0: 'bird',
+        word1: 'red',
+        c0: animalConstraint,
+        c1: colorConstraint,
+      );
+      await n.onSubmit();
+      expect(n.currentState.phase, GamePhase.levelComplete);
+      n.dispose();
+    });
+
+    test('not-in-dict word → wrongWord feedback', () async {
+      final n = _GameNotifierWithTiles(
+        puzzle: Puzzle(
+          seed: 'test',
+          levelNumber: 1,
+          levelType: LevelType.sprint,
+          isBoss: false,
+          wordSlots: [
+            WordSlot(
+              id: 0, constraint: animalConstraint, requiredLength: 4,
+              gridRow: 0, gridCol: 0, isHorizontal: true,
+            ),
+            WordSlot(
+              id: 1, constraint: colorConstraint, requiredLength: 4,
+              gridRow: 1, gridCol: 0, isHorizontal: true,
+            ),
+          ],
+          intersections: const [],
+          letterPool: const [],
+          constraintTiers: const [1],
+          metadata: const {},
+        ),
+        tiles: [
+          ...List.generate(4, (i) => PoolTile(
+            id: i, letter: 'xyzw'[i],
+            placedAt: CellKey(slotId: 0, positionInSlot: i),
+          )),
+          ...List.generate(4, (i) => PoolTile(
+            id: 4 + i, letter: 'blue'[i],
+            placedAt: CellKey(slotId: 1, positionInSlot: i),
+          )),
+        ],
+        wordValidator: (w) async => w == 'blue', // 'xyzw' not in dict
+      );
+      await n.onSubmit();
+      expect(n.currentState.phase, GamePhase.idle);
+      expect(n.currentState.slotResults[0], SlotResult.wrongWord);
+      expect(n.currentState.slotResults[1], SlotResult.unvalidated);
+      n.dispose();
+    });
+
+    test('word satisfies no constraint → wrongConstraint feedback', () async {
+      // 'rock' is in the dict but satisfies neither animal nor color.
+      final n = _make2SlotNotifier(
+        word0: 'bear',
+        word1: 'rock', // valid word, wrong type
+        c0: animalConstraint,
+        c1: colorConstraint,
+        allInDict: true,
+      );
+      await n.onSubmit();
+      expect(n.currentState.phase, GamePhase.idle);
+      expect(n.currentState.slotResults[1], SlotResult.wrongConstraint,
+          reason: "'rock' satisfies no constraint");
+      n.dispose();
+    });
+
+    test('two color words — constraint not fully covered → wrongConstraint', () async {
+      // Both words satisfy the color constraint, but animal constraint uncovered.
+      final n = _make2SlotNotifier(
+        word0: 'blue',
+        word1: 'red',
+        c0: animalConstraint,
+        c1: colorConstraint,
+        allInDict: true,
+      );
+      await n.onSubmit();
+      expect(n.currentState.phase, GamePhase.idle);
+      // All slots marked wrongConstraint when combination fails coverage.
+      expect(n.currentState.slotResults[0], SlotResult.wrongConstraint);
+      expect(n.currentState.slotResults[1], SlotResult.wrongConstraint);
+      n.dispose();
+    });
+
+    test('unfilled slot → returns to idle with no feedback', () async {
+      final puzzle = Puzzle(
+        seed: 'test',
+        levelNumber: 1,
+        levelType: LevelType.sprint,
+        isBoss: false,
+        wordSlots: [
+          WordSlot(
+            id: 0, constraint: animalConstraint, requiredLength: 4,
+            gridRow: 0, gridCol: 0, isHorizontal: true,
+          ),
+          WordSlot(
+            id: 1, constraint: colorConstraint, requiredLength: 4,
+            gridRow: 1, gridCol: 0, isHorizontal: true,
+          ),
+        ],
+        intersections: const [],
+        letterPool: const [],
+        constraintTiers: const [1],
+        metadata: const {},
+      );
+      // Only slot 0 filled.
+      final tiles = List.generate(4, (i) => PoolTile(
+        id: i, letter: 'bear'[i],
+        placedAt: CellKey(slotId: 0, positionInSlot: i),
+      ));
+      final n = _GameNotifierWithTiles(
+        puzzle: puzzle,
+        tiles: tiles,
+        wordValidator: (_) async => true,
+      );
+      await n.onSubmit();
+      expect(n.currentState.phase, GamePhase.idle);
+      expect(n.currentState.slotResults, isEmpty);
+      n.dispose();
+    });
+
+    test('attempt counter increments on each submit', () async {
+      final n = _make2SlotNotifier(
+        word0: 'bear', word1: 'blue',
+        c0: animalConstraint, c1: colorConstraint,
+      );
+      expect(n.currentState.attemptsThisLevel, 0);
+      await n.onSubmit();
+      expect(n.currentState.attemptsThisLevel, 1);
+      n.dispose();
+    });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Test helpers
+// ---------------------------------------------------------------------------
+
+/// Constraint that delegates to a predicate function — used in submit tests.
+class _PredicateConstraint extends Constraint {
+  final bool Function(String) _predicate;
+
+  const _PredicateConstraint(this._predicate)
+      : super(id: 'predicate', tier: 1, displayText: 'predicate');
+
+  @override
+  bool validate(String word) => _predicate(word);
+}
+
+/// GameNotifier subclass that accepts a pre-built tile list, bypassing the
+/// tile-generation logic. Used in onSubmit tests to control exact placements.
+class _GameNotifierWithTiles extends GameNotifier {
+  _GameNotifierWithTiles({
+    required Puzzle puzzle,
+    required List<PoolTile> tiles,
+    required WordValidator wordValidator,
+  }) : super(puzzle: puzzle, wordValidator: wordValidator) {
+    // Override the generated tiles with the caller-supplied ones.
+    state = state.copyWith(tiles: tiles);
+  }
 }

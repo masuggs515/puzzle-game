@@ -167,7 +167,15 @@ class GameNotifier extends StateNotifier<GameState> {
   }
 
   // -------------------------------------------------------------------------
-  // Submission
+  // Submission — order-agnostic validation
+  //
+  // Validation is holistic across all placed words:
+  //   1. All slots must be filled.
+  //   2. Every placed word must be in the dictionary.
+  //   3. Every placed word must satisfy at least one of the puzzle's constraints.
+  //   4. Every constraint must be satisfied by at least one placed word.
+  // Intersection consistency is guaranteed by the tile-placement model
+  // (one tile per cell, so shared letters are always the same).
   // -------------------------------------------------------------------------
 
   Future<void> onSubmit() async {
@@ -178,71 +186,76 @@ class GameNotifier extends StateNotifier<GameState> {
       attemptsThisLevel: state.attemptsThisLevel + 1,
     );
 
-    final newSlotResults = <int, SlotResult>{};
-    final newSolvedWords = Map<int, String>.from(state.solvedWords);
-    bool anyErrors = false;
-    bool allFilled = true;
+    final slots = state.puzzle.wordSlots;
 
-    for (final slot in state.puzzle.wordSlots) {
-      // Already solved slots stay correct
-      if (newSolvedWords.containsKey(slot.id)) {
-        newSlotResults[slot.id] = SlotResult.correct;
-        continue;
-      }
-
+    // 1. Collect placed words — return to idle silently if any slot is empty.
+    final placed = <int, String>{}; // slotId → word
+    for (final slot in slots) {
       final word = state.wordForSlot(slot);
       if (word == null) {
-        newSlotResults[slot.id] = SlotResult.unvalidated;
-        allFilled = false;
-        continue;
+        state = state.copyWith(phase: GamePhase.idle, slotResults: const {});
+        return;
       }
-
-      // Dictionary check
-      final inDict = await _wordValidator(word);
-      if (!mounted) return;
-      if (!inDict) {
-        newSlotResults[slot.id] = SlotResult.wrongWord;
-        anyErrors = true;
-        continue;
-      }
-
-      // Constraint check
-      if (!slot.constraint.validator.validate(word)) {
-        newSlotResults[slot.id] = SlotResult.wrongConstraint;
-        anyErrors = true;
-        continue;
-      }
-
-      // Length check
-      if (slot.requiredLength != null && word.length != slot.requiredLength) {
-        newSlotResults[slot.id] = SlotResult.wrongConstraint;
-        anyErrors = true;
-        continue;
-      }
-
-      newSlotResults[slot.id] = SlotResult.correct;
-      newSolvedWords[slot.id] = word;
+      placed[slot.id] = word;
     }
 
-    if (!mounted) return;
+    // 2. Dictionary check — every word must be a recognised word.
+    final dictFail = <int>{};
+    for (final slot in slots) {
+      final inDict = await _wordValidator(placed[slot.id]!);
+      if (!mounted) return;
+      if (!inDict) dictFail.add(slot.id);
+    }
 
-    // All complete and all correct → level complete
-    if (!anyErrors && allFilled &&
-        newSolvedWords.length == state.puzzle.wordSlots.length) {
-      state = state.copyWith(
-        phase: GamePhase.levelComplete,
-        solvedWords: newSolvedWords,
-        slotResults: newSlotResults,
-      );
+    if (dictFail.isNotEmpty) {
+      _showFeedback({
+        for (final slot in slots)
+          slot.id: dictFail.contains(slot.id)
+              ? SlotResult.wrongWord
+              : SlotResult.unvalidated,
+      });
       return;
     }
 
-    // Show per-slot feedback, auto-clear after feedbackDurationMs
-    state = state.copyWith(
-      phase: GamePhase.idle,
-      solvedWords: newSolvedWords,
-      slotResults: newSlotResults,
+    // 3 & 4. Order-agnostic constraint check.
+    final words = placed.values.toList();
+    final constraints = slots.map((s) => s.constraint).toList();
+
+    final allWordsSatisfySome = words.every(
+      (w) => constraints.any((c) => c.validator.validate(w)),
     );
+    final allConstraintsCovered = constraints.every(
+      (c) => words.any((w) => c.validator.validate(w)),
+    );
+
+    if (!allWordsSatisfySome || !allConstraintsCovered) {
+      // Mark slots whose word satisfies no constraint; if every word is
+      // individually fine but the combination doesn't cover all constraints,
+      // mark all slots to signal the mismatch.
+      final perSlot = {
+        for (final slot in slots)
+          slot.id: constraints.any(
+                  (c) => c.validator.validate(placed[slot.id]!))
+              ? SlotResult.unvalidated
+              : SlotResult.wrongConstraint,
+      };
+      final results = allWordsSatisfySome
+          ? {for (final slot in slots) slot.id: SlotResult.wrongConstraint}
+          : perSlot;
+      _showFeedback(results);
+      return;
+    }
+
+    // All checks passed — level complete.
+    state = state.copyWith(
+      phase: GamePhase.levelComplete,
+      solvedWords: placed,
+      slotResults: {for (final slot in slots) slot.id: SlotResult.correct},
+    );
+  }
+
+  void _showFeedback(Map<int, SlotResult> results) {
+    state = state.copyWith(phase: GamePhase.idle, slotResults: results);
     _feedbackTimer?.cancel();
     _feedbackTimer = Timer(
       const Duration(milliseconds: GameConstants.feedbackDurationMs),
