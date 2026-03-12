@@ -706,6 +706,151 @@ void main() {
   });
 
   // -------------------------------------------------------------------------
+  // placeTile — swap and displacement behaviour
+  // -------------------------------------------------------------------------
+
+  group('GameNotifier.placeTile', () {
+    const cellA = CellKey(slotId: 0, positionInSlot: 0);
+    const cellB = CellKey(slotId: 0, positionInSlot: 1);
+
+    /// Build a notifier whose tile list is exactly the provided tiles.
+    GameNotifier _notifierWith(List<PoolTile> tiles) => _GameNotifierWithTiles(
+          puzzle: _minimalPuzzle(),
+          tiles: tiles,
+          wordValidator: (_) async => true,
+        );
+
+    test('pool tile placed into empty cell — tile is now at that cell', () {
+      final tileA = const PoolTile(id: 0, letter: 'a'); // in pool
+      final n = _notifierWith([tileA]);
+
+      n.placeTile(0, cellA);
+
+      final placed = n.currentState.tileAt(cellA);
+      expect(placed, isNotNull);
+      expect(placed!.letter, 'a');
+      expect(placed.isInPool, isFalse);
+      n.dispose();
+    });
+
+    test('grid tile moved to empty cell — tile moves, old cell is empty', () {
+      final tileA = const PoolTile(id: 0, letter: 'a', placedAt: cellA);
+      final n = _notifierWith([tileA]);
+
+      n.placeTile(0, cellB);
+
+      expect(n.currentState.tileAt(cellA), isNull);
+      final placed = n.currentState.tileAt(cellB);
+      expect(placed, isNotNull);
+      expect(placed!.letter, 'a');
+      n.dispose();
+    });
+
+    // ── Swap: grid → occupied grid ──────────────────────────────────────────
+
+    test('grid tile dropped on occupied cell — both tiles remain on grid (swap)', () {
+      final tileA = const PoolTile(id: 0, letter: 'a', placedAt: cellA);
+      final tileB = const PoolTile(id: 1, letter: 'b', placedAt: cellB);
+      final n = _notifierWith([tileA, tileB]);
+
+      n.placeTile(0, cellB); // drag tileA from cellA onto cellB (occupied by tileB)
+
+      final atCellA = n.currentState.tileAt(cellA);
+      final atCellB = n.currentState.tileAt(cellB);
+
+      // Both tiles stay on the grid — none go to pool.
+      expect(atCellA, isNotNull, reason: 'displaced tile should now be at cellA');
+      expect(atCellB, isNotNull, reason: 'moving tile should now be at cellB');
+      expect(atCellA!.isInPool, isFalse);
+      expect(atCellB!.isInPool, isFalse);
+      n.dispose();
+    });
+
+    test('swap — letters end up in each other\'s original positions', () {
+      final tileA = const PoolTile(id: 0, letter: 'a', placedAt: cellA);
+      final tileB = const PoolTile(id: 1, letter: 'b', placedAt: cellB);
+      final n = _notifierWith([tileA, tileB]);
+
+      n.placeTile(0, cellB); // drag 'a' from cellA onto 'b' at cellB
+
+      expect(n.currentState.tileAt(cellA)!.letter, 'b'); // 'b' moved to cellA
+      expect(n.currentState.tileAt(cellB)!.letter, 'a'); // 'a' moved to cellB
+      n.dispose();
+    });
+
+    test('swap — tile count stays the same (no tile created or destroyed)', () {
+      final tileA = const PoolTile(id: 0, letter: 'a', placedAt: cellA);
+      final tileB = const PoolTile(id: 1, letter: 'b', placedAt: cellB);
+      final n = _notifierWith([tileA, tileB]);
+
+      final before = n.currentState.tiles.length;
+      n.placeTile(0, cellB);
+      expect(n.currentState.tiles.length, before);
+      n.dispose();
+    });
+
+    test('swap — no tiles in pool after swapping two grid tiles', () {
+      final tileA = const PoolTile(id: 0, letter: 'a', placedAt: cellA);
+      final tileB = const PoolTile(id: 1, letter: 'b', placedAt: cellB);
+      final n = _notifierWith([tileA, tileB]);
+
+      n.placeTile(0, cellB);
+
+      expect(n.currentState.tiles.every((t) => !t.isInPool), isTrue,
+          reason: 'both tiles should remain on the grid');
+      n.dispose();
+    });
+
+    test('swap is symmetric — dragging B back onto A restores original positions', () {
+      final tileA = const PoolTile(id: 0, letter: 'a', placedAt: cellA);
+      final tileB = const PoolTile(id: 1, letter: 'b', placedAt: cellB);
+      final n = _notifierWith([tileA, tileB]);
+
+      // First swap: drag 'a' (id=0) from cellA onto 'b' (id=1) at cellB.
+      // Result: 'a' at cellB, 'b' at cellA.
+      n.placeTile(0, cellB);
+      expect(n.currentState.tileAt(cellA)!.letter, 'b');
+      expect(n.currentState.tileAt(cellB)!.letter, 'a');
+
+      // Second swap: drag 'b' (id=1, now at cellA) back onto 'a' (id=0) at cellB.
+      // Result: original positions restored.
+      n.placeTile(1, cellB);
+      expect(n.currentState.tileAt(cellA)!.letter, 'a');
+      expect(n.currentState.tileAt(cellB)!.letter, 'b');
+      n.dispose();
+    });
+
+    // ── Pool → occupied: displaced tile returns to pool ─────────────────────
+
+    test('pool tile dropped on occupied cell — displaced tile goes to pool', () {
+      final poolTile = const PoolTile(id: 0, letter: 'a'); // in pool
+      final gridTile = const PoolTile(id: 1, letter: 'b', placedAt: cellA);
+      final n = _notifierWith([poolTile, gridTile]);
+
+      n.placeTile(0, cellA); // pool tile onto occupied cellA
+
+      expect(n.currentState.tileAt(cellA)!.letter, 'a');
+      // The displaced tile must be back in the pool.
+      final displaced = n.currentState.tiles.firstWhere((t) => t.id == 1);
+      expect(displaced.isInPool, isTrue,
+          reason: 'grid tile displaced by a pool tile should return to pool');
+      n.dispose();
+    });
+
+    test('pool tile dropped on occupied cell — pool tile is now on grid', () {
+      final poolTile = const PoolTile(id: 0, letter: 'a');
+      final gridTile = const PoolTile(id: 1, letter: 'b', placedAt: cellA);
+      final n = _notifierWith([poolTile, gridTile]);
+
+      n.placeTile(0, cellA);
+
+      expect(n.currentState.tileAt(cellA)!.id, 0);
+      expect(n.currentState.tileAt(cellA)!.isInPool, isFalse);
+      n.dispose();
+    });
+  });
+
+  // -------------------------------------------------------------------------
   // Order-agnostic validation (onSubmit)
   //
   // Puzzles are solved holistically: every word must satisfy at least one
