@@ -127,4 +127,81 @@ class SupabaseService {
     );
     return (result as int?) ?? 0;
   }
+
+  /// Returns the player_profiles.id (internal UUID) for the current user.
+  /// This is the user_id FK used in all other tables.
+  Future<String?> getProfileId() async {
+    final client = _client;
+    if (client == null) return null;
+    final user = client.auth.currentUser;
+    if (user == null) return null;
+    final data = await client
+        .from('player_profiles')
+        .select('id')
+        .eq('auth_id', user.id)
+        .maybeSingle();
+    return data?['id'] as String?;
+  }
+
+  /// Calls a Supabase Edge Function by name with a JSON body.
+  /// Returns the decoded response map.
+  /// Throws on network errors or non-200 responses.
+  Future<Map<String, dynamic>> callEdgeFunction(
+    String functionName, {
+    required Map<String, dynamic> body,
+  }) async {
+    final client = _client;
+    if (client == null) return {'success': false, 'error': 'not_initialized'};
+    final response = await client.functions.invoke(
+      functionName,
+      body: body,
+    );
+    if (response.status != 200) {
+      throw Exception(
+          'Edge function $functionName failed: ${response.status}');
+    }
+    return Map<String, dynamic>.from(response.data as Map);
+  }
+
+  /// Returns level progress rows for the current user from player_progress.
+  /// Each row contains: level_number (int), completed (bool), stars (int?).
+  Future<List<Map<String, dynamic>>> getLevelProgress() async {
+    final client = _client;
+    if (client == null) return [];
+    final user = client.auth.currentUser;
+    if (user == null) return [];
+    final profileData = await client
+        .from('player_profiles')
+        .select('id')
+        .eq('auth_id', user.id)
+        .maybeSingle();
+    if (profileData == null) return [];
+    final profileId = profileData['id'] as String;
+    final rows = await client
+        .from('player_progress')
+        .select('level_number, completed, stars')
+        .eq('user_id', profileId)
+        .order('level_number');
+    return List<Map<String, dynamic>>.from(rows as List);
+  }
+
+  /// Returns all achievement rows for the current user from the achievements table.
+  Future<List<Map<String, dynamic>>> getAchievements() async {
+    final client = _client;
+    if (client == null) return [];
+    final user = client.auth.currentUser;
+    if (user == null) return [];
+    final profileData = await client
+        .from('player_profiles')
+        .select('id')
+        .eq('auth_id', user.id)
+        .maybeSingle();
+    if (profileData == null) return [];
+    final profileId = profileData['id'] as String;
+    final rows = await client
+        .from('achievements')
+        .select('achievement_id, unlocked_at')
+        .eq('user_id', profileId);
+    return List<Map<String, dynamic>>.from(rows as List);
+  }
 }

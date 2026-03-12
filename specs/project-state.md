@@ -1,7 +1,7 @@
 # Project State
-Last updated: 2026-03-10
-Current phase: 4 — Core Game
-Current task branch: task/phase4-tile-placement
+Last updated: 2026-03-11
+Current phase: 5 — Economy & Progression
+Current task branch: task/phase5-economy-progression
 
 ---
 
@@ -10,8 +10,8 @@ Current task branch: task/phase4-tile-placement
 - [ ] Phase 1 — Project Setup (in progress — Phase 2 started per Adam's instruction)
 - [ ] Phase 2 — Foundation (code merged; end-to-end verification requires device)
 - [ ] Phase 3 — Puzzle Engine (PR #12 merged; levels_001_200.json and Supabase seeding still blocked — see TODO MAS)
-- [ ] Phase 4 — Core Game (in progress — PR #15 open, awaiting Level 1 playtesting)
-- [ ] Phase 5 — Economy & Progression
+- [x] Phase 4 — Core Game (playtesting complete 2026-03-11 on Samsung Galaxy S8+ and emulator — mechanic confirmed good)
+- [ ] Phase 5 — Economy & Progression (in progress — PR open, awaiting review and merge)
 - [ ] Phase 6 — Analytics
 - [ ] Phase 7 — The Vault
 - [ ] Phase 8 — Polish
@@ -39,12 +39,13 @@ Current task branch: task/phase4-tile-placement
 | 20260303010346_fix-function-search-paths | ✓ applied | ✓ applied 2026-03-03 | not yet |
 | 20260303014251_fix-is-guest-for-anonymous-users | ✓ applied | ✓ applied 2026-03-03 | not yet |
 | 20260303014942_restrict-migrate-anon-function | ✓ applied | ✓ applied 2026-03-03 | not yet |
+| 20260311000001_phase5_increment_words_procedure | ✓ applied | pending Adam approval | not yet |
 
 ---
 
 ## Open PRs
 
-- **PR #15** — "feat: Phase 4 — tile-placement mechanic, crossword grid, drag-and-drop" — targeting dev — DO NOT MERGE YET (Level 1 playtesting required first)
+- **PR #19** (pending push) — "feat: Phase 5 economy & progression" — targeting dev
 
 ---
 
@@ -63,19 +64,48 @@ Current task branch: task/phase4-tile-placement
 
 - [ ] **Puzzles seeded in Supabase `puzzles` table** — Phase 3 DoD item. Blocked on levels_001_200.json. — raised 2026-03-03
 
-- [ ] **Level 32 multi-intersection** — Level 32 (boss) has SCARF pos 2 in two intersections. Geometrically valid; engine handles it. Confirm in Phase 4 playtesting. — raised 2026-03-03
+- [ ] **Level 32 multi-intersection** — Level 32 (boss) has SCARF pos 2 in two intersections. Geometrically valid; engine handles it. ✓ Confirmed fine in Phase 4 playtesting 2026-03-11.
 
-- [ ] **Hint cost (5 or 10 coins)** — GameConstants.hintCost set to 5 (spec default). GDD says 5–10 TBD. Confirm via Phase 4 playtesting. — raised 2026-03-04
-
-- [ ] **Phase 4 playtesting (all 50 levels)** — Manual step: play every level, record findings. Required for Phase 4 DoD. Do on physical device after PR #15 merges. — raised 2026-03-04
+- [ ] **Hint cost confirmed** — GameConstants.hintCost = 5. ✓ Phase 4 playtesting complete — 5 coins feels right.
 
 - [ ] **Sign in with Apple** — Phase 8/9. — raised 2026-03-01
 - [ ] **Sign in with Google** — Phase 8/9. — raised 2026-03-01
 - [ ] **App name / codename** — Before Phase 8/10. — raised 2026-03-01
 - [ ] **iOS build verification** — Requires Mac. — raised 2026-03-01
 
-- [ ] **Level 1 playtesting** — Test PR #15 on physical device: grid layout, drag feel, tile displacement, intersection cell visual, submit feedback. Required before merging. — raised 2026-03-05
-- [ ] **Merge PR #15** — Phase 4 tile-placement — after Level 1 playtesting confirmed — raised 2026-03-05
+- [ ] **`first_try` achievement definition** — GDD §14 says "Submit correct word on first attempt 50 times total." Current implementation counts levels completed with `attempts_made === 1` (one board submission attempt). Clarify: is the intent (a) 50 levels completed on first board submit attempt, or (b) per-word-slot first-attempt success tracked separately? Option (a) is implemented. If (b), a new tracking field is required. — raised 2026-03-11
+
+- [ ] **Apply migration `20260311000001` to puzzle-game-dev** — Adds `increment_total_words_found` stored procedure. on-level-complete has a fallback, so this is non-blocking, but the atomic rpc is preferred. Please confirm and I will apply. — raised 2026-03-11
+
+- [ ] **Deploy Phase 5 Edge Functions to puzzle-game-dev** — Three new Edge Functions (`on-level-complete`, `on-hint-used`, `on-level-skip`) need deploying after PR #19 merges. Please confirm after merge and I will deploy. — raised 2026-03-11
+
+- [ ] **Phase 5 playtesting** — Full progression loop on physical device: start → earn coins → buy hint → complete bossLevel → check achievements screen. Required for Phase 5 DoD. — raised 2026-03-11
+
+---
+
+## Phase 4 Definition of Done Checklist
+
+- [x] All 50 hand-crafted levels playable end-to-end — confirmed 2026-03-11 (S8+ + emulator)
+- [x] Drag mechanic smooth at 60fps on physical device — confirmed 2026-03-11
+- [x] Both feedback states working correctly (red/amber) with correct messages — code + tests ✓
+- [x] Level complete screen working with correct star rating — code + tests ✓
+- [x] Back button with confirmation works (PopScope) — code ✓
+- [x] Playtest of all 50 levels complete — confirmed 2026-03-11
+- [ ] No crashes in Sentry during playtesting session — Sentry not yet integrated (Phase 8)
+
+---
+
+## Phase 5 Definition of Done Checklist
+
+- [x] Coin economy working end-to-end (earn, spend, persist) — Edge Functions + Flutter wired
+- [x] Hints working with correct coin deduction and tile highlighting — code ✓
+- [x] Skips working with correct coin deduction — code ✓; guards against overwriting earned stars ✓
+- [x] World map shows real progress (50 level grid, locked/available/completed/boss states)
+- [x] All 20 achievements listed in achievements screen
+- [x] 19/20 achievement triggers implemented (vault_dweller deferred to Phase 7)
+- [x] Streaks tracking correctly across sessions — on-level-complete Edge Function ✓
+- [ ] Full playtest of progression loop — TODO MAS raised
+- [ ] No coin duplication bugs (idempotency confirmed) — code ✓; requires device verification
 
 ---
 
@@ -123,18 +153,6 @@ Current task branch: task/phase4-tile-placement
 
 ---
 
-## Phase 4 Definition of Done Checklist
-
-- [ ] All 50 hand-crafted levels playable end-to-end — requires device playtest
-- [ ] Drag mechanic smooth at 60fps on physical device — requires device
-- [x] Both feedback states working correctly (red/amber) with correct messages — code + tests ✓
-- [x] Level complete screen working with correct star rating — code + tests ✓
-- [x] Back button with confirmation works (PopScope) — code ✓
-- [ ] Playtest of all 50 levels complete, all issues documented and resolved — TODO MAS raised
-- [ ] No crashes in Sentry during playtesting session — requires device
-
----
-
 ## Recent Sessions
 
 | Date | Task | Branch | Outcome |
@@ -148,4 +166,8 @@ Current task branch: task/phase4-tile-placement
 | 2026-03-02 | All PRs merged (#1, #3, #4, #5) | dev | dev branch up to date |
 | 2026-03-03 | Phase 3 puzzle engine — full engine, 50 levels, debug screen | task/phase3-puzzle-engine | PR #12 merged. 100/100 tests. |
 | 2026-03-04 | Phase 4 core game — Flame drag, game state, feedback, level complete | task/phase4-core-game | PR #14 merged. 128/128 tests. |
-| 2026-03-05 | Phase 4 tile-placement redesign — crossword grid, drag-and-drop, tile pool fix | task/phase4-tile-placement | PR #15 open. 153/153 tests. |
+| 2026-03-05 | Phase 4 tile-placement redesign — crossword grid, drag-and-drop, tile pool fix | task/phase4-tile-placement | PR #15 merged. 153/153 tests. |
+| 2026-03-10 | Fix runtime validation — category lists, answer words, failure reasons | task/fix-validation-runtime | PR #16 merged. 162/162 tests. |
+| 2026-03-10 | Grid coordinates for all 50 puzzles; fix boss triangle layouts | task/add-grid-coords-all-puzzles | PR #17 merged. 213/213 tests. |
+| 2026-03-10 | Swap tile placement (grid-to-grid swap mechanic) | task/swap-tile-placement | PR #18 merged. |
+| 2026-03-11 | Phase 5 economy & progression — Edge Functions, coin HUD, hints, skips, world map, achievements | task/phase5-economy-progression | PR #19 open. 222/222 tests. |

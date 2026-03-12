@@ -1,5 +1,5 @@
 // lib/features/game/widgets/letter_pool_widget.dart
-// Phase 4 — Core Game (tile-placement redesign)
+// Phase 5 — Economy & Progression (extended from Phase 4)
 
 import 'package:flutter/material.dart';
 import 'package:puzzle_game/core/theme/app_colors.dart';
@@ -9,14 +9,17 @@ import 'package:puzzle_game/features/game/widgets/draggable_letter_tile.dart';
 /// The tile bank below the crossword grid.
 /// Shows all tiles that are currently in the pool (not placed in any grid cell).
 /// Also acts as a DragTarget — dropping a grid tile here returns it to the pool.
+/// [hintTileIds] is a set of tile IDs to visually highlight as hint candidates.
 class LetterPoolWidget extends StatelessWidget {
   final List<PoolTile> tiles;
+  final Set<int> hintTileIds;
   final void Function(int tileId) onTileReturned;
 
   const LetterPoolWidget({
     super.key,
     required this.tiles,
     required this.onTileReturned,
+    this.hintTileIds = const <int>{},
   });
 
   @override
@@ -59,7 +62,12 @@ class LetterPoolWidget extends StatelessWidget {
                   runSpacing: 8,
                   alignment: WrapAlignment.center,
                   children: poolTiles
-                      .map((t) => DraggableLetterTile(tile: t))
+                      .map(
+                        (t) => DraggableLetterTile(
+                          tile: t,
+                          isHintHighlighted: hintTileIds.contains(t.id),
+                        ),
+                      )
                       .toList(),
                 ),
         );

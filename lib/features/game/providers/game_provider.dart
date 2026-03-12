@@ -1,5 +1,5 @@
 // lib/features/game/providers/game_provider.dart
-// Phase 4 — Core Game (tile-placement redesign)
+// Phase 5 — Economy & Progression (extended from Phase 4)
 // Spec: flutter-agent-spec.md § Game State Machine
 //
 // Async puzzle loader + synchronous game state notifier.
@@ -26,20 +26,33 @@ final gamePuzzleProvider = FutureProvider.family<Puzzle, int>(
 );
 
 // ---------------------------------------------------------------------------
-// GameNotifier — owns all mutable game state for one play-through.
-// Created as local state in GameScreen.
-//
-// Word validation is injected as a callback so the notifier has no
-// dependency on WidgetRef (which cannot be stored in a StateNotifier).
+// Callback typedefs injected into GameNotifier.
+// Using callbacks instead of storing WidgetRef (which cannot be held in a
+// StateNotifier) or importing SupabaseService directly (avoids circular deps
+// and keeps GameNotifier testable in isolation).
 // ---------------------------------------------------------------------------
 
 typedef WordValidator = Future<bool> Function(String word);
+typedef EdgeFunctionCaller = Future<Map<String, dynamic>> Function(
+  String functionName,
+  Map<String, dynamic> body,
+);
+typedef ProfileIdGetter = Future<String?> Function();
+
+// ---------------------------------------------------------------------------
+// GameNotifier — owns all mutable game state for one play-through.
+// Created as local state in GameScreen.
+// ---------------------------------------------------------------------------
 
 class GameNotifier extends StateNotifier<GameState> {
   GameNotifier({
     required Puzzle puzzle,
     required WordValidator wordValidator,
+    EdgeFunctionCaller? callEdgeFunction,
+    ProfileIdGetter? getProfileId,
   })  : _wordValidator = wordValidator,
+        _callEdgeFunction = callEdgeFunction,
+        _getProfileId = getProfileId,
         super(GameState(
           phase: GamePhase.idle,
           puzzle: puzzle,
@@ -54,6 +67,8 @@ class GameNotifier extends StateNotifier<GameState> {
         ));
 
   final WordValidator _wordValidator;
+  final EdgeFunctionCaller? _callEdgeFunction;
+  final ProfileIdGetter? _getProfileId;
   Timer? _feedbackTimer;
 
   /// Derives one tile per grid cell from the puzzle's word slots and
@@ -319,5 +334,177 @@ class GameNotifier extends StateNotifier<GameState> {
         );
       },
     );
+  }
+
+  // -------------------------------------------------------------------------
+  // Backend integration — Phase 5
+  // -------------------------------------------------------------------------
+
+  /// Called by GameScreen when the levelComplete phase is detected.
+  /// Calls the on-level-complete Edge Function and returns the result.
+  /// Returns default values (coinsEarned: 0) if backend is unavailable.
+  Future<({int coinsEarned, List<String> achievementsUnlocked, int newBalance})>
+      onLevelCompletedBackend({
+    required int levelNumber,
+    required bool isBoss,
+  }) async {
+    const defaults = (
+      coinsEarned: 0,
+      achievementsUnlocked: <String>[],
+      newBalance: 0
+    );
+
+    final caller = _callEdgeFunction;
+    final profileIdGetter = _getProfileId;
+    if (caller == null || profileIdGetter == null) return defaults;
+
+    try {
+      final profileId = await profileIdGetter();
+      if (profileId == null) return defaults;
+
+      final levelType = isBoss ? 'bossLevel' : 'standard';
+      final idempotencyKey = '$profileId:$levelNumber:$levelType';
+
+      final result = await caller('on-level-complete', {
+        'level_number': levelNumber,
+        'level_type': levelType,
+        'hints_used': state.hintsUsedThisLevel,
+        'attempts_made': state.attemptsThisLevel,
+        'words_found': state.solvedWords.length,
+        'time_taken_ms': DateTime.now()
+            .difference(state.levelStartTime)
+            .inMilliseconds,
+        'stars': state.stars,
+        'idempotency_key': idempotencyKey,
+      });
+
+      final coinsAwarded = (result['coins_awarded'] as num?)?.toInt() ?? 0;
+      final newBalance = (result['new_balance'] as num?)?.toInt() ?? 0;
+      final achievements =
+          (result['achievements_unlocked'] as List<dynamic>?)
+                  ?.map((e) => e.toString())
+                  .toList() ??
+              <String>[];
+
+      return (
+        coinsEarned: coinsAwarded,
+        achievementsUnlocked: achievements,
+        newBalance: newBalance
+      );
+    } catch (_) {
+      return defaults;
+    }
+  }
+
+  /// Requests a hint for the first unsolved slot.
+  /// Calls on-hint-used Edge Function to deduct coins server-side.
+  /// Returns true if hint was granted.
+  Future<bool> onHintRequested({required int coinBalance}) async {
+    if (coinBalance < GameConstants.hintCost) return false;
+    if (state.hintsUsedThisLevel >= GameConstants.maxHintsPerLevel) {
+      return false;
+    }
+
+    // Find first unsolved slot.
+    final unsolvedSlot = state.puzzle.wordSlots
+        .where((s) => !state.solvedWords.containsKey(s.id))
+        .firstOrNull;
+    if (unsolvedSlot == null) return false;
+
+    final caller = _callEdgeFunction;
+    final profileIdGetter = _getProfileId;
+
+    if (caller != null && profileIdGetter != null) {
+      try {
+        final profileId = await profileIdGetter();
+        if (profileId != null) {
+          final idempotencyKey =
+              '$profileId:hint:${state.puzzle.levelNumber ?? 0}:${unsolvedSlot.id}:${state.hintsUsedThisLevel}';
+          final result = await caller('on-hint-used', {
+            'level_number': state.puzzle.levelNumber ?? 0,
+            'word_slot_id': unsolvedSlot.id,
+            'idempotency_key': idempotencyKey,
+          });
+          if (result['success'] != true) return false;
+        }
+      } catch (_) {
+        // If backend fails, allow hint anyway (offline mode).
+      }
+    }
+
+    // Locally compute hint: highlight pool tiles whose letters appear in the
+    // unsolved word.
+    final targetWord = unsolvedSlot.assignedWord ?? '';
+    final hintLetters = targetWord.toUpperCase().split('').toSet();
+
+    state = state.copyWith(
+      hintTileIds: state.tiles
+          .where((t) =>
+              t.placedAt == null &&
+              hintLetters.contains(t.letter.toUpperCase()))
+          .map((t) => t.id)
+          .toSet(),
+      hintsUsedThisLevel: state.hintsUsedThisLevel + 1,
+      feedbackMessage: FeedbackMessage(
+        type: FeedbackType.hint,
+        message: 'Hint',
+        constraintText: 'Look for: "${unsolvedSlot.constraint.displayText}"',
+      ),
+    );
+
+    // Clear hint highlights after 3 seconds.
+    _feedbackTimer?.cancel();
+    _feedbackTimer = Timer(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      state = state.copyWith(
+        clearHintTileIds: true,
+        clearFeedbackMessage: true,
+        slotResults: const {},
+      );
+    });
+
+    return true;
+  }
+
+  /// Requests a skip for the current level.
+  /// Calls on-level-skip Edge Function to deduct 50 coins.
+  /// Returns a record with { success, newBalance }.
+  Future<({bool success, int newBalance})> onSkipRequested({
+    required int coinBalance,
+  }) async {
+    if (coinBalance < GameConstants.skipCost) {
+      return (success: false, newBalance: coinBalance);
+    }
+
+    final caller = _callEdgeFunction;
+    final profileIdGetter = _getProfileId;
+
+    if (caller != null && profileIdGetter != null) {
+      try {
+        final profileId = await profileIdGetter();
+        if (profileId != null) {
+          final levelNumber = state.puzzle.levelNumber ?? 0;
+          final levelType = state.puzzle.isBoss ? 'bossLevel' : 'standard';
+          final idempotencyKey = '$profileId:skip:$levelNumber';
+
+          final result = await caller('on-level-skip', {
+            'level_number': levelNumber,
+            'level_type': levelType,
+            'idempotency_key': idempotencyKey,
+          });
+
+          if (result['success'] != true) {
+            return (success: false, newBalance: coinBalance);
+          }
+          final newBalance = (result['new_balance'] as num?)?.toInt() ?? 0;
+          return (success: true, newBalance: newBalance);
+        }
+      } catch (_) {
+        // Fall through to optimistic local deduction.
+      }
+    }
+
+    // Offline fallback — optimistic local deduction.
+    return (success: true, newBalance: coinBalance - GameConstants.skipCost);
   }
 }

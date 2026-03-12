@@ -611,7 +611,7 @@ void main() {
   // tiles — not 6 — because E appears in both words at different positions.
   // -------------------------------------------------------------------------
   group('GameNotifier tile generation', () {
-    Puzzle _level1Like() => Puzzle(
+    Puzzle level1Like() => Puzzle(
           seed: 'hc_001',
           levelNumber: 1,
           levelType: LevelType.sprint,
@@ -650,19 +650,19 @@ void main() {
           metadata: const {},
         );
 
-    GameNotifier _makeNotifier(Puzzle puzzle) => GameNotifier(
+    GameNotifier makeNotifier(Puzzle puzzle) => GameNotifier(
           puzzle: puzzle,
           wordValidator: (_) async => true,
         );
 
     test('Level 1 produces 7 tiles (4 + 4 words − 1 shared intersection)', () {
-      final notifier = _makeNotifier(_level1Like());
+      final notifier = makeNotifier(level1Like());
       expect(notifier.currentState.tiles.length, 7);
       notifier.dispose();
     });
 
     test('tile letters match both words minus the shared intersection letter', () {
-      final notifier = _makeNotifier(_level1Like());
+      final notifier = makeNotifier(level1Like());
       final letters = notifier.currentState.tiles.map((t) => t.letter).toList()
         ..sort();
       // BEAR(b,e,a,r) + BLUE(b,l,u,e) − shared B = a,b,e,e,l,r,u
@@ -671,13 +671,13 @@ void main() {
     });
 
     test('all tiles start in the pool (placedAt is null)', () {
-      final notifier = _makeNotifier(_level1Like());
+      final notifier = makeNotifier(level1Like());
       expect(notifier.currentState.tiles.every((t) => t.isInPool), isTrue);
       notifier.dispose();
     });
 
     test('tile ids are unique', () {
-      final notifier = _makeNotifier(_level1Like());
+      final notifier = makeNotifier(level1Like());
       final ids = notifier.currentState.tiles.map((t) => t.id).toSet();
       expect(ids.length, notifier.currentState.tiles.length);
       notifier.dispose();
@@ -699,7 +699,7 @@ void main() {
         constraintTiers: const [1],
         metadata: const {},
       );
-      final notifier = _makeNotifier(puzzle);
+      final notifier = makeNotifier(puzzle);
       expect(notifier.currentState.tiles.length, 3);
       notifier.dispose();
     });
@@ -714,7 +714,7 @@ void main() {
     const cellB = CellKey(slotId: 0, positionInSlot: 1);
 
     /// Build a notifier whose tile list is exactly the provided tiles.
-    GameNotifier _notifierWith(List<PoolTile> tiles) => _GameNotifierWithTiles(
+    GameNotifier notifierWith(List<PoolTile> tiles) => _GameNotifierWithTiles(
           puzzle: _minimalPuzzle(),
           tiles: tiles,
           wordValidator: (_) async => true,
@@ -722,7 +722,7 @@ void main() {
 
     test('pool tile placed into empty cell — tile is now at that cell', () {
       final tileA = const PoolTile(id: 0, letter: 'a'); // in pool
-      final n = _notifierWith([tileA]);
+      final n = notifierWith([tileA]);
 
       n.placeTile(0, cellA);
 
@@ -735,7 +735,7 @@ void main() {
 
     test('grid tile moved to empty cell — tile moves, old cell is empty', () {
       final tileA = const PoolTile(id: 0, letter: 'a', placedAt: cellA);
-      final n = _notifierWith([tileA]);
+      final n = notifierWith([tileA]);
 
       n.placeTile(0, cellB);
 
@@ -751,7 +751,7 @@ void main() {
     test('grid tile dropped on occupied cell — both tiles remain on grid (swap)', () {
       final tileA = const PoolTile(id: 0, letter: 'a', placedAt: cellA);
       final tileB = const PoolTile(id: 1, letter: 'b', placedAt: cellB);
-      final n = _notifierWith([tileA, tileB]);
+      final n = notifierWith([tileA, tileB]);
 
       n.placeTile(0, cellB); // drag tileA from cellA onto cellB (occupied by tileB)
 
@@ -769,7 +769,7 @@ void main() {
     test('swap — letters end up in each other\'s original positions', () {
       final tileA = const PoolTile(id: 0, letter: 'a', placedAt: cellA);
       final tileB = const PoolTile(id: 1, letter: 'b', placedAt: cellB);
-      final n = _notifierWith([tileA, tileB]);
+      final n = notifierWith([tileA, tileB]);
 
       n.placeTile(0, cellB); // drag 'a' from cellA onto 'b' at cellB
 
@@ -781,7 +781,7 @@ void main() {
     test('swap — tile count stays the same (no tile created or destroyed)', () {
       final tileA = const PoolTile(id: 0, letter: 'a', placedAt: cellA);
       final tileB = const PoolTile(id: 1, letter: 'b', placedAt: cellB);
-      final n = _notifierWith([tileA, tileB]);
+      final n = notifierWith([tileA, tileB]);
 
       final before = n.currentState.tiles.length;
       n.placeTile(0, cellB);
@@ -792,7 +792,7 @@ void main() {
     test('swap — no tiles in pool after swapping two grid tiles', () {
       final tileA = const PoolTile(id: 0, letter: 'a', placedAt: cellA);
       final tileB = const PoolTile(id: 1, letter: 'b', placedAt: cellB);
-      final n = _notifierWith([tileA, tileB]);
+      final n = notifierWith([tileA, tileB]);
 
       n.placeTile(0, cellB);
 
@@ -804,7 +804,7 @@ void main() {
     test('swap is symmetric — dragging B back onto A restores original positions', () {
       final tileA = const PoolTile(id: 0, letter: 'a', placedAt: cellA);
       final tileB = const PoolTile(id: 1, letter: 'b', placedAt: cellB);
-      final n = _notifierWith([tileA, tileB]);
+      final n = notifierWith([tileA, tileB]);
 
       // First swap: drag 'a' (id=0) from cellA onto 'b' (id=1) at cellB.
       // Result: 'a' at cellB, 'b' at cellA.
@@ -825,7 +825,7 @@ void main() {
     test('pool tile dropped on occupied cell — displaced tile goes to pool', () {
       final poolTile = const PoolTile(id: 0, letter: 'a'); // in pool
       final gridTile = const PoolTile(id: 1, letter: 'b', placedAt: cellA);
-      final n = _notifierWith([poolTile, gridTile]);
+      final n = notifierWith([poolTile, gridTile]);
 
       n.placeTile(0, cellA); // pool tile onto occupied cellA
 
@@ -840,7 +840,7 @@ void main() {
     test('pool tile dropped on occupied cell — pool tile is now on grid', () {
       final poolTile = const PoolTile(id: 0, letter: 'a');
       final gridTile = const PoolTile(id: 1, letter: 'b', placedAt: cellA);
-      final n = _notifierWith([poolTile, gridTile]);
+      final n = notifierWith([poolTile, gridTile]);
 
       n.placeTile(0, cellA);
 
@@ -882,7 +882,7 @@ void main() {
     /// Build a 2-slot puzzle where slot 0 has [c0] and slot 1 has [c1].
     /// Tiles are pre-placed so wordForSlot returns [word0] for slot 0 and
     /// [word1] for slot 1.
-    GameNotifier _make2SlotNotifier({
+    GameNotifier make2SlotNotifier({
       required String word0,
       required String word1,
       required ConstraintAssignment c0,
@@ -971,7 +971,7 @@ void main() {
     }
 
     test('BEAR+BLUE — correct order — solves the puzzle', () async {
-      final n = _make2SlotNotifier(
+      final n = make2SlotNotifier(
         word0: 'bear',
         word1: 'blue',
         c0: animalConstraint,
@@ -987,7 +987,7 @@ void main() {
     test('BLUE+BEAR — reversed order — also solves the puzzle', () async {
       // slot 0 has color constraint, slot 1 has animal constraint,
       // but BLUE satisfies color and BEAR satisfies animal → valid regardless.
-      final n = _make2SlotNotifier(
+      final n = make2SlotNotifier(
         word0: 'blue',   // in the "animal" slot
         word1: 'bear',   // in the "color" slot
         c0: animalConstraint,
@@ -1000,7 +1000,7 @@ void main() {
     });
 
     test('BIRD+RED — different valid words — also solves the puzzle', () async {
-      final n = _make2SlotNotifier(
+      final n = make2SlotNotifier(
         word0: 'bird',
         word1: 'red',
         c0: animalConstraint,
@@ -1054,7 +1054,7 @@ void main() {
 
     test('word satisfies no constraint → wrongConstraint feedback', () async {
       // 'rock' is in the dict but satisfies neither animal nor color.
-      final n = _make2SlotNotifier(
+      final n = make2SlotNotifier(
         word0: 'bear',
         word1: 'rock', // valid word, wrong type
         c0: animalConstraint,
@@ -1070,7 +1070,7 @@ void main() {
 
     test('two color words — constraint not fully covered → wrongConstraint', () async {
       // Both words satisfy the color constraint, but animal constraint uncovered.
-      final n = _make2SlotNotifier(
+      final n = make2SlotNotifier(
         word0: 'blue',
         word1: 'red',
         c0: animalConstraint,
@@ -1123,7 +1123,7 @@ void main() {
     });
 
     test('attempt counter increments on each submit', () async {
-      final n = _make2SlotNotifier(
+      final n = make2SlotNotifier(
         word0: 'bear', word1: 'blue',
         c0: animalConstraint, c1: colorConstraint,
       );
@@ -1154,10 +1154,10 @@ class _PredicateConstraint extends Constraint {
 /// tile-generation logic. Used in onSubmit tests to control exact placements.
 class _GameNotifierWithTiles extends GameNotifier {
   _GameNotifierWithTiles({
-    required Puzzle puzzle,
+    required super.puzzle,
     required List<PoolTile> tiles,
-    required WordValidator wordValidator,
-  }) : super(puzzle: puzzle, wordValidator: wordValidator) {
+    required super.wordValidator,
+  }) {
     // Override the generated tiles with the caller-supplied ones.
     state = state.copyWith(tiles: tiles);
   }
