@@ -45,7 +45,7 @@ Current task branch: task/phase5-economy-progression
 
 ## Open PRs
 
-- **PR #19** (pending push) — "feat: Phase 5 economy & progression" — targeting dev
+- **PR #20** (open) — "fix: Phase 5 backend error logging + cloud run script" — targeting dev
 
 ---
 
@@ -80,6 +80,12 @@ Current task branch: task/phase5-economy-progression
 - [x] **Deploy Phase 5 Edge Functions to puzzle-game-dev** — `on-level-complete`, `on-hint-used`, `on-level-skip` deployed 2026-03-12 ✓
 
 - [ ] **Phase 5 playtesting** — Full progression loop on physical device: start → earn coins → buy hint → complete bossLevel → check achievements screen. Required for Phase 5 DoD. — raised 2026-03-11
+  - Use `bash scripts/run_dev_cloud.sh` (not run_dev.sh) — loads .env.dev with cloud URL
+  - Watch debug console for `[SupabaseService]` and `[GameNotifier]` lines to pinpoint failure
+
+- [ ] **Create `.env.dev`** — file with puzzle-game-dev credentials for `run_dev_cloud.sh`. Format: `SUPABASE_URL=https://xgqqpyehkmzyrtvqsofe.supabase.co` and `SUPABASE_ANON_KEY=<dev anon key>`. — raised 2026-03-12
+
+- [ ] **Verify anonymous auth enabled in puzzle-game-dev** — Dashboard → Authentication → Providers → Anonymous → must be toggled ON. If off, signInAnonymously() fails and no profile is created. — raised 2026-03-12
 
 ---
 
@@ -170,4 +176,5 @@ Current task branch: task/phase5-economy-progression
 | 2026-03-10 | Fix runtime validation — category lists, answer words, failure reasons | task/fix-validation-runtime | PR #16 merged. 162/162 tests. |
 | 2026-03-10 | Grid coordinates for all 50 puzzles; fix boss triangle layouts | task/add-grid-coords-all-puzzles | PR #17 merged. 213/213 tests. |
 | 2026-03-10 | Swap tile placement (grid-to-grid swap mechanic) | task/swap-tile-placement | PR #18 merged. |
-| 2026-03-11 | Phase 5 economy & progression — Edge Functions, coin HUD, hints, skips, world map, achievements | task/phase5-economy-progression | PR #19 open. 222/222 tests. |
+| 2026-03-11 | Phase 5 economy & progression — Edge Functions, coin HUD, hints, skips, world map, achievements | task/phase5-economy-progression | PR #19 merged. 222/222 tests. |
+| 2026-03-12 | Fix Phase 5 backend persistence — error logging, cloud run script | task/fix-phase5-backend-persistence | PR #20 open. 222/222 tests. |
