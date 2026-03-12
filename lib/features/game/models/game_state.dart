@@ -17,7 +17,7 @@ enum GamePhase {
   paused,
 }
 
-enum FeedbackType { correct, wrongWord, wrongConstraint }
+enum FeedbackType { correct, wrongWord, wrongConstraint, hint }
 
 /// Which grid cell a tile is placed in.
 /// Identifies a specific letter position within a specific word slot.
@@ -83,6 +83,7 @@ class GameState {
   final FeedbackMessage? feedbackMessage;
   final DateTime levelStartTime;
   final int coinBalance;
+  final Set<int> hintTileIds; // tile IDs to highlight as hint candidates
 
   const GameState({
     required this.phase,
@@ -95,6 +96,7 @@ class GameState {
     required this.feedbackMessage,
     required this.levelStartTime,
     required this.coinBalance,
+    this.hintTileIds = const <int>{},
   });
 
   /// Returns the tile placed at [cell], or null if the cell is empty.
@@ -162,6 +164,8 @@ class GameState {
     bool clearFeedbackMessage = false,
     DateTime? levelStartTime,
     int? coinBalance,
+    Set<int>? hintTileIds,
+    bool clearHintTileIds = false,
   }) {
     return GameState(
       phase: phase ?? this.phase,
@@ -176,6 +180,8 @@ class GameState {
           : (feedbackMessage ?? this.feedbackMessage),
       levelStartTime: levelStartTime ?? this.levelStartTime,
       coinBalance: coinBalance ?? this.coinBalance,
+      hintTileIds:
+          clearHintTileIds ? const <int>{} : (hintTileIds ?? this.hintTileIds),
     );
   }
 }

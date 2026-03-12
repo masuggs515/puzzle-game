@@ -1,5 +1,5 @@
 // lib/features/game/screens/game_screen.dart
-// Phase 4 — Core Game (tile-placement redesign)
+// Phase 5 — Economy & Progression (extended from Phase 4)
 // Spec: flutter-agent-spec.md § Navigation Routes
 //
 // Main game screen. Shows the crossword grid and letter pool.
@@ -9,7 +9,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:puzzle_game/core/constants/game_constants.dart';
 import 'package:puzzle_game/core/theme/app_colors.dart';
+import 'package:puzzle_game/features/auth/providers/auth_provider.dart';
 import 'package:puzzle_game/features/game/models/game_state.dart';
 import 'package:puzzle_game/features/game/models/level_complete_args.dart';
 import 'package:puzzle_game/features/game/providers/game_provider.dart';
@@ -51,7 +53,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       }
     }
 
-    _notifier = GameNotifier(puzzle: puzzle, wordValidator: wordValidator);
+    final supabase = ref.read(supabaseServiceProvider);
+    _notifier = GameNotifier(
+      puzzle: puzzle,
+      wordValidator: wordValidator,
+      callEdgeFunction: (name, body) =>
+          supabase.callEdgeFunction(name, body: body),
+      getProfileId: () => supabase.getProfileId(),
+    );
     _notifier!.addListener((newState) {
       if (mounted) setState(() => _gameState = newState);
     });
@@ -62,6 +71,94 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   void dispose() {
     _notifier?.dispose();
     super.dispose();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Hint and Skip
+  // ---------------------------------------------------------------------------
+
+  Future<void> _requestHint() async {
+    final balance = ref.read(coinBalanceProvider).value ?? 0;
+    if (balance < GameConstants.hintCost) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Not enough coins. Hints cost ${GameConstants.hintCost} coins.',
+          ),
+          backgroundColor: AppColors.feedbackWrongWord,
+        ),
+      );
+      return;
+    }
+    final granted =
+        await _notifier?.onHintRequested(coinBalance: balance) ?? false;
+    if (granted) {
+      // Invalidate coin balance so the HUD updates.
+      ref.invalidate(coinBalanceProvider);
+    }
+  }
+
+  Future<void> _requestSkip(Puzzle puzzle) async {
+    final balance = ref.read(coinBalanceProvider).value ?? 0;
+    if (balance < GameConstants.skipCost) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Not enough coins. Skipping costs ${GameConstants.skipCost} coins.',
+          ),
+          backgroundColor: AppColors.feedbackWrongWord,
+        ),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text(
+          'Skip this level?',
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
+        content: Text(
+          'This costs ${GameConstants.skipCost} coins.',
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text(
+              'Skip',
+              style: TextStyle(color: AppColors.accent),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final result =
+        await _notifier?.onSkipRequested(coinBalance: balance);
+    if (result == null || !result.success) return;
+
+    ref.invalidate(coinBalanceProvider);
+    if (!mounted) return;
+    context.go(
+      '/level-complete',
+      extra: LevelCompleteArgs(
+        levelNumber: puzzle.levelNumber ?? widget.levelNumber,
+        stars: 0,
+        coinsEarned: 0,
+        wasSkipped: true,
+      ),
+    );
   }
 
   @override
@@ -109,21 +206,31 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _initGame(puzzle);
 
     final gameState = _gameState ?? _notifier!.currentState;
+    final coinBalance = ref.watch(coinBalanceProvider).value ?? 0;
 
-    // Navigate to level-complete exactly once
+    // Navigate to level-complete exactly once, calling backend first.
     if (gameState.phase == GamePhase.levelComplete && !_levelCompleteNavigated) {
       _levelCompleteNavigated = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          context.go(
-            '/level-complete',
-            extra: LevelCompleteArgs(
-              levelNumber: puzzle.levelNumber ?? widget.levelNumber,
-              stars: gameState.stars,
-              coinsEarned: 0, // Phase 4 — coin economy in Phase 5
-            ),
-          );
-        }
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        // Capture router before the async gap to satisfy the linter.
+        final router = GoRouter.of(context);
+        final result = await _notifier!.onLevelCompletedBackend(
+          levelNumber: puzzle.levelNumber ?? widget.levelNumber,
+          isBoss: puzzle.isBoss,
+        );
+        if (!mounted) return;
+        // Invalidate coin balance so home screen shows updated value.
+        ref.invalidate(coinBalanceProvider);
+        router.go(
+          '/level-complete',
+          extra: LevelCompleteArgs(
+            levelNumber: puzzle.levelNumber ?? widget.levelNumber,
+            stars: gameState.stars,
+            coinsEarned: result.coinsEarned,
+            achievementsUnlocked: result.achievementsUnlocked,
+          ),
+        );
       });
     }
 
@@ -134,10 +241,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           _GameHud(
             levelNumber: puzzle.levelNumber ?? widget.levelNumber,
             isBoss: puzzle.isBoss,
+            coinBalance: coinBalance,
             onBack: () async {
               final shouldLeave = await _confirmLeave(context);
               if (shouldLeave && context.mounted) context.go('/home');
             },
+            onHintPressed: _requestHint,
+            onSkipPressed: () => _requestSkip(puzzle),
           ),
 
           // Scrollable puzzle area
@@ -160,6 +270,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   // Letter pool — tile bank below the grid
                   LetterPoolWidget(
                     tiles: gameState.tiles,
+                    hintTileIds: gameState.hintTileIds,
                     onTileReturned: (tileId) =>
                         _notifier?.returnTile(tileId),
                   ),
@@ -221,18 +332,24 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 class _GameHud extends StatelessWidget {
   final int levelNumber;
   final bool isBoss;
+  final int coinBalance;
   final VoidCallback onBack;
+  final VoidCallback onHintPressed;
+  final VoidCallback onSkipPressed;
 
   const _GameHud({
     required this.levelNumber,
     required this.isBoss,
+    required this.coinBalance,
     required this.onBack,
+    required this.onHintPressed,
+    required this.onSkipPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       color: AppColors.surface.withValues(alpha: 0.1),
       child: Row(
         children: [
@@ -240,6 +357,7 @@ class _GameHud extends StatelessWidget {
             icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
             onPressed: onBack,
           ),
+          // Level title
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -263,22 +381,102 @@ class _GameHud extends StatelessWidget {
               ],
             ),
           ),
-          // Coin balance placeholder — wired to real balance in Phase 5
-          const Row(
+          // Hint button
+          _HudActionButton(
+            icon: Icons.lightbulb_outline,
+            cost: GameConstants.hintCost,
+            label: 'Hint',
+            onPressed: onHintPressed,
+          ),
+          const SizedBox(width: 4),
+          // Skip button
+          _HudActionButton(
+            icon: Icons.skip_next,
+            cost: GameConstants.skipCost,
+            label: 'Skip',
+            onPressed: onSkipPressed,
+          ),
+          const SizedBox(width: 4),
+          // Coin balance
+          Row(
             children: [
-              Icon(Icons.monetization_on, color: AppColors.accent, size: 18),
-              SizedBox(width: 4),
+              const Icon(
+                Icons.monetization_on,
+                color: AppColors.accent,
+                size: 18,
+              ),
+              const SizedBox(width: 2),
               Text(
-                '0',
-                style: TextStyle(
+                '$coinBalance',
+                style: const TextStyle(
                   color: AppColors.accent,
                   fontWeight: FontWeight.bold,
+                  fontSize: 14,
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A compact HUD button showing an icon, coin cost, and a label.
+class _HudActionButton extends StatelessWidget {
+  final IconData icon;
+  final int cost;
+  final String label;
+  final VoidCallback onPressed;
+
+  const _HudActionButton({
+    required this.icon,
+    required this.cost,
+    required this.label,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: AppColors.textSecondary, size: 18),
+            const SizedBox(height: 1),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.monetization_on,
+                  color: AppColors.accent,
+                  size: 10,
+                ),
+                const SizedBox(width: 1),
+                Text(
+                  '$cost',
+                  style: const TextStyle(
+                    color: AppColors.accent,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 9,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -377,6 +575,8 @@ class _FeedbackBanner extends StatelessWidget {
         bannerColor = AppColors.feedbackWrongWord;
       case FeedbackType.wrongConstraint:
         bannerColor = AppColors.feedbackWrongConstraint;
+      case FeedbackType.hint:
+        bannerColor = AppColors.primary;
     }
 
     return AnimatedContainer(

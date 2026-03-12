@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/theme/app_theme.dart';
+import 'features/achievements/screens/achievements_screen.dart';
 import 'features/auth/screens/sign_in_screen.dart';
 import 'features/auth/screens/sign_up_screen.dart';
 import 'features/auth/screens/splash_screen.dart';
@@ -46,7 +47,10 @@ final _router = GoRouter(
         args: state.extra as LevelCompleteArgs,
       ),
     ),
-    // TODO Phase 5: /world-map route
+    GoRoute(
+      path: '/achievements',
+      builder: (context, state) => const AchievementsScreen(),
+    ),
     // TODO Phase 9: /shop route
   ],
 );
