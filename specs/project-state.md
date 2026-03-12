@@ -39,7 +39,7 @@ Current task branch: task/phase5-economy-progression
 | 20260303010346_fix-function-search-paths | ✓ applied | ✓ applied 2026-03-03 | not yet |
 | 20260303014251_fix-is-guest-for-anonymous-users | ✓ applied | ✓ applied 2026-03-03 | not yet |
 | 20260303014942_restrict-migrate-anon-function | ✓ applied | ✓ applied 2026-03-03 | not yet |
-| 20260311000001_phase5_increment_words_procedure | ✓ applied | pending Adam approval | not yet |
+| 20260311000001_phase5_increment_words_procedure | ✓ applied | ✓ applied 2026-03-12 | not yet |
 
 ---
 
@@ -75,9 +75,9 @@ Current task branch: task/phase5-economy-progression
 
 - [ ] **`first_try` achievement definition** — GDD §14 says "Submit correct word on first attempt 50 times total." Current implementation counts levels completed with `attempts_made === 1` (one board submission attempt). Clarify: is the intent (a) 50 levels completed on first board submit attempt, or (b) per-word-slot first-attempt success tracked separately? Option (a) is implemented. If (b), a new tracking field is required. — raised 2026-03-11
 
-- [ ] **Apply migration `20260311000001` to puzzle-game-dev** — Adds `increment_total_words_found` stored procedure. on-level-complete has a fallback, so this is non-blocking, but the atomic rpc is preferred. Please confirm and I will apply. — raised 2026-03-11
+- [x] **Apply migration `20260311000001` to puzzle-game-dev** — Applied 2026-03-12 ✓
 
-- [ ] **Deploy Phase 5 Edge Functions to puzzle-game-dev** — Three new Edge Functions (`on-level-complete`, `on-hint-used`, `on-level-skip`) need deploying after PR #19 merges. Please confirm after merge and I will deploy. — raised 2026-03-11
+- [x] **Deploy Phase 5 Edge Functions to puzzle-game-dev** — `on-level-complete`, `on-hint-used`, `on-level-skip` deployed 2026-03-12 ✓
 
 - [ ] **Phase 5 playtesting** — Full progression loop on physical device: start → earn coins → buy hint → complete bossLevel → check achievements screen. Required for Phase 5 DoD. — raised 2026-03-11
 
