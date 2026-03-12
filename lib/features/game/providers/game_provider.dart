@@ -8,6 +8,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle_game/core/constants/game_constants.dart';
 import 'package:puzzle_game/features/game/models/game_state.dart';
@@ -391,7 +393,8 @@ class GameNotifier extends StateNotifier<GameState> {
         achievementsUnlocked: achievements,
         newBalance: newBalance
       );
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[GameNotifier] onLevelCompletedBackend error: $e\n$st');
       return defaults;
     }
   }
@@ -427,7 +430,8 @@ class GameNotifier extends StateNotifier<GameState> {
           });
           if (result['success'] != true) return false;
         }
-      } catch (_) {
+      } catch (e, st) {
+        debugPrint('[GameNotifier] onHintRequested backend error: $e\n$st');
         // If backend fails, allow hint anyway (offline mode).
       }
     }
@@ -499,7 +503,8 @@ class GameNotifier extends StateNotifier<GameState> {
           final newBalance = (result['new_balance'] as num?)?.toInt() ?? 0;
           return (success: true, newBalance: newBalance);
         }
-      } catch (_) {
+      } catch (e, st) {
+        debugPrint('[GameNotifier] onSkipRequested backend error: $e\n$st');
         // Fall through to optimistic local deduction.
       }
     }

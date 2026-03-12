@@ -3,6 +3,7 @@
 // Spec: supabase-agent-spec.md § Authentication Configuration
 //       master-development-plan.md § 2.3 Anonymous Session Flow
 
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/player_profile.dart';
@@ -27,10 +28,17 @@ class SupabaseService {
   /// If a session is already persisted (e.g. from a previous launch) this is a no-op.
   Future<void> ensureAnonymousSession() async {
     final client = _client;
-    if (client == null) return;
-    if (client.auth.currentSession == null) {
-      await client.auth.signInAnonymously();
+    if (client == null) {
+      debugPrint('[SupabaseService] ensureAnonymousSession: client is null (Supabase not initialized)');
+      return;
     }
+    if (client.auth.currentSession != null) {
+      debugPrint('[SupabaseService] ensureAnonymousSession: session already exists (uid=${client.auth.currentUser?.id})');
+      return;
+    }
+    debugPrint('[SupabaseService] ensureAnonymousSession: no session found — calling signInAnonymously');
+    final response = await client.auth.signInAnonymously();
+    debugPrint('[SupabaseService] ensureAnonymousSession: signed in (uid=${response.user?.id})');
   }
 
   /// Converts the current anonymous session to an email/password account.
@@ -157,6 +165,7 @@ class SupabaseService {
       body: body,
     );
     if (response.status != 200) {
+      debugPrint('[SupabaseService] callEdgeFunction $functionName failed: status=${response.status} body=${response.data}');
       throw Exception(
           'Edge function $functionName failed: ${response.status}');
     }
