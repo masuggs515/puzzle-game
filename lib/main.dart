@@ -1,16 +1,21 @@
 // lib/main.dart
 // Application entry point.
-// Initializes Supabase → Sentry → Riverpod.
+// Initializes Supabase → Mixpanel → Sentry → Riverpod.
 // Anonymous session creation is handled by SplashScreen (Phase 2).
-// Mixpanel, RevenueCat, OneSignal deferred to Phase 6/9 when credentials available.
+// RevenueCat, OneSignal deferred to Phase 9 when credentials available.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/config/env.dart';
+import 'features/auth/providers/auth_provider.dart';
+
+// Top-level nullable — set before runApp so ProviderScope override is safe.
+Mixpanel? _mixpanel;
 
 Future<void> main() async {
   // Initialize Sentry — no-op when DSN is empty, safe for development.
@@ -25,14 +30,40 @@ Future<void> main() async {
       },
       appRunner: () async {
         await _initSupabase();
-        runApp(const ProviderScope(child: App()));
+        await _initMixpanel();
+        runApp(ProviderScope(
+          overrides: [
+            mixpanelProvider.overrideWith((ref) => _mixpanel),
+          ],
+          child: const App(),
+        ));
       },
     );
   } else {
     WidgetsFlutterBinding.ensureInitialized();
     await _initSupabase();
-    runApp(const ProviderScope(child: App()));
+    await _initMixpanel();
+    runApp(ProviderScope(
+      overrides: [
+        mixpanelProvider.overrideWith((ref) => _mixpanel),
+      ],
+      child: const App(),
+    ));
   }
+}
+
+// Initialize Mixpanel — no-op when token is empty (safe for CI / bare flutter run).
+Future<void> _initMixpanel() async {
+  if (Env.mixpanelToken.isEmpty) {
+    debugPrint('[main] Mixpanel NOT initialized — MIXPANEL_TOKEN is empty');
+    return;
+  }
+  _mixpanel = await Mixpanel.init(
+    Env.mixpanelToken,
+    optOutTrackingDefault: false,
+    trackAutomaticEvents: false, // manual control only; disables auto geolocation
+  );
+  debugPrint('[main] Mixpanel.init() complete');
 }
 
 // Initialize Supabase — required for Phase 2+ auth and data.

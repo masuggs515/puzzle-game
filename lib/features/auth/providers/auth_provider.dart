@@ -1,11 +1,14 @@
 // lib/features/auth/providers/auth_provider.dart
-// Phase 2 — Foundation
+// Phase 2 — Foundation (extended Phase 6: analytics providers added)
 // Spec: master-development-plan.md § 2.3 Anonymous Session Flow
+//       analytics-agent-spec.md
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../data/models/player_profile.dart';
+import '../../../data/services/analytics_service.dart';
 import '../../../data/services/supabase_service.dart';
 
 // Singleton service — shared across providers
@@ -48,4 +51,18 @@ final coinBalanceProvider = FutureProvider<int>((ref) async {
   if (profile == null) return 0;
   final service = ref.read(supabaseServiceProvider);
   return service.getCoinBalance(profile.id);
+});
+
+// ── Analytics providers (Phase 6) ─────────────────────────────────────────
+
+// Holds the Mixpanel instance. Null until initialized in main.dart.
+// Overridden via ProviderScope.overrides before runApp().
+final mixpanelProvider = StateProvider<Mixpanel?>((ref) => null);
+
+// AnalyticsService derived from the Mixpanel instance.
+// No-op when Mixpanel is null (e.g. token missing in dev without .env.task).
+final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
+  final mixpanel = ref.watch(mixpanelProvider);
+  final supabase = ref.read(supabaseServiceProvider);
+  return AnalyticsService(mixpanel, supabase);
 });
