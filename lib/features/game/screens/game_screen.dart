@@ -6,6 +6,8 @@
 // Game state is managed by a GameNotifier created as local state — this
 // keeps the notifier scoped to a single level play-through.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +19,7 @@ import 'package:puzzle_game/features/game/models/level_complete_args.dart';
 import 'package:puzzle_game/features/game/providers/game_provider.dart';
 import 'package:puzzle_game/features/game/providers/category_lists_provider.dart';
 import 'package:puzzle_game/features/game/providers/valid_words_provider.dart';
+import 'package:puzzle_game/features/game/services/puzzle_state_persistence.dart';
 import 'package:puzzle_game/features/game/widgets/crossword_grid_widget.dart';
 import 'package:puzzle_game/features/game/widgets/letter_pool_widget.dart';
 import 'package:puzzle_game/puzzle_engine/models/puzzle.dart';
@@ -38,6 +41,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   GameNotifier? _notifier;
   GameState? _gameState;
   bool _levelCompleteNavigated = false;
+  Timer? _saveDebounceTimer;
+  bool _stateRestored = false;
 
   void _initGame(Puzzle puzzle) {
     if (_notifier != null) return; // already initialised for this level
@@ -62,15 +67,63 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       getProfileId: () => supabase.getProfileId(),
     );
     _notifier!.addListener((newState) {
-      if (mounted) setState(() => _gameState = newState);
+      if (mounted) {
+        setState(() => _gameState = newState);
+        _scheduleSave(newState);
+      }
     });
     _gameState = _notifier!.currentState;
+    _scheduleRestore(widget.levelNumber);
   }
 
   @override
   void dispose() {
+    _saveDebounceTimer?.cancel();
     _notifier?.dispose();
     super.dispose();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Persistence helpers
+  // ---------------------------------------------------------------------------
+
+  /// Schedules an async restore of tile placements from local storage.
+  /// Runs after the first frame so the grid widgets are built and ready
+  /// to accept tile placements.
+  void _scheduleRestore(int levelNumber) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || _stateRestored) return;
+      _stateRestored = true;
+      final saved = await PuzzleStatePersistence.load(levelNumber);
+      if (!mounted || saved == null) return;
+      for (final entry in saved.placements.entries) {
+        _notifier?.placeTile(entry.key, entry.value);
+      }
+      _notifier?.restoreProgress(
+        hintsUsed: saved.hintsUsed,
+        attempts: saved.attempts,
+      );
+      debugPrint(
+        '[GameScreen] Restored ${saved.placements.length} tile placements '
+        'for level $levelNumber',
+      );
+    });
+  }
+
+  /// Debounced save — fires 300 ms after the last state change.
+  /// Skipped when the level is already complete to avoid saving a stale state
+  /// that would be restored on a replay.
+  void _scheduleSave(GameState newState) {
+    if (newState.phase == GamePhase.levelComplete) return;
+    _saveDebounceTimer?.cancel();
+    _saveDebounceTimer = Timer(const Duration(milliseconds: 300), () {
+      PuzzleStatePersistence.save(
+        widget.levelNumber,
+        newState.tiles,
+        newState.hintsUsedThisLevel,
+        newState.attemptsThisLevel,
+      );
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -149,6 +202,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (result == null || !result.success) return;
 
     ref.invalidate(coinBalanceProvider);
+    // Clear saved mid-puzzle state so a replay starts fresh.
+    await PuzzleStatePersistence.clear(widget.levelNumber);
     if (!mounted) return;
     context.go(
       '/level-complete',
@@ -222,6 +277,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         if (!mounted) return;
         // Invalidate coin balance so home screen shows updated value.
         ref.invalidate(coinBalanceProvider);
+        // Clear saved state now that the level is complete so a replay
+        // starts fresh.
+        await PuzzleStatePersistence.clear(
+          puzzle.levelNumber ?? widget.levelNumber,
+        );
+        if (!mounted) return;
         router.go(
           '/level-complete',
           extra: LevelCompleteArgs(
@@ -303,7 +364,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           style: TextStyle(color: AppColors.textPrimary),
         ),
         content: const Text(
-          'Your progress on this puzzle will be lost.',
+          'Your tile placements will be saved. You can resume where you left off.',
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
