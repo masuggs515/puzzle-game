@@ -140,14 +140,19 @@ class SupabaseService {
   /// This is the user_id FK used in all other tables.
   Future<String?> getProfileId() async {
     final client = _client;
-    if (client == null) return null;
+    if (client == null) {
+      debugPrint('[SupabaseService] getProfileId: client is null');
+      return null;
+    }
     final user = client.auth.currentUser;
+    debugPrint('[SupabaseService] getProfileId: currentUser=${user?.id} isAnon=${user?.isAnonymous}');
     if (user == null) return null;
     final data = await client
         .from('player_profiles')
         .select('id')
         .eq('auth_id', user.id)
         .maybeSingle();
+    debugPrint('[SupabaseService] getProfileId: profileId=${data?['id']}');
     return data?['id'] as String?;
   }
 
@@ -159,15 +164,20 @@ class SupabaseService {
     required Map<String, dynamic> body,
   }) async {
     final client = _client;
-    if (client == null) return {'success': false, 'error': 'not_initialized'};
+    if (client == null) {
+      debugPrint('[SupabaseService] callEdgeFunction: client is null — Supabase not initialized');
+      return {'success': false, 'error': 'not_initialized'};
+    }
+    final currentUser = client.auth.currentUser;
+    debugPrint('[SupabaseService] callEdgeFunction $functionName — uid=${currentUser?.id} isAnon=${currentUser?.isAnonymous} body=$body');
     final response = await client.functions.invoke(
       functionName,
       body: body,
     );
+    debugPrint('[SupabaseService] callEdgeFunction $functionName — status=${response.status} data=${response.data}');
     if (response.status != 200) {
-      debugPrint('[SupabaseService] callEdgeFunction $functionName failed: status=${response.status} body=${response.data}');
       throw Exception(
-          'Edge function $functionName failed: ${response.status}');
+          'Edge function $functionName failed: status=${response.status} body=${response.data}');
     }
     return Map<String, dynamic>.from(response.data as Map);
   }
