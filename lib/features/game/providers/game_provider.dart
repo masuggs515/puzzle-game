@@ -195,6 +195,15 @@ class GameNotifier extends StateNotifier<GameState> {
     );
   }
 
+  /// Restores hints used and attempts from a previously saved state.
+  /// Called once on game init when saved state is found.
+  void restoreProgress({required int hintsUsed, required int attempts}) {
+    state = state.copyWith(
+      hintsUsedThisLevel: hintsUsed,
+      attemptsThisLevel: attempts,
+    );
+  }
+
   // -------------------------------------------------------------------------
   // Submission — order-agnostic validation
   //
