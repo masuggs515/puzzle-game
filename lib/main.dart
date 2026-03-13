@@ -38,10 +38,16 @@ Future<void> main() async {
 // Initialize Supabase — required for Phase 2+ auth and data.
 // Run via scripts/run_dev.sh which loads .env.task credentials.
 Future<void> _initSupabase() async {
+  debugPrint('[main] SUPABASE_URL="${Env.supabaseUrl}" (empty=${Env.supabaseUrl.isEmpty})');
+  debugPrint('[main] SUPABASE_ANON_KEY length=${Env.supabaseAnonKey.length}');
   if (Env.supabaseUrl.isNotEmpty && Env.supabaseAnonKey.isNotEmpty) {
     await Supabase.initialize(
       url: Env.supabaseUrl,
       anonKey: Env.supabaseAnonKey,
     );
+    debugPrint('[main] Supabase.initialize() complete');
+  } else {
+    debugPrint('[main] WARNING: Supabase NOT initialized — credentials missing. '
+        'Run via scripts/run_dev_cloud.sh, not flutter run directly.');
   }
 }

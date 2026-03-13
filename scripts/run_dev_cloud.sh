@@ -2,13 +2,17 @@
 # scripts/run_dev_cloud.sh
 # Runs the app against the puzzle-game-dev cloud Supabase project.
 # Use this when testing on a physical device — localhost is not reachable
-# from a phone on the same network.
+# from a phone.
 #
-# Credentials go in .env.dev (gitignored). See CLAUDE.md for the format:
+# Credentials go in .env.dev (gitignored). Format:
 #   SUPABASE_URL=https://xgqqpyehkmzyrtvqsofe.supabase.co
 #   SUPABASE_ANON_KEY=<dev anon key>
-#   MIXPANEL_TOKEN=<dev token>
-#   ...
+#
+# IMPORTANT: String.fromEnvironment() values are baked in at COMPILE TIME via
+# --dart-define. The app does NOT read .env.dev at runtime. You MUST use this
+# script (or pass --dart-define flags manually) — running flutter run directly
+# or using the IDE run button will produce empty credentials and Supabase will
+# not initialize.
 
 set -e
 
@@ -16,16 +20,27 @@ ENV_FILE=".env.dev"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "ERROR: $ENV_FILE not found."
-  echo "Create it with your puzzle-game-dev credentials. See CLAUDE.md for the format."
+  echo "Create it with your puzzle-game-dev credentials:"
+  echo "  SUPABASE_URL=https://xgqqpyehkmzyrtvqsofe.supabase.co"
+  echo "  SUPABASE_ANON_KEY=<dev anon key>"
   exit 1
 fi
 
-# Load .env.dev — tr -d '\r' strips Windows CRLF.
-export $(grep -v '^#' "$ENV_FILE" | tr -d '\r' | xargs)
+# Load .env.dev into the current shell environment.
+# set -a exports every variable that is set; source reads the file;
+# set +a stops auto-exporting. This is more reliable than export $(xargs).
+set -a
+# shellcheck source=../.env.dev
+source "$ENV_FILE"
+set +a
+
+echo "Loaded credentials from $ENV_FILE"
+echo "  SUPABASE_URL=${SUPABASE_URL}"
+echo "  SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:0:20}..."
 
 flutter run \
-  --dart-define=SUPABASE_URL="${SUPABASE_URL:-}" \
-  --dart-define=SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY:-}" \
+  --dart-define=SUPABASE_URL="${SUPABASE_URL}" \
+  --dart-define=SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY}" \
   --dart-define=MIXPANEL_TOKEN="${MIXPANEL_TOKEN:-}" \
   --dart-define=SENTRY_DSN="${SENTRY_DSN:-}" \
   --dart-define=REVENUECAT_KEY="${REVENUECAT_KEY:-}" \
