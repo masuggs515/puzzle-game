@@ -1,7 +1,7 @@
 # Project State
-Last updated: 2026-03-11
-Current phase: 5 — Economy & Progression
-Current task branch: task/phase5-economy-progression
+Last updated: 2026-03-13
+Current phase: 6 — Analytics
+Current task branch: task/phase6-analytics (PR #24 open)
 
 ---
 
@@ -12,7 +12,7 @@ Current task branch: task/phase5-economy-progression
 - [ ] Phase 3 — Puzzle Engine (PR #12 merged; levels_001_200.json and Supabase seeding still blocked — see TODO MAS)
 - [x] Phase 4 — Core Game (playtesting complete 2026-03-11 on Samsung Galaxy S8+ and emulator — mechanic confirmed good)
 - [ ] Phase 5 — Economy & Progression (in progress — PR open, awaiting review and merge)
-- [ ] Phase 6 — Analytics
+- [ ] Phase 6 — Analytics (in progress — PR #24 open)
 - [ ] Phase 7 — The Vault
 - [ ] Phase 8 — Polish
 - [ ] Phase 9 — Monetization
@@ -45,7 +45,7 @@ Current task branch: task/phase5-economy-progression
 
 ## Open PRs
 
-- **PR #20** (open) — "fix: Phase 5 backend error logging + cloud run script" — targeting dev
+- **PR #24** (open) — "feat: Phase 6 — Analytics (Mixpanel + Supabase dual-write)" — targeting dev
 
 ---
 
@@ -86,6 +86,12 @@ Current task branch: task/phase5-economy-progression
 - [ ] **Create `.env.dev`** — file with puzzle-game-dev credentials for `run_dev_cloud.sh`. Format: `SUPABASE_URL=https://xgqqpyehkmzyrtvqsofe.supabase.co` and `SUPABASE_ANON_KEY=<dev anon key>`. — raised 2026-03-12
 
 - [ ] **Verify anonymous auth enabled in puzzle-game-dev** — Dashboard → Authentication → Providers → Anonymous → must be toggled ON. If off, signInAnonymously() fails and no profile is created. — raised 2026-03-12
+
+- [ ] **Create Mixpanel account and get token** — Phase 6 analytics. Create project at mixpanel.com → copy project token → add `MIXPANEL_TOKEN=<token>` to `.env.task` and `.env.dev`. Events write to Supabase without token, but Mixpanel dashboard requires it. — raised 2026-03-13
+
+- [ ] **Phase 6 verification** — After merging PR #24 and adding Mixpanel token, play through 3+ levels while watching Mixpanel Live View. Confirm: `app_open`, `level_start`, `word_submitted`, `level_complete` events appear within 5 seconds with correct properties. Also confirm `analytics_events` table in Supabase populating. — raised 2026-03-13
+
+- [ ] **Review and merge PR #24** — Phase 6 analytics implementation. — raised 2026-03-13
 
 ---
 
@@ -177,4 +183,5 @@ Current task branch: task/phase5-economy-progression
 | 2026-03-10 | Grid coordinates for all 50 puzzles; fix boss triangle layouts | task/add-grid-coords-all-puzzles | PR #17 merged. 213/213 tests. |
 | 2026-03-10 | Swap tile placement (grid-to-grid swap mechanic) | task/swap-tile-placement | PR #18 merged. |
 | 2026-03-11 | Phase 5 economy & progression — Edge Functions, coin HUD, hints, skips, world map, achievements | task/phase5-economy-progression | PR #19 merged. 222/222 tests. |
-| 2026-03-12 | Fix Phase 5 backend persistence — error logging, cloud run script | task/fix-phase5-backend-persistence | PR #20 open. 222/222 tests. |
+| 2026-03-12 | Fix Phase 5 backend persistence — error logging, cloud run script | task/fix-phase5-backend-persistence | PR #20 merged. 222/222 tests. |
+| 2026-03-13 | Phase 6 — Analytics (AnalyticsService, Mixpanel init, all 12 wired call sites) | task/phase6-analytics | PR #24 open. 222/222 tests. |
