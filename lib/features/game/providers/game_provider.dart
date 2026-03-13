@@ -1,6 +1,8 @@
 // lib/features/game/providers/game_provider.dart
 // Phase 5 — Economy & Progression (extended from Phase 4)
+// Phase 6 — Analytics integration
 // Spec: flutter-agent-spec.md § Game State Machine
+//       analytics-agent-spec.md
 //
 // Async puzzle loader + synchronous game state notifier.
 // No code generation — plain StateNotifier / FutureProvider.
@@ -12,6 +14,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle_game/core/constants/game_constants.dart';
+import 'package:puzzle_game/data/services/analytics_service.dart';
 import 'package:puzzle_game/features/game/models/game_state.dart';
 import 'package:puzzle_game/features/game/providers/puzzle_repository_provider.dart';
 import 'package:puzzle_game/puzzle_engine/models/puzzle.dart';
@@ -52,9 +55,11 @@ class GameNotifier extends StateNotifier<GameState> {
     required WordValidator wordValidator,
     EdgeFunctionCaller? callEdgeFunction,
     ProfileIdGetter? getProfileId,
+    AnalyticsService? analytics,
   })  : _wordValidator = wordValidator,
         _callEdgeFunction = callEdgeFunction,
         _getProfileId = getProfileId,
+        _analytics = analytics,
         super(GameState(
           phase: GamePhase.idle,
           puzzle: puzzle,
@@ -71,6 +76,7 @@ class GameNotifier extends StateNotifier<GameState> {
   final WordValidator _wordValidator;
   final EdgeFunctionCaller? _callEdgeFunction;
   final ProfileIdGetter? _getProfileId;
+  final AnalyticsService? _analytics;
   Timer? _feedbackTimer;
 
   /// Derives one tile per grid cell from the puzzle's word slots and
@@ -250,6 +256,9 @@ class GameNotifier extends StateNotifier<GameState> {
           .map((id) => placed[id]!.toUpperCase())
           .join(', ');
       final verb = dictFail.length == 1 ? "isn't" : "aren't";
+      // Analytics: fire word_submitted for each failing slot (wrong_word result).
+      // word_length only — never the word string itself.
+      _trackWordSubmitted(placed, slots, 'wrong_word');
       _showFeedback(
         results: {
           for (final slot in slots)
@@ -283,6 +292,8 @@ class GameNotifier extends StateNotifier<GameState> {
           .where((e) => !constraints.any((c) => c.validator.validate(e.value)))
           .map((e) => e.value.toUpperCase())
           .join(', ');
+      // Analytics: constraint failure.
+      _trackWordSubmitted(placed, slots, 'wrong_constraint');
       _showFeedback(
         results: {
           for (final slot in slots)
@@ -306,6 +317,8 @@ class GameNotifier extends StateNotifier<GameState> {
           .where((c) => !words.any((w) => c.validator.validate(w)))
           .map((c) => c.displayText)
           .join(', ');
+      // Analytics: constraint coverage failure.
+      _trackWordSubmitted(placed, slots, 'wrong_constraint');
       _showFeedback(
         results: {for (final slot in slots) slot.id: SlotResult.wrongConstraint},
         message: FeedbackMessage(
@@ -318,11 +331,42 @@ class GameNotifier extends StateNotifier<GameState> {
     }
 
     // All checks passed — level complete.
+    // Analytics: correct submission.
+    _trackWordSubmitted(placed, slots, 'correct');
     state = state.copyWith(
       phase: GamePhase.levelComplete,
       solvedWords: placed,
       slotResults: {for (final slot in slots) slot.id: SlotResult.correct},
     );
+  }
+
+  /// Fires word_submitted analytics for each slot — fire-and-forget.
+  /// Sends word_length only. Never sends the word string to Mixpanel.
+  void _trackWordSubmitted(
+    Map<int, String> placed,
+    List<WordSlot> slots,
+    String result,
+  ) {
+    final analytics = _analytics;
+    if (analytics == null) return;
+    final levelNumber = state.puzzle.levelNumber ?? 0;
+    final levelType = state.puzzle.isBoss ? 'bossLevel' : 'standard';
+    final timeOnLevelMs =
+        DateTime.now().difference(state.levelStartTime).inMilliseconds;
+    for (final slot in slots) {
+      final word = placed[slot.id] ?? '';
+      analytics.trackWordSubmitted(
+        levelNumber: levelNumber,
+        levelType: levelType,
+        wordLength: word.length, // length only — never the word itself
+        constraintId: slot.constraint.constraintId,
+        constraintTier: slot.constraint.tier,
+        result: result,
+        attemptNumber: state.attemptsThisLevel,
+        wordSlotId: slot.id,
+        timeOnLevelMs: timeOnLevelMs,
+      );
+    }
   }
 
   void _showFeedback({
@@ -354,7 +398,7 @@ class GameNotifier extends StateNotifier<GameState> {
   /// Called by GameScreen when the levelComplete phase is detected.
   /// Calls the on-level-complete Edge Function and returns the result.
   /// Returns default values (coinsEarned: 0) if backend is unavailable.
-  Future<({int coinsEarned, List<String> achievementsUnlocked, int newBalance})>
+  Future<({int coinsEarned, List<String> achievementsUnlocked, int newBalance, int newStreak})>
       onLevelCompletedBackend({
     required int levelNumber,
     required bool isBoss,
@@ -362,7 +406,8 @@ class GameNotifier extends StateNotifier<GameState> {
     const defaults = (
       coinsEarned: 0,
       achievementsUnlocked: <String>[],
-      newBalance: 0
+      newBalance: 0,
+      newStreak: 0,
     );
 
     final caller = _callEdgeFunction;
@@ -404,11 +449,14 @@ class GameNotifier extends StateNotifier<GameState> {
                   ?.map((e) => e.toString())
                   .toList() ??
               <String>[];
+      final streakMap = result['streak'] as Map<String, dynamic>?;
+      final newStreak = (streakMap?['current'] as num?)?.toInt() ?? 0;
 
       return (
         coinsEarned: coinsAwarded,
         achievementsUnlocked: achievements,
-        newBalance: newBalance
+        newBalance: newBalance,
+        newStreak: newStreak,
       );
     } catch (e, st) {
       debugPrint('[GameNotifier] onLevelCompletedBackend error: $e\n$st');
@@ -458,6 +506,7 @@ class GameNotifier extends StateNotifier<GameState> {
     final targetWord = unsolvedSlot.assignedWord ?? '';
     final hintLetters = targetWord.toUpperCase().split('').toSet();
 
+    final newHintsCount = state.hintsUsedThisLevel + 1;
     state = state.copyWith(
       hintTileIds: state.tiles
           .where((t) =>
@@ -465,12 +514,24 @@ class GameNotifier extends StateNotifier<GameState> {
               hintLetters.contains(t.letter.toUpperCase()))
           .map((t) => t.id)
           .toSet(),
-      hintsUsedThisLevel: state.hintsUsedThisLevel + 1,
+      hintsUsedThisLevel: newHintsCount,
       feedbackMessage: FeedbackMessage(
         type: FeedbackType.hint,
         message: 'Hint',
         constraintText: 'Look for: "${unsolvedSlot.constraint.displayText}"',
       ),
+    );
+
+    // Analytics: hint_used — fire-and-forget.
+    _analytics?.trackHintUsed(
+      levelNumber: state.puzzle.levelNumber ?? 0,
+      levelType: state.puzzle.isBoss ? 'bossLevel' : 'standard',
+      wordSlotId: unsolvedSlot.id,
+      constraintTier: unsolvedSlot.constraint.tier,
+      coinsSpent: GameConstants.hintCost,
+      coinBalanceAfter: coinBalance - GameConstants.hintCost,
+      hintsUsedThisLevel: newHintsCount,
+      timeOnLevelMs: DateTime.now().difference(state.levelStartTime).inMilliseconds,
     );
 
     // Clear hint highlights after 3 seconds.
@@ -518,6 +579,18 @@ class GameNotifier extends StateNotifier<GameState> {
             return (success: false, newBalance: coinBalance);
           }
           final newBalance = (result['new_balance'] as num?)?.toInt() ?? 0;
+          // Analytics: level_skip — fire-and-forget.
+          _analytics?.trackLevelSkip(
+            levelNumber: state.puzzle.levelNumber ?? 0,
+            levelType: state.puzzle.isBoss ? 'bossLevel' : 'standard',
+            isBoss: state.puzzle.isBoss,
+            timeSpentBeforeSkipMs: DateTime.now()
+                .difference(state.levelStartTime)
+                .inMilliseconds,
+            hintsUsedBeforeSkip: state.hintsUsedThisLevel,
+            coinsSpent: GameConstants.skipCost,
+            coinBalanceAfter: newBalance,
+          );
           return (success: true, newBalance: newBalance);
         }
       } catch (e, st) {
@@ -527,6 +600,18 @@ class GameNotifier extends StateNotifier<GameState> {
     }
 
     // Offline fallback — optimistic local deduction.
-    return (success: true, newBalance: coinBalance - GameConstants.skipCost);
+    final offlineBalance = coinBalance - GameConstants.skipCost;
+    _analytics?.trackLevelSkip(
+      levelNumber: state.puzzle.levelNumber ?? 0,
+      levelType: state.puzzle.isBoss ? 'bossLevel' : 'standard',
+      isBoss: state.puzzle.isBoss,
+      timeSpentBeforeSkipMs: DateTime.now()
+          .difference(state.levelStartTime)
+          .inMilliseconds,
+      hintsUsedBeforeSkip: state.hintsUsedThisLevel,
+      coinsSpent: GameConstants.skipCost,
+      coinBalanceAfter: offlineBalance,
+    );
+    return (success: true, newBalance: offlineBalance);
   }
 }

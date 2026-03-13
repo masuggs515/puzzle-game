@@ -1,6 +1,8 @@
 // lib/features/game/screens/game_screen.dart
 // Phase 5 — Economy & Progression (extended from Phase 4)
+// Phase 6 — Analytics call sites
 // Spec: flutter-agent-spec.md § Navigation Routes
+//       analytics-agent-spec.md
 //
 // Main game screen. Shows the crossword grid and letter pool.
 // Game state is managed by a GameNotifier created as local state — this
@@ -59,12 +61,25 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
 
     final supabase = ref.read(supabaseServiceProvider);
+    final analytics = ref.read(analyticsServiceProvider);
     _notifier = GameNotifier(
       puzzle: puzzle,
       wordValidator: wordValidator,
       callEdgeFunction: (name, body) =>
           supabase.callEdgeFunction(name, body: body),
       getProfileId: () => supabase.getProfileId(),
+      analytics: analytics,
+    );
+    // Analytics: level_start — fire-and-forget.
+    analytics.trackLevelStart(
+      levelNumber: puzzle.levelNumber ?? widget.levelNumber,
+      levelType: puzzle.isBoss ? 'bossLevel' : 'standard',
+      isBoss: puzzle.isBoss,
+      coinBalance: ref.read(coinBalanceProvider).value ?? 0,
+      intersectionCount: puzzle.intersections.length,
+      constraintTiers: puzzle.wordSlots
+          .map((s) => s.constraint.tier)
+          .toList(),
     );
     _notifier!.addListener((newState) {
       if (mounted) {
@@ -201,6 +216,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         await _notifier?.onSkipRequested(coinBalance: balance);
     if (result == null || !result.success) return;
 
+    // Analytics: coin_transaction for skip spend — fire-and-forget.
+    ref.read(analyticsServiceProvider).trackCoinTransaction(
+      transactionType: 'level_skip',
+      amount: -GameConstants.skipCost,
+      balanceBefore: balance,
+      balanceAfter: result.newBalance,
+      referenceId: '${puzzle.levelNumber ?? widget.levelNumber}',
+    );
+
     ref.invalidate(coinBalanceProvider);
     // Clear saved mid-puzzle state so a replay starts fresh.
     await PuzzleStatePersistence.clear(widget.levelNumber);
@@ -228,7 +252,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         final shouldLeave = await _confirmLeave(context);
-        if (shouldLeave && context.mounted) context.go('/home');
+        if (shouldLeave && context.mounted) {
+          _fireAbandonedAnalytics(widget.levelNumber);
+          context.go('/home');
+        }
       },
       child: Scaffold(
         backgroundColor: AppColors.background,
@@ -270,11 +297,62 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         if (!mounted) return;
         // Capture router before the async gap to satisfy the linter.
         final router = GoRouter.of(context);
+        final coinBalanceBefore = ref.read(coinBalanceProvider).value ?? 0;
         final result = await _notifier!.onLevelCompletedBackend(
           levelNumber: puzzle.levelNumber ?? widget.levelNumber,
           isBoss: puzzle.isBoss,
         );
         if (!mounted) return;
+
+        // Analytics: level_complete — fire-and-forget.
+        final analytics = ref.read(analyticsServiceProvider);
+        final levelNum = puzzle.levelNumber ?? widget.levelNumber;
+        final levelType = puzzle.isBoss ? 'bossLevel' : 'standard';
+
+        analytics.trackLevelComplete(
+          levelNumber: levelNum,
+          levelType: levelType,
+          isBoss: puzzle.isBoss,
+          stars: gameState.stars,
+          hintsUsed: gameState.hintsUsedThisLevel,
+          attemptsTotal: gameState.attemptsThisLevel,
+          coinsEarned: result.coinsEarned,
+          coinBalanceAfter: result.newBalance,
+          timeTakenMs: DateTime.now()
+              .difference(gameState.levelStartTime)
+              .inMilliseconds,
+          achievementsUnlocked: result.achievementsUnlocked,
+        );
+
+        // Analytics: coin_transaction for coins earned.
+        analytics.trackCoinTransaction(
+          transactionType: 'level_complete',
+          amount: result.coinsEarned,
+          balanceBefore: coinBalanceBefore,
+          balanceAfter: result.newBalance,
+          referenceId: '$levelNum',
+        );
+
+        // Analytics: streak_updated if streak was returned.
+        if (result.newStreak > 0) {
+          analytics.trackStreakUpdated(
+            newStreak: result.newStreak,
+            previousStreak:
+                result.newStreak > 1 ? result.newStreak - 1 : 0,
+            streakIncreased: true,
+          );
+        }
+
+        // Analytics: achievement_unlocked for each achievement.
+        for (var i = 0; i < result.achievementsUnlocked.length; i++) {
+          analytics.trackAchievementUnlocked(
+            achievementId: result.achievementsUnlocked[i],
+            coinsAwarded: 0, // per-achievement amounts not returned by edge fn
+            levelNumber: levelNum,
+            totalAchievementsUnlocked: i + 1,
+          );
+        }
+
         // Invalidate coin balance so home screen shows updated value.
         ref.invalidate(coinBalanceProvider);
         // Clear saved state now that the level is complete so a replay
@@ -305,7 +383,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             coinBalance: coinBalance,
             onBack: () async {
               final shouldLeave = await _confirmLeave(context);
-              if (shouldLeave && context.mounted) context.go('/home');
+              if (shouldLeave && context.mounted) {
+                _fireAbandonedAnalytics(
+                  _gameState?.puzzle.levelNumber ?? widget.levelNumber,
+                );
+                context.go('/home');
+              }
             },
             onHintPressed: _requestHint,
             onSkipPressed: () => _requestSkip(puzzle),
@@ -351,6 +434,27 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             _FeedbackBanner(message: gameState.feedbackMessage!),
         ],
       ),
+    );
+  }
+
+  /// Fires level_abandoned analytics — fire-and-forget. Safe to call when game
+  /// state may not yet be loaded (guards internally).
+  void _fireAbandonedAnalytics(int levelNumber) {
+    final gameState = _gameState ?? _notifier?.currentState;
+    if (gameState == null) return;
+    final puzzle = gameState.puzzle;
+    ref.read(analyticsServiceProvider).trackLevelAbandoned(
+      levelNumber: levelNumber,
+      levelType: puzzle.isBoss ? 'bossLevel' : 'standard',
+      isBoss: puzzle.isBoss,
+      timeSpentMs: DateTime.now()
+          .difference(gameState.levelStartTime)
+          .inMilliseconds,
+      hintsUsed: gameState.hintsUsedThisLevel,
+      attemptsMade: gameState.attemptsThisLevel,
+      wordsCompleted: gameState.solvedWords.length,
+      totalWords: puzzle.wordSlots.length,
+      coinBalance: ref.read(coinBalanceProvider).value ?? 0,
     );
   }
 

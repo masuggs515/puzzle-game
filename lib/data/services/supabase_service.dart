@@ -223,4 +223,43 @@ class SupabaseService {
         .eq('user_id', profileId);
     return List<Map<String, dynamic>>.from(rows as List);
   }
+
+  // ──────────────────────────────────────
+  // Analytics
+  // ──────────────────────────────────────
+
+  /// Writes a raw analytics event to the analytics_events table.
+  /// Non-blocking — callers must not await this (fire-and-forget).
+  /// Failures are intentionally silent at this layer; callers use catchError.
+  ///
+  /// The table schema requires session_id (uuid) as a top-level column.
+  /// We extract it from [properties] where AnalyticsService always includes it.
+  /// user_id is the player_profiles.id UUID — best-effort lookup, null on miss.
+  Future<void> trackEvent(
+    String eventName,
+    Map<String, dynamic> properties,
+  ) async {
+    final client = _client;
+    if (client == null) return;
+
+    // session_id is required (NOT NULL uuid column) — extract from enriched props.
+    final sessionId = properties['session_id'] as String?;
+    if (sessionId == null) return; // malformed call — skip silently
+
+    // Best-effort profile id lookup for the user_id FK.
+    String? profileId;
+    try {
+      profileId = await getProfileId();
+    } catch (_) {
+      // If lookup fails, write the event without user_id (it is nullable).
+    }
+
+    await client.from('analytics_events').insert({
+      'event_name': eventName,
+      'session_id': sessionId,
+      'properties': properties,
+      'user_id': ?profileId,
+      'created_at': DateTime.now().toUtc().toIso8601String(),
+    });
+  }
 }

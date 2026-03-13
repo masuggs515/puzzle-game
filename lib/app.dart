@@ -1,6 +1,7 @@
 // lib/app.dart
 // Root application widget — sets up MaterialApp, GoRouter, and theme.
 // Phase 4: added /game/:levelNumber and /level-complete routes.
+// Phase 6: converted to ConsumerStatefulWidget for AppLifecycleObserver (app_open event).
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import 'core/theme/app_theme.dart';
 import 'features/achievements/screens/achievements_screen.dart';
+import 'features/auth/providers/auth_provider.dart';
 import 'features/auth/screens/sign_in_screen.dart';
 import 'features/auth/screens/sign_up_screen.dart';
 import 'features/auth/screens/splash_screen.dart';
@@ -55,11 +57,39 @@ final _router = GoRouter(
   ],
 );
 
-class App extends ConsumerWidget {
+class App extends ConsumerStatefulWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<App> createState() => _AppState();
+}
+
+class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Fire app_open on every foreground resume. This resets the session ID and
+  /// records the event. Not fired from initState — the resumed callback covers
+  /// the first foreground transition naturally.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Fire-and-forget — analytics must never block UI.
+      ref.read(analyticsServiceProvider).trackAppOpen();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Puzzle Game',
       theme: AppTheme.light,

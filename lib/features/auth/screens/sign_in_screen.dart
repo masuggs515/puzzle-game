@@ -41,6 +41,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             email: _emailController.text.trim(),
             password: _passwordController.text,
           );
+      // Analytics: sign_in — fire-and-forget. No email sent to Mixpanel.
+      ref.read(analyticsServiceProvider).trackSignIn(method: 'email');
       if (mounted) context.go('/home');
     } catch (e) {
       setState(() => _errorMessage = _friendlyError(e.toString()));

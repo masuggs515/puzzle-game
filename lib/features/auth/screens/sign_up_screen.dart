@@ -50,6 +50,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             email: _emailController.text.trim(),
             password: _passwordController.text,
           );
+      // Analytics: account_created — fire-and-forget. No email sent to Mixpanel.
+      ref.read(analyticsServiceProvider).trackAccountCreated(
+        method: 'email',
+        wasGuest: true, // anonymous session converts to email account
+        levelsCompletedAsGuest: 0, // TODO MAS: track guest level count in SharedPreferences for accurate conversion data
+        coinBalanceAtConversion: ref.read(coinBalanceProvider).value ?? 0,
+      );
       if (mounted) context.go('/home');
     } catch (e) {
       setState(() => _errorMessage = _friendlyError(e.toString()));
