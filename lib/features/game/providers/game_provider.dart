@@ -361,11 +361,17 @@ class GameNotifier extends StateNotifier<GameState> {
     if (caller == null || profileIdGetter == null) return defaults;
 
     try {
+      debugPrint('[GameNotifier] onLevelCompletedBackend: fetching profileId');
       final profileId = await profileIdGetter();
-      if (profileId == null) return defaults;
+      debugPrint('[GameNotifier] onLevelCompletedBackend: profileId=$profileId');
+      if (profileId == null) {
+        debugPrint('[GameNotifier] onLevelCompletedBackend: profileId is null — no player_profiles row for this user');
+        return defaults;
+      }
 
       final levelType = isBoss ? 'bossLevel' : 'standard';
       final idempotencyKey = '$profileId:$levelNumber:$levelType';
+      debugPrint('[GameNotifier] onLevelCompletedBackend: calling on-level-complete level=$levelNumber type=$levelType stars=${state.stars} hints=${state.hintsUsedThisLevel}');
 
       final result = await caller('on-level-complete', {
         'level_number': levelNumber,
@@ -379,6 +385,8 @@ class GameNotifier extends StateNotifier<GameState> {
         'stars': state.stars,
         'idempotency_key': idempotencyKey,
       });
+
+      debugPrint('[GameNotifier] onLevelCompletedBackend: success result=$result');
 
       final coinsAwarded = (result['coins_awarded'] as num?)?.toInt() ?? 0;
       final newBalance = (result['new_balance'] as num?)?.toInt() ?? 0;
