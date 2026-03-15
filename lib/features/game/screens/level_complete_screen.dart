@@ -100,7 +100,9 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
                 Text(
                   widget.args.wasSkipped
                       ? 'Level Skipped'
-                      : 'Level ${widget.args.levelNumber} Complete!',
+                      : widget.args.isVault
+                          ? 'Vault Level ${widget.args.vaultLevel ?? widget.args.levelNumber} Complete!'
+                          : 'Level ${widget.args.levelNumber} Complete!',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
@@ -194,8 +196,15 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: () =>
-                        context.go('/game/${widget.args.levelNumber + 1}'),
+                    onPressed: () {
+                      if (widget.args.isVault) {
+                        final nextVault =
+                            (widget.args.vaultLevel ?? widget.args.levelNumber) + 1;
+                        context.go('/vault/$nextVault');
+                      } else {
+                        context.go('/game/${widget.args.levelNumber + 1}');
+                      }
+                    },
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
@@ -217,11 +226,12 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Return to home
+                // Return to home / vault
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: () => context.go('/home'),
+                    onPressed: () =>
+                        context.go(widget.args.isVault ? '/vault' : '/home'),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
                         color: Colors.white.withValues(alpha: 0.3),

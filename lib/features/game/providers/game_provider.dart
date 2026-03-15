@@ -402,6 +402,7 @@ class GameNotifier extends StateNotifier<GameState> {
       onLevelCompletedBackend({
     required int levelNumber,
     required bool isBoss,
+    bool isVault = false,
   }) async {
     const defaults = (
       coinsEarned: 0,
@@ -423,7 +424,7 @@ class GameNotifier extends StateNotifier<GameState> {
         return defaults;
       }
 
-      final levelType = isBoss ? 'bossLevel' : 'standard';
+      final levelType = isVault ? 'vault' : (isBoss ? 'bossLevel' : 'standard');
       final idempotencyKey = '$profileId:$levelNumber:$levelType';
       debugPrint('[GameNotifier] onLevelCompletedBackend: calling on-level-complete level=$levelNumber type=$levelType stars=${state.stars} hints=${state.hintsUsedThisLevel}');
 

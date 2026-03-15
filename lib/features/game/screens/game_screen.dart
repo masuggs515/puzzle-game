@@ -2,6 +2,7 @@
 // Phase 5 — Economy & Progression (extended from Phase 4)
 // Phase 6 — Analytics call sites
 // Phase 7 — Interstitial ad before level-complete navigation
+// Phase 8 — Vault mode support
 // Spec: flutter-agent-spec.md § Navigation Routes
 //       analytics-agent-spec.md
 //       master-development-plan.md § Ad Strategy
@@ -27,6 +28,7 @@ import 'package:puzzle_game/features/game/providers/valid_words_provider.dart';
 import 'package:puzzle_game/features/game/services/puzzle_state_persistence.dart';
 import 'package:puzzle_game/features/game/widgets/crossword_grid_widget.dart';
 import 'package:puzzle_game/features/game/widgets/letter_pool_widget.dart';
+import 'package:puzzle_game/features/vault/providers/vault_provider.dart';
 import 'package:puzzle_game/puzzle_engine/models/puzzle.dart';
 
 // ---------------------------------------------------------------------------
@@ -34,9 +36,12 @@ import 'package:puzzle_game/puzzle_engine/models/puzzle.dart';
 // ---------------------------------------------------------------------------
 
 class GameScreen extends ConsumerStatefulWidget {
-  final int levelNumber;
+  final int? levelNumber;
+  final int? vaultLevel;
 
-  const GameScreen({super.key, required this.levelNumber});
+  const GameScreen({super.key, this.levelNumber, this.vaultLevel})
+      : assert(levelNumber != null || vaultLevel != null,
+            'GameScreen requires either levelNumber or vaultLevel');
 
   @override
   ConsumerState<GameScreen> createState() => _GameScreenState();
@@ -48,6 +53,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   bool _levelCompleteNavigated = false;
   Timer? _saveDebounceTimer;
   bool _stateRestored = false;
+
+  bool get _isVault => widget.vaultLevel != null;
+  int get _effectiveLevelNumber =>
+      _isVault ? widget.vaultLevel! : (widget.levelNumber ?? 0);
+  bool get _isVaultBoss => _isVault && widget.vaultLevel! % 10 == 0;
 
   void _initGame(Puzzle puzzle) {
     if (_notifier != null) return; // already initialised for this level
@@ -74,10 +84,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       analytics: analytics,
     );
     // Analytics: level_start — fire-and-forget.
+    final isBossForAnalytics = _isVault ? _isVaultBoss : puzzle.isBoss;
+    final levelTypeForAnalytics =
+        _isVault ? 'vault' : (puzzle.isBoss ? 'bossLevel' : 'standard');
     analytics.trackLevelStart(
-      levelNumber: puzzle.levelNumber ?? widget.levelNumber,
-      levelType: puzzle.isBoss ? 'bossLevel' : 'standard',
-      isBoss: puzzle.isBoss,
+      levelNumber: puzzle.levelNumber ?? _effectiveLevelNumber,
+      levelType: levelTypeForAnalytics,
+      isBoss: isBossForAnalytics,
       coinBalance: ref.read(coinBalanceProvider).value ?? 0,
       intersectionCount: puzzle.intersections.length,
       constraintTiers: puzzle.wordSlots
@@ -87,11 +100,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _notifier!.addListener((newState) {
       if (mounted) {
         setState(() => _gameState = newState);
-        _scheduleSave(newState);
+        if (!_isVault) _scheduleSave(newState);
       }
     });
     _gameState = _notifier!.currentState;
-    _scheduleRestore(widget.levelNumber);
+    if (!_isVault) _scheduleRestore(_effectiveLevelNumber);
   }
 
   @override
@@ -130,13 +143,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// Debounced save — fires 300 ms after the last state change.
   /// Skipped when the level is already complete to avoid saving a stale state
-  /// that would be restored on a replay.
+  /// that would be restored on a replay. Skipped for vault levels.
   void _scheduleSave(GameState newState) {
+    if (_isVault) return;
     if (newState.phase == GamePhase.levelComplete) return;
     _saveDebounceTimer?.cancel();
     _saveDebounceTimer = Timer(const Duration(milliseconds: 300), () {
       PuzzleStatePersistence.save(
-        widget.levelNumber,
+        widget.levelNumber!,
         newState.tiles,
         newState.hintsUsedThisLevel,
         newState.attemptsThisLevel,
@@ -171,6 +185,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Future<void> _requestSkip(Puzzle puzzle) async {
+    if (_isVault) return;
     final balance = ref.read(coinBalanceProvider).value ?? 0;
     if (balance < GameConstants.skipCost) {
       if (!mounted) return;
@@ -225,27 +240,31 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       amount: -GameConstants.skipCost,
       balanceBefore: balance,
       balanceAfter: result.newBalance,
-      referenceId: '${puzzle.levelNumber ?? widget.levelNumber}',
+      referenceId: '${puzzle.levelNumber ?? _effectiveLevelNumber}',
     );
 
     ref.invalidate(coinBalanceProvider);
     // Clear saved mid-puzzle state so a replay starts fresh.
-    await PuzzleStatePersistence.clear(widget.levelNumber);
+    if (!_isVault) await PuzzleStatePersistence.clear(widget.levelNumber!);
     if (!mounted) return;
     context.go(
       '/level-complete',
       extra: LevelCompleteArgs(
-        levelNumber: puzzle.levelNumber ?? widget.levelNumber,
+        levelNumber: puzzle.levelNumber ?? _effectiveLevelNumber,
         stars: 0,
         coinsEarned: 0,
         wasSkipped: true,
+        isVault: _isVault,
+        vaultLevel: _isVault ? widget.vaultLevel : null,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final puzzleAsync = ref.watch(gamePuzzleProvider(widget.levelNumber));
+    final puzzleAsync = _isVault
+        ? ref.watch(vaultGamePuzzleProvider(widget.vaultLevel!))
+        : ref.watch(gamePuzzleProvider(widget.levelNumber!));
     // categoryListsProvider preloads CategoryListLoader so constraint
     // validation works. Both must be ready before showing the game.
     final categoriesAsync = ref.watch(categoryListsProvider);
@@ -256,8 +275,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         if (didPop) return;
         final shouldLeave = await _confirmLeave(context);
         if (shouldLeave && context.mounted) {
-          _fireAbandonedAnalytics(widget.levelNumber);
-          context.go('/home');
+          _fireAbandonedAnalytics(_effectiveLevelNumber);
+          context.go(_isVault ? '/vault' : '/home');
         }
       },
       child: Scaffold(
@@ -302,20 +321,23 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         final router = GoRouter.of(context);
         final coinBalanceBefore = ref.read(coinBalanceProvider).value ?? 0;
         final result = await _notifier!.onLevelCompletedBackend(
-          levelNumber: puzzle.levelNumber ?? widget.levelNumber,
-          isBoss: puzzle.isBoss,
+          levelNumber: puzzle.levelNumber ?? _effectiveLevelNumber,
+          isBoss: _isVault ? _isVaultBoss : puzzle.isBoss,
+          isVault: _isVault,
         );
         if (!mounted) return;
 
         // Analytics: level_complete — fire-and-forget.
         final analytics = ref.read(analyticsServiceProvider);
-        final levelNum = puzzle.levelNumber ?? widget.levelNumber;
-        final levelType = puzzle.isBoss ? 'bossLevel' : 'standard';
+        final levelNum = puzzle.levelNumber ?? _effectiveLevelNumber;
+        final levelType =
+            _isVault ? 'vault' : (puzzle.isBoss ? 'bossLevel' : 'standard');
+        final isBossForComplete = _isVault ? _isVaultBoss : puzzle.isBoss;
 
         analytics.trackLevelComplete(
           levelNumber: levelNum,
           levelType: levelType,
-          isBoss: puzzle.isBoss,
+          isBoss: isBossForComplete,
           stars: gameState.stars,
           hintsUsed: gameState.hintsUsedThisLevel,
           attemptsTotal: gameState.attemptsThisLevel,
@@ -358,11 +380,25 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
         // Invalidate coin balance so home screen shows updated value.
         ref.invalidate(coinBalanceProvider);
+
+        // Phase 8: Update vault level state if vault mode.
+        if (_isVault) {
+          final vl = widget.vaultLevel!;
+          final current = ref.read(currentVaultLevelProvider);
+          if (vl > current) {
+            ref.read(currentVaultLevelProvider.notifier).state = vl;
+          }
+          ref.invalidate(vaultLevelProvider);
+          ref.invalidate(profileProvider);
+        }
+
         // Clear saved state now that the level is complete so a replay
-        // starts fresh.
-        await PuzzleStatePersistence.clear(
-          puzzle.levelNumber ?? widget.levelNumber,
-        );
+        // starts fresh. Skipped for vault levels.
+        if (!_isVault) {
+          await PuzzleStatePersistence.clear(
+            puzzle.levelNumber ?? widget.levelNumber!,
+          );
+        }
         if (!mounted) return;
 
         // Phase 7: Show interstitial ad if due — NEVER on boss levels,
@@ -372,7 +408,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         // Capture levelsSinceLastAd BEFORE shouldShowAd() resets the counter.
         final levelsSinceLastAd = adFreqManager.levelsSinceLastAd;
         final shouldShowAd = adFreqManager.shouldShowAd(
-          isBossLevel: puzzle.isBoss,
+          isBossLevel: _isVault ? _isVaultBoss : puzzle.isBoss,
           isPayingUser: revenueCat.isPayingUser,
         );
 
@@ -381,10 +417,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           router.go(
             '/level-complete',
             extra: LevelCompleteArgs(
-              levelNumber: puzzle.levelNumber ?? widget.levelNumber,
+              levelNumber: puzzle.levelNumber ?? _effectiveLevelNumber,
               stars: gameState.stars,
               coinsEarned: result.coinsEarned,
               achievementsUnlocked: result.achievementsUnlocked,
+              isVault: _isVault,
+              vaultLevel: _isVault ? widget.vaultLevel : null,
             ),
           );
         }
@@ -409,16 +447,17 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         children: [
           // HUD bar
           _GameHud(
-            levelNumber: puzzle.levelNumber ?? widget.levelNumber,
-            isBoss: puzzle.isBoss,
+            levelNumber: puzzle.levelNumber ?? _effectiveLevelNumber,
+            isBoss: _isVault ? _isVaultBoss : puzzle.isBoss,
+            isVault: _isVault,
             coinBalance: coinBalance,
             onBack: () async {
               final shouldLeave = await _confirmLeave(context);
               if (shouldLeave && context.mounted) {
                 _fireAbandonedAnalytics(
-                  _gameState?.puzzle.levelNumber ?? widget.levelNumber,
+                  _gameState?.puzzle.levelNumber ?? _effectiveLevelNumber,
                 );
-                context.go('/home');
+                context.go(_isVault ? '/vault' : '/home');
               }
             },
             onHintPressed: _requestHint,
@@ -474,10 +513,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final gameState = _gameState ?? _notifier?.currentState;
     if (gameState == null) return;
     final puzzle = gameState.puzzle;
+    final levelType =
+        _isVault ? 'vault' : (puzzle.isBoss ? 'bossLevel' : 'standard');
+    final isBossForAbandoned = _isVault ? _isVaultBoss : puzzle.isBoss;
     ref.read(analyticsServiceProvider).trackLevelAbandoned(
       levelNumber: levelNumber,
-      levelType: puzzle.isBoss ? 'bossLevel' : 'standard',
-      isBoss: puzzle.isBoss,
+      levelType: levelType,
+      isBoss: isBossForAbandoned,
       timeSpentMs: DateTime.now()
           .difference(gameState.levelStartTime)
           .inMilliseconds,
@@ -528,6 +570,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 class _GameHud extends StatelessWidget {
   final int levelNumber;
   final bool isBoss;
+  final bool isVault;
   final int coinBalance;
   final VoidCallback onBack;
   final VoidCallback onHintPressed;
@@ -536,6 +579,7 @@ class _GameHud extends StatelessWidget {
   const _GameHud({
     required this.levelNumber,
     required this.isBoss,
+    required this.isVault,
     required this.coinBalance,
     required this.onBack,
     required this.onHintPressed,
@@ -563,7 +607,7 @@ class _GameHud extends StatelessWidget {
                   const SizedBox(width: 4),
                 ],
                 Text(
-                  'Level $levelNumber',
+                  isVault ? 'Vault V$levelNumber' : 'Level $levelNumber',
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 18,
