@@ -5,6 +5,7 @@
 // World map screen for vault levels. Shows an infinite series of procedurally
 // generated puzzles. Vault boss levels are every 10th vault level.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -48,6 +49,41 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
     });
   }
 
+  void _showDebugJumpDialog(BuildContext context, WidgetRef ref) {
+    final controller = TextEditingController();
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Set Vault Level (debug)'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Completed vault level',
+            hintText: 'e.g. 9 to unlock boss level 10',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              final value = int.tryParse(controller.text.trim());
+              if (value != null && value >= 0) {
+                ref.read(currentVaultLevelProvider.notifier).state = value;
+              }
+              Navigator.of(ctx).pop();
+            },
+            child: const Text('Set'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentVaultLevel = ref.watch(currentVaultLevelProvider);
@@ -76,6 +112,13 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
           ),
         ),
         actions: [
+          // Debug-only: jump to any vault level
+          if (kDebugMode)
+            IconButton(
+              icon: const Icon(Icons.build, color: Colors.white54, size: 18),
+              tooltip: 'Set vault level (debug)',
+              onPressed: () => _showDebugJumpDialog(context, ref),
+            ),
           // Coin balance display
           Padding(
             padding: const EdgeInsets.only(right: 16),

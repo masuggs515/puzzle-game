@@ -1,7 +1,7 @@
 # Project State
 Last updated: 2026-03-15
-Current phase: 8 — The Vault
-Current task branch: task/phase8-the-vault (PR open, awaiting Adam review)
+Current phase: 8 complete — ready for Phase 9 (Polish)
+Current task branch: task/vault-debug-unlock (PR open)
 
 ---
 
@@ -41,8 +41,8 @@ Current task branch: task/phase8-the-vault (PR open, awaiting Adam review)
 | 20260303014251_fix-is-guest-for-anonymous-users | ✓ applied | ✓ applied 2026-03-03 | not yet |
 | 20260303014942_restrict-migrate-anon-function | ✓ applied | ✓ applied 2026-03-03 | not yet |
 | 20260311000001_phase5_increment_words_procedure | ✓ applied | ✓ applied 2026-03-12 | not yet |
-| 20260314000001_add_rewarded_ad_transaction_type | pending Docker | ✓ applied 2026-03-15 | not yet |
-| 20260315000001_add_vault_tracking | pending Docker | pending Adam approval | not yet |
+| 20260314000001_add_rewarded_ad_transaction_type | pending local Docker | ✓ applied 2026-03-15 | not yet |
+| 20260315000001_add_vault_tracking | pending local Docker | ✓ applied 2026-03-15 | not yet |
 
 ---
 
@@ -51,7 +51,8 @@ Current task branch: task/phase8-the-vault (PR open, awaiting Adam review)
 - **PR #24** (merged ✓) — "feat: Phase 6 — Analytics (Mixpanel + Supabase dual-write)"
 - **PR #25** (merged ✓) — "feat: Phase 7 — Ads & Monetization (AdMob + RevenueCat + Shop)"
 - **PR #26** (merged ✓) — "chore: wire real AdMob App ID and env-driven ad unit IDs"
-- **PR TBD** (open) — "feat: Phase 8 — The Vault (procedural levels, vault world map, vault game mode)" — targeting dev
+- **PR #27** (merged ✓) — "feat: Phase 8 — The Vault (procedural levels, vault world map, vault game mode)"
+- **PR TBD** (open) — "chore: vault debug level jump (kDebugMode only)"
 
 ---
 
@@ -74,10 +75,10 @@ Current task branch: task/phase8-the-vault (PR open, awaiting Adam review)
 
 - [ ] **Hint cost confirmed** — GameConstants.hintCost = 5. ✓ Phase 4 playtesting complete — 5 coins feels right.
 
-- [ ] **Sign in with Apple** — Phase 8/9. — raised 2026-03-01
-- [ ] **Sign in with Google** — Phase 8/9. — raised 2026-03-01
-- [ ] **App name / codename** — Before Phase 8/10. — raised 2026-03-01
-- [ ] **iOS build verification** — Requires Mac. — raised 2026-03-01
+- [ ] **Sign in with Apple** — PAUSED. iOS/Apple development suspended until Mac is available.
+- [ ] **Sign in with Google** — Phase 9 (Android). — raised 2026-03-01
+- [ ] **App name / codename** — Before Phase 9/10. — raised 2026-03-01
+- [ ] **iOS build verification** — PAUSED. Requires Mac. Android-only testing for now.
 
 - [ ] **`first_try` achievement definition** — GDD §14 says "Submit correct word on first attempt 50 times total." Current implementation counts levels completed with `attempts_made === 1` (one board submission attempt). Clarify: is the intent (a) 50 levels completed on first board submit attempt, or (b) per-word-slot first-attempt success tracked separately? Option (a) is implemented. If (b), a new tracking field is required. — raised 2026-03-11
 
@@ -89,17 +90,15 @@ Current task branch: task/phase8-the-vault (PR open, awaiting Adam review)
   - Use `bash scripts/run_dev_cloud.sh` (not run_dev.sh) — loads .env.dev with cloud URL
   - Watch debug console for `[SupabaseService]` and `[GameNotifier]` lines to pinpoint failure
 
-- [ ] **Create `.env.dev`** — file with puzzle-game-dev credentials for `run_dev_cloud.sh`. Format: `SUPABASE_URL=https://xgqqpyehkmzyrtvqsofe.supabase.co` and `SUPABASE_ANON_KEY=<dev anon key>`. — raised 2026-03-12
+- [x] **Create `.env.dev`** — Fully populated: SUPABASE_URL, SUPABASE_ANON_KEY, MIXPANEL_TOKEN, SENTRY_DSN, REVENUECAT_KEY, ADMOB IDs. Completed 2026-03-15.
 
-- [ ] **Verify anonymous auth enabled in puzzle-game-dev** — Dashboard → Authentication → Providers → Anonymous → must be toggled ON. If off, signInAnonymously() fails and no profile is created. — raised 2026-03-12
+- [x] **Verify anonymous auth enabled in puzzle-game-dev** — Confirmed by Adam 2026-03-15.
 
 - [x] **Create Mixpanel account and get token** — Account: mintstreetstudios@gmail.com. Token: `dc6c506bcdb96cf7d58969f29607d147`. Add `MIXPANEL_TOKEN=dc6c506bcdb96cf7d58969f29607d147` to `.env.task` and `.env.dev`. — completed 2026-03-15
 
 - [ ] **Phase 6 verification** — After merging PR #24 and adding Mixpanel token, play through 3+ levels while watching Mixpanel Live View. Confirm: `app_open`, `level_start`, `word_submitted`, `level_complete` events appear within 5 seconds with correct properties. Also confirm `analytics_events` table in Supabase populating. — raised 2026-03-13
 
-- [ ] **Review and merge PR #24** — Phase 6 analytics implementation. — raised 2026-03-13
-
-- [ ] **Review and merge PR #25** — Phase 7 Ads & Monetization. — raised 2026-03-14
+- [x] **Review and merge PRs #24, #25, #26, #27** — All merged ✓ 2026-03-15.
 
 - [x] **AdMob IDs in place** — `AndroidManifest.xml` and `Info.plist` updated with real App ID (`ca-app-pub-2654554875235480~5804802772`). Run scripts updated to read `ADMOB_INTERSTITIAL_ID` / `ADMOB_REWARDED_ID` from `.env.*` files. `.env.dev` has real unit IDs. Add `ADMOB_INTERSTITIAL_ID` and `ADMOB_REWARDED_ID` to `.env.task` when local AdMob testing is needed. — completed 2026-03-15
 
@@ -107,7 +106,7 @@ Current task branch: task/phase8-the-vault (PR open, awaiting Adam review)
 
 - [ ] **Set REVENUECAT_WEBHOOK_SECRET in Supabase** — Dashboard → Edge Functions → Secrets → add `REVENUECAT_WEBHOOK_SECRET=<secret from RevenueCat>`. Then in RevenueCat dashboard, add webhook URL: `https://xgqqpyehkmzyrtvqsofe.supabase.co/functions/v1/on-iap-purchase`. — raised 2026-03-14
 
-- [ ] **Apply migration 20260314000001 to local DB** — Still pending Docker start. `supabase db push --local` when Docker is running.
+- [ ] **Apply pending migrations to local DB** — Not blocking. Local DB used only for spot-checks when Docker is running. All mobile testing uses puzzle-game-dev. Run `supabase db push --local` when needed.
 
 - [x] **Migration 20260314000001 applied to puzzle-game-dev** — `rewarded_ad` enum value added to `transaction_type`. Applied 2026-03-15.
 
