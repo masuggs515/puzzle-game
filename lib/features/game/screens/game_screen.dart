@@ -1,8 +1,10 @@
 // lib/features/game/screens/game_screen.dart
 // Phase 5 — Economy & Progression (extended from Phase 4)
 // Phase 6 — Analytics call sites
+// Phase 7 — Interstitial ad before level-complete navigation
 // Spec: flutter-agent-spec.md § Navigation Routes
 //       analytics-agent-spec.md
+//       master-development-plan.md § Ad Strategy
 //
 // Main game screen. Shows the crossword grid and letter pool.
 // Game state is managed by a GameNotifier created as local state — this
@@ -16,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:puzzle_game/core/constants/game_constants.dart';
 import 'package:puzzle_game/core/theme/app_colors.dart';
 import 'package:puzzle_game/features/auth/providers/auth_provider.dart';
+import 'package:puzzle_game/features/shop/providers/shop_provider.dart';
 import 'package:puzzle_game/features/game/models/game_state.dart';
 import 'package:puzzle_game/features/game/models/level_complete_args.dart';
 import 'package:puzzle_game/features/game/providers/game_provider.dart';
@@ -361,15 +364,43 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           puzzle.levelNumber ?? widget.levelNumber,
         );
         if (!mounted) return;
-        router.go(
-          '/level-complete',
-          extra: LevelCompleteArgs(
-            levelNumber: puzzle.levelNumber ?? widget.levelNumber,
-            stars: gameState.stars,
-            coinsEarned: result.coinsEarned,
-            achievementsUnlocked: result.achievementsUnlocked,
-          ),
+
+        // Phase 7: Show interstitial ad if due — NEVER on boss levels,
+        // NEVER for paying users. onAdDismissed always fires even on failure.
+        final adFreqManager = ref.read(adFrequencyManagerProvider);
+        final revenueCat = ref.read(revenueCatServiceProvider);
+        // Capture levelsSinceLastAd BEFORE shouldShowAd() resets the counter.
+        final levelsSinceLastAd = adFreqManager.levelsSinceLastAd;
+        final shouldShowAd = adFreqManager.shouldShowAd(
+          isBossLevel: puzzle.isBoss,
+          isPayingUser: revenueCat.isPayingUser,
         );
+
+        void navigateToLevelComplete() {
+          if (!mounted) return;
+          router.go(
+            '/level-complete',
+            extra: LevelCompleteArgs(
+              levelNumber: puzzle.levelNumber ?? widget.levelNumber,
+              stars: gameState.stars,
+              coinsEarned: result.coinsEarned,
+              achievementsUnlocked: result.achievementsUnlocked,
+            ),
+          );
+        }
+
+        if (shouldShowAd) {
+          ref.read(analyticsServiceProvider).trackInterstitialAdShown(
+            levelNumber: levelNum,
+            levelsSinceLastAd: levelsSinceLastAd,
+          );
+          final interstitialService = ref.read(interstitialAdServiceProvider);
+          await interstitialService.showAd(
+            onAdDismissed: navigateToLevelComplete,
+          );
+        } else {
+          navigateToLevelComplete();
+        }
       });
     }
 

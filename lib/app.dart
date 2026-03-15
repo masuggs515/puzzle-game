@@ -17,6 +17,7 @@ import 'features/game/models/level_complete_args.dart';
 import 'features/game/screens/game_screen.dart';
 import 'features/game/screens/level_complete_screen.dart';
 import 'features/home/screens/home_screen.dart';
+import 'features/shop/screens/shop_screen.dart';
 
 final _router = GoRouter(
   initialLocation: '/',
@@ -53,7 +54,10 @@ final _router = GoRouter(
       path: '/achievements',
       builder: (context, state) => const AchievementsScreen(),
     ),
-    // TODO Phase 9: /shop route
+    GoRoute(
+      path: '/shop',
+      builder: (context, state) => const ShopScreen(),
+    ),
   ],
 );
 

@@ -1,13 +1,15 @@
 // lib/features/auth/providers/auth_provider.dart
-// Phase 2 — Foundation (extended Phase 6: analytics providers added)
+// Phase 2 — Foundation (extended Phase 6: analytics providers; Phase 7: ad providers)
 // Spec: master-development-plan.md § 2.3 Anonymous Session Flow
 //       analytics-agent-spec.md
+//       master-development-plan.md § Ad Strategy
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../data/models/player_profile.dart';
+import '../../../data/services/ad_service.dart';
 import '../../../data/services/analytics_service.dart';
 import '../../../data/services/supabase_service.dart';
 
@@ -65,4 +67,28 @@ final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
   final mixpanel = ref.watch(mixpanelProvider);
   final supabase = ref.read(supabaseServiceProvider);
   return AnalyticsService(mixpanel, supabase);
+});
+
+// ── Ad providers (Phase 7) ────────────────────────────────────────────────
+// Spec: master-development-plan.md § Ad Strategy
+
+/// Tracks when interstitial ads are due. Single instance for the app lifetime.
+final adFrequencyManagerProvider = Provider<AdFrequencyManager>((ref) {
+  return AdFrequencyManager();
+});
+
+/// Loads and shows interstitial ads. Pre-loaded on app start.
+final interstitialAdServiceProvider = Provider<InterstitialAdService>((ref) {
+  final service = InterstitialAdService();
+  service.loadAd(); // Pre-load on app start
+  ref.onDispose(service.dispose);
+  return service;
+});
+
+/// Loads and shows rewarded video ads. Pre-loaded on app start.
+final rewardedAdServiceProvider = Provider<RewardedAdService>((ref) {
+  final service = RewardedAdService();
+  service.loadAd(); // Pre-load on app start
+  ref.onDispose(service.dispose);
+  return service;
 });

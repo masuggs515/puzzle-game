@@ -66,5 +66,15 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- AdMob App ID — TODO MAS: replace with real ID from AdMob dashboard -->
+	<!-- Placeholder: Google test App ID -->
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<!-- ATT usage description — shown in iOS permission dialog -->
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This identifier will be used to deliver personalized ads to you.</string>
+	<!-- Prevent AdMob from delaying app start -->
+	<key>GADDelayAppMeasurementInit</key>
+	<true/>
 </dict>
 </plist>
