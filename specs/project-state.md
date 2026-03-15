@@ -98,9 +98,9 @@ Current task branch: task/phase7-ads-monetization (PR #25 open)
 
 - [ ] **Review and merge PR #25** — Phase 7 Ads & Monetization. — raised 2026-03-14
 
-- [ ] **Create AdMob account** — admob.google.com → create iOS + Android apps → create `puzzle_game_interstitial` and `puzzle_game_rewarded` ad units → replace placeholder App IDs in `AndroidManifest.xml` (`ca-app-pub-3940256099942544~3347511713`) and `Info.plist` (`ca-app-pub-3940256099942544~1458002511`) with real IDs. Also update `.env.task` and `.env.dev` with real unit IDs for the four ADMOB_* vars. — raised 2026-03-14
+- [x] **AdMob IDs in place** — `AndroidManifest.xml` and `Info.plist` updated with real App ID (`ca-app-pub-2654554875235480~5804802772`). Run scripts updated to read `ADMOB_INTERSTITIAL_ID` / `ADMOB_REWARDED_ID` from `.env.*` files. `.env.dev` has real unit IDs. Add `ADMOB_INTERSTITIAL_ID` and `ADMOB_REWARDED_ID` to `.env.task` when local AdMob testing is needed. — completed 2026-03-15
 
-- [ ] **Add REVENUECAT_KEY to env files** — Create RevenueCat project at app.revenuecat.com → copy API key → add `REVENUECAT_KEY=<key>` to `.env.task` and `.env.dev`. Then create coin bundle products (coins_500/$0.99, coins_1200/$1.99, coins_2500/$3.99, coins_6000/$7.99) in both App Store Connect and Google Play, then configure them in RevenueCat. — raised 2026-03-14
+- [ ] **Configure RevenueCat products** — `REVENUECAT_KEY` in env files ✓. Still required: create coin bundle products (coins_500/$0.99, coins_1200/$1.99, coins_2500/$3.99, coins_6000/$7.99) in App Store Connect and Google Play, then add them to RevenueCat dashboard. — raised 2026-03-14
 
 - [ ] **Set REVENUECAT_WEBHOOK_SECRET in Supabase** — Dashboard → Edge Functions → Secrets → add `REVENUECAT_WEBHOOK_SECRET=<secret from RevenueCat>`. Then in RevenueCat dashboard, add webhook URL: `https://xgqqpyehkmzyrtvqsofe.supabase.co/functions/v1/on-iap-purchase`. — raised 2026-03-14
 
