@@ -1,5 +1,5 @@
 # Master Development Plan
-**Project:** Word/Logic Puzzle Game (codename TBD)  
+**Project:** Intercept
 **Document Version:** 0.2  
 **Last Updated:** February 2026
 
@@ -514,7 +514,7 @@ The guiding principle: **always have a runnable app**. From Phase 2 onward, you 
 ### 1.5 Hello World Screen (Flutter Agent)
 
 - [ ] Create a minimal `HomeScreen` that displays:
-  - App name (placeholder: "Puzzle Game")
+  - App name: "Intercept"
   - "Hello World" text
   - Current Supabase connection status (connected / not connected)
   - Current auth status (guest / signed in / not authenticated)

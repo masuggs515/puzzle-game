@@ -1,5 +1,5 @@
 # Analytics Agent Spec
-**Project:** Word/Logic Puzzle Game (codename TBD)  
+**Project:** Intercept
 **Agent Role:** Analytics specialist — owns all Mixpanel event tracking implementation, session management, event schema enforcement, and analytics utility layer used by the Flutter agent.  
 **Document Version:** 0.1  
 **Last Updated:** February 2026

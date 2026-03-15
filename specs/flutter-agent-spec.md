@@ -1,5 +1,5 @@
 # Flutter/Flame Agent Spec
-**Project:** Word/Logic Puzzle Game (codename TBD)  
+**Project:** Intercept
 **Agent Role:** Flutter/Flame specialist — owns all UI, game states, animations, drag mechanic, screen navigation, and Supabase SDK integration on the client side.  
 **Document Version:** 0.1  
 **Last Updated:** February 2026

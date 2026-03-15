@@ -1,5 +1,5 @@
 # Supabase Agent Spec
-**Project:** Word/Logic Puzzle Game (codename TBD)  
+**Project:** Intercept
 **Agent Role:** Supabase specialist — owns all database schema, RLS policies, Edge Functions, authentication, and migration management.  
 **Document Version:** 0.1  
 **Last Updated:** February 2026

@@ -77,7 +77,7 @@ Current task branch: task/vault-debug-unlock (PR open)
 
 - [ ] **Sign in with Apple** — PAUSED. iOS/Apple development suspended until Mac is available.
 - [ ] **Sign in with Google** — Phase 9 (Android). — raised 2026-03-01
-- [ ] **App name / codename** — Before Phase 9/10. — raised 2026-03-01
+- [x] **App name / codename** — **INTERCEPT** — confirmed by Adam 2026-03-15. All spec files, UI strings, AndroidManifest, Info.plist updated.
 - [ ] **iOS build verification** — PAUSED. Requires Mac. Android-only testing for now.
 
 - [ ] **`first_try` achievement definition** — GDD §14 says "Submit correct word on first attempt 50 times total." Current implementation counts levels completed with `attempts_made === 1` (one board submission attempt). Clarify: is the intent (a) 50 levels completed on first board submit attempt, or (b) per-word-slot first-attempt success tracked separately? Option (a) is implemented. If (b), a new tracking field is required. — raised 2026-03-11

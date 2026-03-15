@@ -1,5 +1,5 @@
 # Review Agent Spec
-**Project:** Word/Logic Puzzle Game (codename TBD)  
+**Project:** Intercept
 **Agent Role:** Review specialist — runs after every agent session to verify no breaking changes, confirm Definition of Done criteria are met, check code quality and security, and flag anything that needs attention before the next session begins.  
 **Document Version:** 0.1  
 **Last Updated:** February 2026

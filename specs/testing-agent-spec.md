@@ -1,5 +1,5 @@
 # Testing Agent Spec
-**Project:** Word/Logic Puzzle Game (codename TBD)  
+**Project:** Intercept
 **Agent Role:** Testing specialist — writes, maintains, and runs the test suite across all layers of the application. Owns unit tests, widget tests, integration tests, and Edge Function tests. Reports coverage and flags untested critical paths.  
 **Document Version:** 0.1  
 **Last Updated:** February 2026

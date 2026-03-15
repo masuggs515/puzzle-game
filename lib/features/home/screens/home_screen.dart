@@ -32,7 +32,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Puzzle Game'),
+        title: const Text('Intercept'),
         actions: [
           // Achievements button
           IconButton(

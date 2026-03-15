@@ -1,5 +1,5 @@
 # Level Design Agent Spec
-**Project:** Word/Logic Puzzle Game (codename TBD)  
+**Project:** Intercept
 **Agent Role:** Level design specialist — owns the first 50 hand-crafted puzzles, all bossLevel designs, difficulty curve validation, and the review process for generated puzzles.  
 **Document Version:** 0.1  
 **Last Updated:** February 2026

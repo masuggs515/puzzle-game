@@ -1,5 +1,5 @@
 # Game Design Document
-**Project Codename:** TBD  
+**Project Codename:** Intercept
 **Document Version:** 0.1  
 **Status:** In Progress  
 **Last Updated:** February 2026

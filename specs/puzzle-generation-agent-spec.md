@@ -1,5 +1,5 @@
 # Puzzle Generation Agent Spec
-**Project:** Word/Logic Puzzle Game (codename TBD)  
+**Project:** Intercept
 **Agent Role:** Puzzle generation specialist — owns the word list pipeline, constraint library, CSP algorithm, puzzle validator, pre-generation tooling, and runtime generation module.  
 **Document Version:** 0.1  
 **Last Updated:** February 2026

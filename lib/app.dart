@@ -106,7 +106,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Puzzle Game',
+      title: 'Intercept',
       theme: AppTheme.light,
       routerConfig: _router,
       debugShowCheckedModeBanner: false,
