@@ -1,7 +1,7 @@
 # Project State
-Last updated: 2026-03-13
-Current phase: 6 — Analytics
-Current task branch: task/phase6-analytics (PR #24 open)
+Last updated: 2026-03-14
+Current phase: 7 — Ads & Monetization
+Current task branch: task/phase7-ads-monetization (PR #25 open)
 
 ---
 
@@ -13,9 +13,10 @@ Current task branch: task/phase6-analytics (PR #24 open)
 - [x] Phase 4 — Core Game (playtesting complete 2026-03-11 on Samsung Galaxy S8+ and emulator — mechanic confirmed good)
 - [ ] Phase 5 — Economy & Progression (in progress — PR open, awaiting review and merge)
 - [ ] Phase 6 — Analytics (in progress — PR #24 open)
-- [ ] Phase 7 — The Vault
-- [ ] Phase 8 — Polish
-- [ ] Phase 9 — Monetization
+- [ ] Phase 7 — Ads & Monetization (in progress — PR #25 open; spec Phase 9 content sequenced here)
+- [ ] Phase 8 — The Vault (spec Phase 7 content — deferred)
+- [ ] Phase 9 — Polish (spec Phase 8)
+- [ ] Phase 10 — Pre-Launch (spec Phase 10)
 - [ ] Phase 10 — Pre-Launch
 
 ---
@@ -40,12 +41,14 @@ Current task branch: task/phase6-analytics (PR #24 open)
 | 20260303014251_fix-is-guest-for-anonymous-users | ✓ applied | ✓ applied 2026-03-03 | not yet |
 | 20260303014942_restrict-migrate-anon-function | ✓ applied | ✓ applied 2026-03-03 | not yet |
 | 20260311000001_phase5_increment_words_procedure | ✓ applied | ✓ applied 2026-03-12 | not yet |
+| 20260314000001_add_rewarded_ad_transaction_type | pending Docker | pending Adam approval | not yet |
 
 ---
 
 ## Open PRs
 
 - **PR #24** (open) — "feat: Phase 6 — Analytics (Mixpanel + Supabase dual-write)" — targeting dev
+- **PR #25** (open) — "feat: Phase 7 — Ads & Monetization (AdMob + RevenueCat + Shop)" — targeting dev
 
 ---
 
@@ -92,6 +95,20 @@ Current task branch: task/phase6-analytics (PR #24 open)
 - [ ] **Phase 6 verification** — After merging PR #24 and adding Mixpanel token, play through 3+ levels while watching Mixpanel Live View. Confirm: `app_open`, `level_start`, `word_submitted`, `level_complete` events appear within 5 seconds with correct properties. Also confirm `analytics_events` table in Supabase populating. — raised 2026-03-13
 
 - [ ] **Review and merge PR #24** — Phase 6 analytics implementation. — raised 2026-03-13
+
+- [ ] **Review and merge PR #25** — Phase 7 Ads & Monetization. — raised 2026-03-14
+
+- [ ] **Create AdMob account** — admob.google.com → create iOS + Android apps → create `puzzle_game_interstitial` and `puzzle_game_rewarded` ad units → replace placeholder App IDs in `AndroidManifest.xml` (`ca-app-pub-3940256099942544~3347511713`) and `Info.plist` (`ca-app-pub-3940256099942544~1458002511`) with real IDs. Also update `.env.task` and `.env.dev` with real unit IDs for the four ADMOB_* vars. — raised 2026-03-14
+
+- [ ] **Add REVENUECAT_KEY to env files** — Create RevenueCat project at app.revenuecat.com → copy API key → add `REVENUECAT_KEY=<key>` to `.env.task` and `.env.dev`. Then create coin bundle products (coins_500/$0.99, coins_1200/$1.99, coins_2500/$3.99, coins_6000/$7.99) in both App Store Connect and Google Play, then configure them in RevenueCat. — raised 2026-03-14
+
+- [ ] **Set REVENUECAT_WEBHOOK_SECRET in Supabase** — Dashboard → Edge Functions → Secrets → add `REVENUECAT_WEBHOOK_SECRET=<secret from RevenueCat>`. Then in RevenueCat dashboard, add webhook URL: `https://xgqqpyehkmzyrtvqsofe.supabase.co/functions/v1/on-iap-purchase`. — raised 2026-03-14
+
+- [ ] **Apply migration 20260314000001 to local DB** — Start Docker → `supabase start` → `supabase db push --local`. Then confirm applies to puzzle-game-dev (pending Adam approval). — raised 2026-03-14
+
+- [ ] **Deploy on-rewarded-ad and on-iap-purchase Edge Functions to puzzle-game-dev** — After PR #25 merges and migration applied. Commands: `SUPABASE_ACCESS_TOKEN=<token> supabase functions deploy on-rewarded-ad --project-ref xgqqpyehkmzyrtvqsofe` and same for `on-iap-purchase`. — raised 2026-03-14
+
+- [ ] **Phase 7 verification** — After real AdMob IDs are set, test on physical device: (1) complete 4–5 levels and confirm interstitial appears; (2) tap "Watch Ad" on level-complete screen and confirm 15 coins awarded; (3) tap "Watch Ad" on shop screen and confirm 30 coins awarded; (4) purchase a coin bundle in sandbox and confirm paying user flag suppresses future interstitials. — raised 2026-03-14
 
 ---
 
@@ -185,3 +202,4 @@ Current task branch: task/phase6-analytics (PR #24 open)
 | 2026-03-11 | Phase 5 economy & progression — Edge Functions, coin HUD, hints, skips, world map, achievements | task/phase5-economy-progression | PR #19 merged. 222/222 tests. |
 | 2026-03-12 | Fix Phase 5 backend persistence — error logging, cloud run script | task/fix-phase5-backend-persistence | PR #20 merged. 222/222 tests. |
 | 2026-03-13 | Phase 6 — Analytics (AnalyticsService, Mixpanel init, all 12 wired call sites) | task/phase6-analytics | PR #24 open. 222/222 tests. |
+| 2026-03-14 | Phase 7 — Ads & Monetization (AdMob, RevenueCat, Shop screen, 2 Edge Functions) | task/phase7-ads-monetization | PR #25 open. 237/237 tests. |

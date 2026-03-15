@@ -1,21 +1,28 @@
 // lib/main.dart
 // Application entry point.
-// Initializes Supabase → Mixpanel → Sentry → Riverpod.
+// Initializes Supabase → Mixpanel → AdMob → RevenueCat → Sentry → Riverpod.
 // Anonymous session creation is handled by SplashScreen (Phase 2).
-// RevenueCat, OneSignal deferred to Phase 9 when credentials available.
+// Phase 7: AdMob and RevenueCat initialization added.
 
+import 'dart:io' show Platform;
+
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/config/env.dart';
+import 'data/services/revenue_cat_service.dart';
 import 'features/auth/providers/auth_provider.dart';
+import 'features/shop/providers/shop_provider.dart';
 
-// Top-level nullable — set before runApp so ProviderScope override is safe.
+// Top-level nullable — set before runApp so ProviderScope overrides are safe.
 Mixpanel? _mixpanel;
+RevenueCatService? _revenueCatService;
 
 Future<void> main() async {
   // Initialize Sentry — no-op when DSN is empty, safe for development.
@@ -31,9 +38,14 @@ Future<void> main() async {
       appRunner: () async {
         await _initSupabase();
         await _initMixpanel();
+        await _initAdMob();
+        await _initRevenueCat();
         runApp(ProviderScope(
           overrides: [
             mixpanelProvider.overrideWith((ref) => _mixpanel),
+            revenueCatServiceProvider.overrideWith(
+              (ref) => _revenueCatService ?? RevenueCatService(),
+            ),
           ],
           child: const App(),
         ));
@@ -43,9 +55,14 @@ Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
     await _initSupabase();
     await _initMixpanel();
+    await _initAdMob();
+    await _initRevenueCat();
     runApp(ProviderScope(
       overrides: [
         mixpanelProvider.overrideWith((ref) => _mixpanel),
+        revenueCatServiceProvider.overrideWith(
+          (ref) => _revenueCatService ?? RevenueCatService(),
+        ),
       ],
       child: const App(),
     ));
@@ -81,4 +98,31 @@ Future<void> _initSupabase() async {
     debugPrint('[main] WARNING: Supabase NOT initialized — credentials missing. '
         'Run via scripts/run_dev_cloud.sh, not flutter run directly.');
   }
+}
+
+// Phase 7: Initialize AdMob.
+// Requests ATT permission on iOS before initializing so AdMob can serve
+// personalized ads. If initialization fails, we log and continue — the game
+// must never crash on ad init failure.
+Future<void> _initAdMob() async {
+  try {
+    // Request App Tracking Transparency permission on iOS 14+.
+    // Must happen before MobileAds.instance.initialize().
+    if (Platform.isIOS) {
+      await AppTrackingTransparency.requestTrackingAuthorization();
+    }
+    await MobileAds.instance.initialize();
+    debugPrint('[main] AdMob initialized');
+  } catch (e) {
+    // Silent — never crash the app if ads fail to initialize.
+    debugPrint('[main] AdMob initialization error (non-fatal): $e');
+  }
+}
+
+// Phase 7: Initialize RevenueCat.
+// Uses anonymous ID on first launch — user ID is linked after auth via
+// RevenueCatService.initialize(appUserId: ...) when the profile loads.
+Future<void> _initRevenueCat() async {
+  _revenueCatService = RevenueCatService();
+  await _revenueCatService!.initialize();
 }

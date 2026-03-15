@@ -386,23 +386,24 @@ class AnalyticsService {
   }
 
   // ── Event: iap_purchase ───────────────────────────────────────────────────
+  // Phase 7: revenueUsd replaces price/currency for consistency with RevenueCat
+  // storeProduct.price which is already normalised to USD-equivalent by the SDK.
 
   Future<void> trackIapPurchase({
     required String productId,
+    required double revenueUsd,
     required int coinsAwarded,
-    required double price,
-    required String currency,
+    required int coinBalanceAfter,
   }) async {
     await _track('iap_purchase', {
       'product_id': productId,
+      'revenue_usd': revenueUsd,
       'coins_awarded': coinsAwarded,
-      'price': price,
-      'currency': currency,
+      'coin_balance_after': coinBalanceAfter,
     });
 
-    _mixpanel?.getPeople().trackCharge(price, properties: {
+    _mixpanel?.getPeople().trackCharge(revenueUsd, properties: {
       'product_id': productId,
-      'currency': currency,
     });
     _mixpanel?.getPeople().set('is_paying_user', true);
     _mixpanel?.getPeople().increment('total_iap_purchases', 1);
@@ -434,9 +435,16 @@ class AnalyticsService {
   }
 
   // ── Event: shop_viewed ────────────────────────────────────────────────────
+  // Phase 7: is_paying_user added so Mixpanel funnels can segment IAP converts.
 
-  Future<void> trackShopViewed({required int coinBalance}) async {
-    await _track('shop_viewed', {'coin_balance': coinBalance});
+  Future<void> trackShopViewed({
+    required int coinBalance,
+    required bool isPayingUser,
+  }) async {
+    await _track('shop_viewed', {
+      'coin_balance': coinBalance,
+      'is_paying_user': isPayingUser,
+    });
   }
 
   // ── Event: settings_changed ───────────────────────────────────────────────
@@ -449,5 +457,35 @@ class AnalyticsService {
       'setting_name': settingName,
       'new_value': newValue,
     });
+  }
+
+  // ── Phase 7: Ad events ────────────────────────────────────────────────────
+
+  /// Fired when an interstitial ad is shown between levels.
+  Future<void> trackInterstitialAdShown({
+    required int levelNumber,
+    required int levelsSinceLastAd,
+  }) async {
+    await _track('interstitial_ad_shown', {
+      'level_number': levelNumber,
+      'levels_since_last_ad': levelsSinceLastAd,
+    });
+  }
+
+  /// Fired when a rewarded video ad completes and coins are awarded.
+  /// [placement] is 'level_complete' or 'shop'.
+  Future<void> trackRewardedAdCompleted({
+    required String placement,
+    required int coinsAwarded,
+    required int coinBalanceAfter,
+  }) async {
+    await _track('rewarded_ad_completed', {
+      'placement': placement,
+      'coins_awarded': coinsAwarded,
+      'coin_balance_after': coinBalanceAfter,
+    });
+
+    _mixpanel?.getPeople().increment('total_rewarded_ads_watched', 1);
+    _mixpanel?.getPeople().set('coin_balance', coinBalanceAfter);
   }
 }

@@ -30,6 +30,10 @@ dependencies:
   # Monetization
   purchases_flutter: ^8.4.0
 
+  # Ads
+  google_mobile_ads: ^5.1.0
+  app_tracking_transparency: ^2.0.6+1
+
   # Push notifications
   onesignal_flutter: ^5.2.10
 
