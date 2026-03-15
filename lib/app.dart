@@ -18,6 +18,7 @@ import 'features/game/screens/game_screen.dart';
 import 'features/game/screens/level_complete_screen.dart';
 import 'features/home/screens/home_screen.dart';
 import 'features/shop/screens/shop_screen.dart';
+import 'features/vault/screens/vault_screen.dart';
 
 final _router = GoRouter(
   initialLocation: '/',
@@ -57,6 +58,16 @@ final _router = GoRouter(
     GoRoute(
       path: '/shop',
       builder: (context, state) => const ShopScreen(),
+    ),
+    GoRoute(
+      path: '/vault',
+      builder: (context, state) => const VaultScreen(),
+    ),
+    GoRoute(
+      path: '/vault/:vaultLevel',
+      builder: (context, state) => GameScreen(
+        vaultLevel: int.parse(state.pathParameters['vaultLevel']!),
+      ),
     ),
   ],
 );

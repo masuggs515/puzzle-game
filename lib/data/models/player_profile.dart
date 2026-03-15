@@ -11,6 +11,7 @@ class PlayerProfile {
   final int longestStreak;
   final int totalWordsFound;
   final DateTime createdAt;
+  final int currentVaultLevel;
 
   const PlayerProfile({
     required this.id,
@@ -21,6 +22,7 @@ class PlayerProfile {
     required this.longestStreak,
     required this.totalWordsFound,
     required this.createdAt,
+    this.currentVaultLevel = 0,
   });
 
   factory PlayerProfile.fromJson(Map<String, dynamic> json) => PlayerProfile(
@@ -32,6 +34,7 @@ class PlayerProfile {
         longestStreak: (json['longest_streak'] as int?) ?? 0,
         totalWordsFound: (json['total_words_found'] as int?) ?? 0,
         createdAt: DateTime.parse(json['created_at'] as String),
+        currentVaultLevel: (json['current_vault_level'] as int?) ?? 0,
       );
 
   String get welcomeName => displayName ?? 'Guest';

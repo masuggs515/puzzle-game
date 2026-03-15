@@ -34,6 +34,7 @@ const ACHIEVEMENT_COINS: Record<string, number> = {
   master_of_words:    500,
   saver:              50,
   high_roller:        75,
+  vault_dweller:      100,
 }
 
 interface LevelCompleteRequest {
@@ -122,7 +123,7 @@ Deno.serve(async (req: Request) => {
     // --- Fetch player profile ---
     const { data: profile, error: profileError } = await supabase
       .from('player_profiles')
-      .select('id, current_streak, longest_streak, last_played_date, total_words_found')
+      .select('id, current_streak, longest_streak, last_played_date, total_words_found, current_vault_level')
       .eq('auth_id', user.id)
       .single()
 
@@ -287,6 +288,18 @@ Deno.serve(async (req: Request) => {
       console.error('on-level-complete streak update error:', streakError)
     }
 
+    // --- Update current_vault_level for vault levels ---
+    if (level_type === 'vault') {
+      const newVaultLevel = Math.max((profile.current_vault_level as number) ?? 0, level_number)
+      const { error: vaultLevelError } = await supabase
+        .from('player_profiles')
+        .update({ current_vault_level: newVaultLevel })
+        .eq('id', profile_id)
+      if (vaultLevelError) {
+        console.error('on-level-complete vault level update error:', vaultLevelError)
+      }
+    }
+
     // --- Fetch updated totals for achievement checks ---
     // Re-fetch total_words_found after the increment so achievement thresholds
     // are evaluated against the post-increment value.
@@ -385,6 +398,9 @@ Deno.serve(async (req: Request) => {
     // totalSpentBeforeAchievements is computed from the coin_transactions snapshot taken
     // right after this level's coin award was inserted (above).
     maybeUnlock('saver', totalSpentBeforeAchievements === 0 && balanceBeforeAchievements >= 500)
+
+    // vault_dweller: complete first vault level
+    maybeUnlock('vault_dweller', level_type === 'vault' && completedCount >= 1)
 
     // master_of_words: all levels 1-200 completed AND none skipped (stars not null)
     // Only check if completedCount is high enough to be feasible

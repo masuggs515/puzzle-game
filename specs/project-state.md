@@ -1,7 +1,7 @@
 # Project State
-Last updated: 2026-03-14
-Current phase: 7 — Ads & Monetization
-Current task branch: task/phase7-ads-monetization (PR #25 open)
+Last updated: 2026-03-15
+Current phase: 8 — The Vault
+Current task branch: task/phase8-the-vault (PR open, awaiting Adam review)
 
 ---
 
@@ -14,7 +14,7 @@ Current task branch: task/phase7-ads-monetization (PR #25 open)
 - [ ] Phase 5 — Economy & Progression (in progress — PR open, awaiting review and merge)
 - [ ] Phase 6 — Analytics (in progress — PR #24 open)
 - [ ] Phase 7 — Ads & Monetization (in progress — PR #25 open; spec Phase 9 content sequenced here)
-- [ ] Phase 8 — The Vault (spec Phase 7 content — deferred)
+- [ ] Phase 8 — The Vault (spec Phase 7 content — in progress, PR open)
 - [ ] Phase 9 — Polish (spec Phase 8)
 - [ ] Phase 10 — Pre-Launch (spec Phase 10)
 - [ ] Phase 10 — Pre-Launch
@@ -41,14 +41,17 @@ Current task branch: task/phase7-ads-monetization (PR #25 open)
 | 20260303014251_fix-is-guest-for-anonymous-users | ✓ applied | ✓ applied 2026-03-03 | not yet |
 | 20260303014942_restrict-migrate-anon-function | ✓ applied | ✓ applied 2026-03-03 | not yet |
 | 20260311000001_phase5_increment_words_procedure | ✓ applied | ✓ applied 2026-03-12 | not yet |
-| 20260314000001_add_rewarded_ad_transaction_type | pending Docker | pending Adam approval | not yet |
+| 20260314000001_add_rewarded_ad_transaction_type | pending Docker | ✓ applied 2026-03-15 | not yet |
+| 20260315000001_add_vault_tracking | pending Docker | pending Adam approval | not yet |
 
 ---
 
 ## Open PRs
 
-- **PR #24** (open) — "feat: Phase 6 — Analytics (Mixpanel + Supabase dual-write)" — targeting dev
-- **PR #25** (open) — "feat: Phase 7 — Ads & Monetization (AdMob + RevenueCat + Shop)" — targeting dev
+- **PR #24** (merged ✓) — "feat: Phase 6 — Analytics (Mixpanel + Supabase dual-write)"
+- **PR #25** (merged ✓) — "feat: Phase 7 — Ads & Monetization (AdMob + RevenueCat + Shop)"
+- **PR #26** (merged ✓) — "chore: wire real AdMob App ID and env-driven ad unit IDs"
+- **PR TBD** (open) — "feat: Phase 8 — The Vault (procedural levels, vault world map, vault game mode)" — targeting dev
 
 ---
 
@@ -90,7 +93,7 @@ Current task branch: task/phase7-ads-monetization (PR #25 open)
 
 - [ ] **Verify anonymous auth enabled in puzzle-game-dev** — Dashboard → Authentication → Providers → Anonymous → must be toggled ON. If off, signInAnonymously() fails and no profile is created. — raised 2026-03-12
 
-- [ ] **Create Mixpanel account and get token** — Phase 6 analytics. Create project at mixpanel.com → copy project token → add `MIXPANEL_TOKEN=<token>` to `.env.task` and `.env.dev`. Events write to Supabase without token, but Mixpanel dashboard requires it. — raised 2026-03-13
+- [x] **Create Mixpanel account and get token** — Account: mintstreetstudios@gmail.com. Token: `dc6c506bcdb96cf7d58969f29607d147`. Add `MIXPANEL_TOKEN=dc6c506bcdb96cf7d58969f29607d147` to `.env.task` and `.env.dev`. — completed 2026-03-15
 
 - [ ] **Phase 6 verification** — After merging PR #24 and adding Mixpanel token, play through 3+ levels while watching Mixpanel Live View. Confirm: `app_open`, `level_start`, `word_submitted`, `level_complete` events appear within 5 seconds with correct properties. Also confirm `analytics_events` table in Supabase populating. — raised 2026-03-13
 
@@ -104,9 +107,11 @@ Current task branch: task/phase7-ads-monetization (PR #25 open)
 
 - [ ] **Set REVENUECAT_WEBHOOK_SECRET in Supabase** — Dashboard → Edge Functions → Secrets → add `REVENUECAT_WEBHOOK_SECRET=<secret from RevenueCat>`. Then in RevenueCat dashboard, add webhook URL: `https://xgqqpyehkmzyrtvqsofe.supabase.co/functions/v1/on-iap-purchase`. — raised 2026-03-14
 
-- [ ] **Apply migration 20260314000001 to local DB** — Start Docker → `supabase start` → `supabase db push --local`. Then confirm applies to puzzle-game-dev (pending Adam approval). — raised 2026-03-14
+- [ ] **Apply migration 20260314000001 to local DB** — Still pending Docker start. `supabase db push --local` when Docker is running.
 
-- [ ] **Deploy on-rewarded-ad and on-iap-purchase Edge Functions to puzzle-game-dev** — After PR #25 merges and migration applied. Commands: `SUPABASE_ACCESS_TOKEN=<token> supabase functions deploy on-rewarded-ad --project-ref xgqqpyehkmzyrtvqsofe` and same for `on-iap-purchase`. — raised 2026-03-14
+- [x] **Migration 20260314000001 applied to puzzle-game-dev** — `rewarded_ad` enum value added to `transaction_type`. Applied 2026-03-15.
+
+- [x] **Deploy on-rewarded-ad and on-iap-purchase to puzzle-game-dev** — Both deployed 2026-03-15.
 
 - [ ] **Phase 7 verification** — After real AdMob IDs are set, test on physical device: (1) complete 4–5 levels and confirm interstitial appears; (2) tap "Watch Ad" on level-complete screen and confirm 15 coins awarded; (3) tap "Watch Ad" on shop screen and confirm 30 coins awarded; (4) purchase a coin bundle in sandbox and confirm paying user flag suppresses future interstitials. — raised 2026-03-14
 
@@ -202,4 +207,5 @@ Current task branch: task/phase7-ads-monetization (PR #25 open)
 | 2026-03-11 | Phase 5 economy & progression — Edge Functions, coin HUD, hints, skips, world map, achievements | task/phase5-economy-progression | PR #19 merged. 222/222 tests. |
 | 2026-03-12 | Fix Phase 5 backend persistence — error logging, cloud run script | task/fix-phase5-backend-persistence | PR #20 merged. 222/222 tests. |
 | 2026-03-13 | Phase 6 — Analytics (AnalyticsService, Mixpanel init, all 12 wired call sites) | task/phase6-analytics | PR #24 open. 222/222 tests. |
-| 2026-03-14 | Phase 7 — Ads & Monetization (AdMob, RevenueCat, Shop screen, 2 Edge Functions) | task/phase7-ads-monetization | PR #25 open. 237/237 tests. |
+| 2026-03-14 | Phase 7 — Ads & Monetization (AdMob, RevenueCat, Shop screen, 2 Edge Functions) | task/phase7-ads-monetization | PR #25 merged. 237/237 tests. |
+| 2026-03-15 | Phase 8 — The Vault (vault world map, vault game mode, procedural puzzles, migration, vault analytics) | task/phase8-the-vault | PR open. 237/237 tests. |
