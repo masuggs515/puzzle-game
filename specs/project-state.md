@@ -1,7 +1,7 @@
 # Project State
 Last updated: 2026-03-15
-Current phase: 8 complete — ready for Phase 9 (Polish)
-Current task branch: task/vault-debug-unlock (PR open)
+Current phase: 9 in progress — PR #29 open
+Current task branch: task/phase9-design-polish (PR #29 open)
 
 ---
 
@@ -14,8 +14,8 @@ Current task branch: task/vault-debug-unlock (PR open)
 - [ ] Phase 5 — Economy & Progression (in progress — PR open, awaiting review and merge)
 - [ ] Phase 6 — Analytics (in progress — PR #24 open)
 - [ ] Phase 7 — Ads & Monetization (in progress — PR #25 open; spec Phase 9 content sequenced here)
-- [ ] Phase 8 — The Vault (spec Phase 7 content — in progress, PR open)
-- [ ] Phase 9 — Polish (spec Phase 8)
+- [x] Phase 8 — The Vault (PR #27 merged ✓ 2026-03-15)
+- [ ] Phase 9 — Polish (in progress — PR #29 open)
 - [ ] Phase 10 — Pre-Launch (spec Phase 10)
 - [ ] Phase 10 — Pre-Launch
 
@@ -52,7 +52,8 @@ Current task branch: task/vault-debug-unlock (PR open)
 - **PR #25** (merged ✓) — "feat: Phase 7 — Ads & Monetization (AdMob + RevenueCat + Shop)"
 - **PR #26** (merged ✓) — "chore: wire real AdMob App ID and env-driven ad unit IDs"
 - **PR #27** (merged ✓) — "feat: Phase 8 — The Vault (procedural levels, vault world map, vault game mode)"
-- **PR TBD** (open) — "chore: vault debug level jump (kDebugMode only)"
+- **PR #28** (merged ✓) — "chore: vault debug level jump + app rename to Intercept"
+- **PR #29** (open) — "feat: Phase 9 — INTERCEPT design polish (MERIDIAN visual language)"
 
 ---
 
@@ -207,4 +208,6 @@ Current task branch: task/vault-debug-unlock (PR open)
 | 2026-03-12 | Fix Phase 5 backend persistence — error logging, cloud run script | task/fix-phase5-backend-persistence | PR #20 merged. 222/222 tests. |
 | 2026-03-13 | Phase 6 — Analytics (AnalyticsService, Mixpanel init, all 12 wired call sites) | task/phase6-analytics | PR #24 open. 222/222 tests. |
 | 2026-03-14 | Phase 7 — Ads & Monetization (AdMob, RevenueCat, Shop screen, 2 Edge Functions) | task/phase7-ads-monetization | PR #25 merged. 237/237 tests. |
-| 2026-03-15 | Phase 8 — The Vault (vault world map, vault game mode, procedural puzzles, migration, vault analytics) | task/phase8-the-vault | PR open. 237/237 tests. |
+| 2026-03-15 | Phase 8 — The Vault (vault world map, vault game mode, procedural puzzles, migration, vault analytics) | task/phase8-the-vault | PR #27 merged. 237/237 tests. |
+| 2026-03-15 | Vault debug level jump + app rename to Intercept | task/vault-debug-unlock | PR #28 merged. |
+| 2026-03-15 | Phase 9 — Design Polish (MERIDIAN: fonts, colors, all screens) | task/phase9-design-polish | PR #29 open. 237/237 tests. |
