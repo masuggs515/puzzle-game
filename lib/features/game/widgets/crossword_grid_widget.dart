@@ -190,39 +190,26 @@ class _ConstraintChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: isSolved
-            ? AppColors.feedbackCorrect.withValues(alpha: 0.2)
-            : AppColors.surface.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(16),
+            ? AppColors.verdigris.withValues(alpha: 0.12)
+            : const Color(0x0A1C1410),
+        borderRadius: BorderRadius.circular(2),
         border: Border.all(
           color: isSolved
-              ? AppColors.feedbackCorrect
-              : Colors.white.withValues(alpha: 0.2),
+              ? AppColors.verdigris.withValues(alpha: 0.4)
+              : const Color(0x1F1C1410),
         ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isSolved) ...[
-            const Icon(
-              Icons.check_circle,
-              color: AppColors.feedbackCorrect,
-              size: 14,
-            ),
-            const SizedBox(width: 4),
-          ],
-          Text(
-            text,
-            style: TextStyle(
-              color:
-                  isSolved ? AppColors.feedbackCorrect : AppColors.textPrimary,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
+      child: Text(
+        '\u2592 ${text.toUpperCase()}',
+        style: TextStyle(
+          fontFamily: 'SpecialElite',
+          fontSize: 11,
+          letterSpacing: 1.32,
+          color: isSolved ? AppColors.verdigris : AppColors.inkFaded,
+        ),
       ),
     );
   }

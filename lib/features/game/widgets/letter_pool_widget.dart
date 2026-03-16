@@ -1,5 +1,5 @@
 // lib/features/game/widgets/letter_pool_widget.dart
-// Phase 5 — Economy & Progression (extended from Phase 4)
+// Phase 9 — MERIDIAN design
 
 import 'package:flutter/material.dart';
 import 'package:puzzle_game/core/theme/app_colors.dart';
@@ -34,42 +34,64 @@ class LetterPoolWidget extends StatelessWidget {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: isHovered
-                ? AppColors.primary.withValues(alpha: 0.1)
-                : AppColors.surface.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(16),
+                ? AppColors.signal.withValues(alpha: 0.08)
+                : const Color(0x0F1C1410),
+            borderRadius: BorderRadius.circular(5),
             border: Border.all(
               color: isHovered
-                  ? AppColors.primary.withValues(alpha: 0.5)
-                  : Colors.white.withValues(alpha: 0.1),
-              width: isHovered ? 2 : 1,
+                  ? AppColors.signal.withValues(alpha: 0.3)
+                  : const Color(0x1A1C1410),
+              width: 1,
             ),
           ),
-          child: poolTiles.isEmpty
-              ? Center(
-                  child: Text(
-                    'All tiles placed',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
-                    ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  '\u2592 AVAILABLE TILES',
+                  style: const TextStyle(
+                    fontFamily: 'SpecialElite',
+                    fontSize: 8,
+                    letterSpacing: 1.12,
+                    color: AppColors.inkFaded,
                   ),
-                )
-              : Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.center,
-                  children: poolTiles
-                      .map(
-                        (t) => DraggableLetterTile(
-                          tile: t,
-                          isHintHighlighted: hintTileIds.contains(t.id),
-                        ),
-                      )
-                      .toList(),
                 ),
+              ),
+              poolTiles.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          'All tiles placed',
+                          style: const TextStyle(
+                            fontFamily: 'SpecialElite',
+                            fontSize: 10,
+                            color: AppColors.inkFaded,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Wrap(
+                      spacing: 5,
+                      runSpacing: 5,
+                      alignment: WrapAlignment.center,
+                      children: poolTiles
+                          .map(
+                            (t) => DraggableLetterTile(
+                              tile: t,
+                              isHintHighlighted: hintTileIds.contains(t.id),
+                            ),
+                          )
+                          .toList(),
+                    ),
+            ],
+          ),
         );
       },
     );

@@ -1,5 +1,6 @@
 // lib/features/shop/screens/shop_screen.dart
 // Phase 7 — Ads & Monetization
+// Phase 9 — MERIDIAN design polish
 // Spec: master-development-plan.md § Shop Screen, IAP, Rewarded Video
 //
 // Coin shop — lets players:
@@ -18,6 +19,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/graph_paper_background.dart';
 import '../../../data/services/ad_service.dart';
 
 import '../../auth/providers/auth_provider.dart';
@@ -45,7 +47,6 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   @override
   void initState() {
     super.initState();
-    // Track shop_viewed on entry — fire-and-forget.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final coinBalance = ref.read(coinBalanceProvider).value ?? 0;
       final isPayingUser =
@@ -66,7 +67,6 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Ad not available right now. Try again in a moment.'),
-          backgroundColor: AppColors.surface,
         ),
       );
       return;
@@ -77,7 +77,6 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     await rewardedAdService.showAd(
       coinsToAward: 30,
       onRewarded: (coins) async {
-        // Award via Edge Function — never client-side.
         try {
           final supabaseService = ref.read(supabaseServiceProvider);
           await supabaseService.callEdgeFunction(
@@ -103,10 +102,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         if (!mounted) return;
         setState(() => _adLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('30 coins added!'),
-            backgroundColor: AppColors.feedbackCorrect,
-          ),
+          const SnackBar(content: Text('30 coins added!')),
         );
       },
     );
@@ -122,7 +118,6 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final result = await revenueCat.purchasePackage(package);
 
     if (result == null) {
-      // User cancelled or error — PurchasesErrorCode already logged.
       ref.read(shopPurchaseStateProvider.notifier).state =
           PurchaseState.cancelled;
       if (!mounted) return;
@@ -130,7 +125,6 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       return;
     }
 
-    // Successful purchase — invalidate UI, fire analytics.
     ref.invalidate(coinBalanceProvider);
     ref.invalidate(isPayingUserProvider);
     ref.read(shopPurchaseStateProvider.notifier).state = PurchaseState.success;
@@ -149,10 +143,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$coinsAwarded coins added!'),
-        backgroundColor: AppColors.feedbackCorrect,
-      ),
+      SnackBar(content: Text('$coinsAwarded coins added!')),
     );
     ref.read(shopPurchaseStateProvider.notifier).state = PurchaseState.idle;
   }
@@ -165,10 +156,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     ref.invalidate(isPayingUserProvider);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Purchases restored.'),
-        backgroundColor: AppColors.surface,
-      ),
+      const SnackBar(content: Text('Purchases restored.')),
     );
   }
 
@@ -186,168 +174,264 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final isPurchasing = purchaseState == PurchaseState.purchasing;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.parchment,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.desk,
         leading: BackButton(
-          color: AppColors.textPrimary,
+          color: AppColors.parchment,
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          'Coin Shop',
+          '\u25c6 FIELD SUPPLY',
           style: TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
+            fontFamily: 'Oswald',
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: AppColors.parchment,
+            letterSpacing: 2.0,
           ),
         ),
+        elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ── Coin balance display ──────────────────────────────────────
-            _CoinBalanceCard(coinBalanceAsync: coinBalanceAsync),
-            const SizedBox(height: 16),
+      body: GraphPaperBackground(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ── Coin balance ──────────────────────────────────────────────
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  coinBalanceAsync.when(
+                    data: (balance) => Text(
+                      '$balance \u25c8',
+                      style: const TextStyle(
+                        fontFamily: 'CourierPrime',
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.signal,
+                      ),
+                    ),
+                    loading: () => const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    error: (_, err) => const Text(
+                      '-- \u25c8',
+                      style: TextStyle(
+                        fontFamily: 'CourierPrime',
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.signal,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
 
-            // ── Ad removal banner for non-paying users ────────────────────
-            if (!isPayingUser) ...[
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
+              const SizedBox(height: 20),
+
+              // ── Remove ads banner for non-paying users ────────────────────
+              if (!isPayingUser) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.ink,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: AppColors.signal.withValues(alpha: 0.3)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Text(
+                        '\u25c6',
+                        style: TextStyle(color: AppColors.signal, fontSize: 12),
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Buy any bundle to remove ads forever',
+                          style: TextStyle(
+                            fontFamily: 'SpecialElite',
+                            fontSize: 11,
+                            color: AppColors.parchment,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(height: 16),
+              ],
+
+              // ── Free Fragments section ────────────────────────────────────
+              const Text(
+                '\u2592 FREE FRAGMENTS',
+                style: TextStyle(
+                  fontFamily: 'SpecialElite',
+                  fontSize: 10,
+                  color: AppColors.inkFaded,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              Container(
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0x14C8651A),
+                  borderRadius: BorderRadius.circular(5),
                   border: Border.all(
-                    color: AppColors.accent.withValues(alpha: 0.4),
+                    color: AppColors.signal.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.block,
-                      color: AppColors.accent,
-                      size: 20,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Watch for 30 \u25c8',
+                            style: TextStyle(
+                              fontFamily: 'Oswald',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.ink,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                          const Text(
+                            'Watch a short video to earn 30 coins',
+                            style: TextStyle(
+                              fontFamily: 'SpecialElite',
+                              fontSize: 9,
+                              color: AppColors.inkFaded,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 10),
-                    const Expanded(
-                      child: Text(
-                        'Buy any bundle to remove ads forever',
-                        style: TextStyle(
-                          color: AppColors.accent,
-                          fontWeight: FontWeight.w600,
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      height: 36,
+                      child: FilledButton(
+                        onPressed: (_adLoading || !rewardedAdService.isReady)
+                            ? null
+                            : _watchAdForCoins,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.signal,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(3)),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
                         ),
+                        child: _adLoading
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.ink,
+                                ),
+                              )
+                            : Text(
+                                rewardedAdService.isReady
+                                    ? 'Watch'
+                                    : 'Unavailable',
+                                style: const TextStyle(
+                                  fontFamily: 'Oswald',
+                                  fontSize: 11,
+                                  color: AppColors.ink,
+                                ),
+                              ),
                       ),
                     ),
                   ],
                 ),
               ),
+
               const SizedBox(height: 24),
-            ],
 
-            // ── Free Coins section ────────────────────────────────────────
-            const Text(
-              'Free Coins',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            ElevatedButton.icon(
-              onPressed: (_adLoading || !rewardedAdService.isReady)
-                  ? null
-                  : _watchAdForCoins,
-              icon: _adLoading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.play_circle_outline),
-              label: Text(
-                _adLoading
-                    ? 'Loading…'
-                    : rewardedAdService.isReady
-                        ? 'Watch Ad for 30 Coins'
-                        : 'Ad not available',
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              // ── Coin Bundles section ──────────────────────────────────────
+              const Text(
+                '\u2592 COIN BUNDLES',
+                style: TextStyle(
+                  fontFamily: 'SpecialElite',
+                  fontSize: 10,
+                  color: AppColors.inkFaded,
+                  letterSpacing: 1.5,
                 ),
               ),
-            ),
-            const SizedBox(height: 32),
+              const SizedBox(height: 8),
 
-            // ── Coin Bundles section ──────────────────────────────────────
-            const Text(
-              'Coin Bundles',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            packagesAsync.when(
-              data: (packages) {
-                if (packages.isEmpty) {
-                  return const _BundlesUnavailablePlaceholder();
-                }
-                return Column(
-                  children: packages.map((pkg) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _CoinBundleCard(
-                        package: pkg,
-                        coinsForProduct: _productCoins[
-                                pkg.storeProduct.identifier] ??
-                            0,
-                        isBestValue:
-                            pkg.storeProduct.identifier == _bestValueProductId,
-                        isPurchasing: isPurchasing,
-                        onTap: isPurchasing
-                            ? null
-                            : () => _purchasePackage(pkg),
-                      ),
+              packagesAsync.when(
+                data: (packages) {
+                  if (packages.isEmpty) {
+                    return const _BundlesUnavailablePlaceholder();
+                  }
+                  // 2-column grid using Wrap
+                  final cards = packages.map((pkg) {
+                    return _CoinBundleCard(
+                      package: pkg,
+                      coinsForProduct: _productCoins[
+                              pkg.storeProduct.identifier] ??
+                          0,
+                      isBestValue:
+                          pkg.storeProduct.identifier == _bestValueProductId,
+                      isPurchasing: isPurchasing,
+                      onTap: isPurchasing
+                          ? null
+                          : () => _purchasePackage(pkg),
                     );
-                  }).toList(),
-                );
-              },
-              loading: () => const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(24),
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-              error: (_, err) => const _BundlesUnavailablePlaceholder(),
-            ),
-            const SizedBox(height: 24),
+                  }).toList();
 
-            // ── Restore Purchases ─────────────────────────────────────────
-            Center(
-              child: TextButton(
-                onPressed: isPurchasing ? null : _restorePurchases,
-                child: const Text(
-                  'Restore Purchases',
-                  style: TextStyle(color: AppColors.textSecondary),
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      final itemWidth =
+                          (constraints.maxWidth - 8) / 2;
+                      return Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: cards
+                            .map((c) => SizedBox(width: itemWidth, child: c))
+                            .toList(),
+                      );
+                    },
+                  );
+                },
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                error: (_, err) => const _BundlesUnavailablePlaceholder(),
+              ),
+
+              const SizedBox(height: 20),
+
+              // ── Restore Purchases ─────────────────────────────────────────
+              Center(
+                child: TextButton(
+                  onPressed: isPurchasing ? null : _restorePurchases,
+                  child: const Text(
+                    'Restore Purchases',
+                    style: TextStyle(
+                      fontFamily: 'SpecialElite',
+                      fontSize: 10,
+                      color: AppColors.inkFaded,
+                    ),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-          ],
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
@@ -357,58 +441,6 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
 // ---------------------------------------------------------------------------
 // Subwidgets
 // ---------------------------------------------------------------------------
-
-class _CoinBalanceCard extends StatelessWidget {
-  final AsyncValue<int> coinBalanceAsync;
-
-  const _CoinBalanceCard({required this.coinBalanceAsync});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.monetization_on, color: AppColors.accent, size: 32),
-          const SizedBox(width: 10),
-          coinBalanceAsync.when(
-            data: (balance) => Text(
-              '$balance',
-              style: const TextStyle(
-                color: AppColors.accent,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            loading: () => const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            error: (_, err) => const Text(
-              '--',
-              style: TextStyle(
-                color: AppColors.accent,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Text(
-            'coins',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _CoinBundleCard extends StatelessWidget {
   final Package package;
@@ -432,60 +464,59 @@ class _CoinBundleCard extends StatelessWidget {
       children: [
         InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(5),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.aged,
+              borderRadius: BorderRadius.circular(5),
               border: isBestValue
-                  ? Border.all(color: AppColors.accent, width: 2)
-                  : null,
+                  ? Border.all(color: AppColors.signal, width: 2)
+                  : Border.all(color: const Color(0x1A1C1410)),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.monetization_on,
-                  color: AppColors.accent,
-                  size: 28,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '$coinsForProduct coins',
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        product.title.isNotEmpty
-                            ? product.title
-                            : product.identifier,
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
+                Text(
+                  '$coinsForProduct \u25c8',
+                  style: const TextStyle(
+                    fontFamily: 'Oswald',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.signal,
+                    letterSpacing: 0.5,
                   ),
                 ),
+                const SizedBox(height: 2),
+                Text(
+                  product.title.isNotEmpty
+                      ? product.title
+                      : product.identifier,
+                  style: const TextStyle(
+                    fontFamily: 'SpecialElite',
+                    fontSize: 9,
+                    color: AppColors.inkFaded,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
                 isPurchasing
                     ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.signal,
+                        ),
                       )
                     : Text(
                         product.priceString,
                         style: const TextStyle(
-                          color: AppColors.accent,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Oswald',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.ink,
                         ),
                       ),
               ],
@@ -493,25 +524,26 @@ class _CoinBundleCard extends StatelessWidget {
           ),
         ),
 
-        // "Best Value" badge
+        // "BEST VALUE" badge
         if (isBestValue)
           Positioned(
             top: 0,
-            right: 12,
+            right: 8,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: AppColors.accent,
+                color: AppColors.signal,
                 borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(8),
+                  bottom: Radius.circular(2),
                 ),
               ),
               child: const Text(
-                'Best Value',
+                'BEST VALUE',
                 style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
+                  fontFamily: 'CourierPrime',
+                  color: AppColors.ink,
+                  fontSize: 7,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -529,18 +561,23 @@ class _BundlesUnavailablePlaceholder extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0x0A1C1410),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: const Color(0x1A1C1410)),
       ),
       child: const Column(
         children: [
-          Icon(Icons.store_outlined, color: AppColors.textSecondary, size: 40),
-          SizedBox(height: 12),
+          Text(
+            '\u25c6',
+            style: TextStyle(color: AppColors.deepAged, fontSize: 28),
+          ),
+          SizedBox(height: 8),
           Text(
             'Coin bundles coming soon',
             style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
+              fontFamily: 'SpecialElite',
+              fontSize: 11,
+              color: AppColors.inkFaded,
             ),
             textAlign: TextAlign.center,
           ),

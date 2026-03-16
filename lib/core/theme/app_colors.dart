@@ -1,37 +1,54 @@
 // lib/core/theme/app_colors.dart
-// Color palette for the puzzle game.
-// TODO MAS: Confirm final brand colors with Adam before Phase 4 (polish).
-
+// Phase 9 — MERIDIAN design language for Intercept.
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary brand colors (placeholders — to be confirmed)
-  static const Color primary = Color(0xFF4A90D9);
-  static const Color primaryDark = Color(0xFF2C6FAC);
-  static const Color accent = Color(0xFFFFD166);
+  // ── Light mode — Parchment ──────────────────────────────────────────────
+  static const parchment   = Color(0xFFD4C9A8); // primary background
+  static const aged        = Color(0xFFC2B48A); // secondary surfaces, tile bg
+  static const deepAged    = Color(0xFFA89060); // borders, dividers
+  static const ink         = Color(0xFF1C1410); // primary text
+  static const inkFaded    = Color(0xFF3D2E1E); // secondary text
+  static const signal      = Color(0xFFC8651A); // primary accent, CTAs
+  static const signalDim   = Color(0xFF7A3D10); // muted accent
+  static const rust        = Color(0xFF8B3A1E); // destructive / error
+  static const tungsten    = Color(0xFFE8C87A); // highlights / stars
+  static const verdigris   = Color(0xFF2A5C4E); // correct/confirmed
+  static const desk        = Color(0xFF2C1F0E); // app shell / dark bg
+  static const gridLine    = Color(0x1F1C1410); // rgba(28,20,16,0.12)
 
-  // Backgrounds
-  static const Color background = Color(0xFFF5F5F5);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceDark = Color(0xFF1E1E2E);
+  // ── Dark mode — Night Operations ────────────────────────────────────────
+  static const dmBg            = Color(0xFF111008);
+  static const dmSurface       = Color(0xFF1C1610);
+  static const dmSurfaceRaised = Color(0xFF241D12);
+  static const dmInk           = Color(0xFFD4C9A8);
+  static const dmInkFaded      = Color(0xFF8A7A58);
+  static const dmSignal        = Color(0xFFD4721F);
+  static const dmSignalDim     = Color(0xFF7A4010);
+  static const dmVerdigris     = Color(0xFF3A7A62);
+  static const dmGridLine      = Color(0x12C8A850);
+  static const dmBorder        = Color(0x1AD4C9A8);
+  static const dmBorderActive  = Color(0x4DC8651A);
 
-  // Feedback states (per GDD)
-  static const Color feedbackCorrect = Color(0xFF4CAF50);   // green — word is correct
-  static const Color feedbackAmber = Color(0xFFFFC107);     // amber — real word, wrong constraint
-  static const Color feedbackIncorrect = Color(0xFFF44336); // red — not a valid word
-
-  // Feedback state aliases (from spec)
-  static const Color feedbackWrongWord = feedbackIncorrect;       // red — not a word
-  static const Color feedbackWrongConstraint = feedbackAmber;     // amber — wrong constraint
-
-  // Tile states
-  static const Color tileDefault = Color(0xFFE0E0E0);
-  static const Color tileSelected = Color(0xFF4A90D9);
-  static const Color tileLocked = Color(0xFF9E9E9E);
-  static const Color tileConnected = Color(0xFF81C784); // green — locked in solved word
-
-  // Text
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
-  static const Color textOnDark = Color(0xFFFFFFFF);
+  // ── Semantic aliases (used by existing code) ─────────────────────────────
+  // Keep these so Phase 4–8 code that references AppColors.feedbackCorrect etc.
+  // still compiles without changes.
+  static const feedbackCorrect        = verdigris;
+  static const feedbackAmber          = tungsten;
+  static const feedbackWrongWord      = rust;
+  static const feedbackWrongConstraint = tungsten;
+  static const feedbackIncorrect      = rust;
+  static const primary                = signal;
+  static const primaryDark            = signalDim;
+  static const accent                 = tungsten;
+  static const background             = parchment;
+  static const surface                = aged;
+  static const surfaceDark            = desk;
+  static const tileDefault            = aged;
+  static const tileSelected           = signal;
+  static const tileLocked             = deepAged;
+  static const tileConnected          = verdigris;
+  static const textPrimary            = ink;
+  static const textSecondary          = inkFaded;
+  static const textOnDark             = parchment;
 }

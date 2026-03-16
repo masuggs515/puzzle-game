@@ -1,5 +1,6 @@
 // lib/features/home/screens/home_screen.dart
 // Phase 5 — Economy & Progression (extended from Phase 2)
+// Phase 9 — MERIDIAN design polish
 // Spec: flutter-agent-spec.md § World Map
 //
 // Shows player stats and a scrollable world-map level grid.
@@ -12,13 +13,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/graph_paper_background.dart';
 import '../../../features/auth/providers/auth_provider.dart';
 import '../../../features/home/providers/home_provider.dart';
 import '../../../features/puzzle_engine/screens/puzzle_debug_screen.dart';
 
 // Boss level numbers for the hand-crafted set (1–50).
 const _bossLevels = {8, 15, 24, 32, 42, 50};
-const _totalHandcraftedLevels = 50;
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -31,55 +32,44 @@ class HomeScreen extends ConsumerWidget {
     final progressAsync = ref.watch(levelProgressProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Puzzle Game'),
-        actions: [
-          // Achievements button
-          IconButton(
-            icon: const Icon(Icons.emoji_events),
-            tooltip: 'Achievements',
-            onPressed: () => context.go('/achievements'),
+      backgroundColor: AppColors.parchment,
+      body: GraphPaperBackground(
+        child: profileAsync.when(
+          data: (profile) => _HomeBody(
+            profile: profile,
+            coinAsync: coinAsync,
+            progressAsync: progressAsync,
+            isGuest: profile?.isGuest ?? true,
+            user: user,
+            ref: ref,
           ),
-          if (user != null && !(user.isAnonymous))
-            IconButton(
-              icon: const Icon(Icons.logout),
-              tooltip: 'Sign out',
-              onPressed: () async {
-                await ref.read(supabaseServiceProvider).signOut();
-              },
-            ),
-        ],
-      ),
-      body: profileAsync.when(
-        data: (profile) => _HomeBody(
-          profile: profile,
-          coinAsync: coinAsync,
-          progressAsync: progressAsync,
-          isGuest: profile?.isGuest ?? true,
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, _) => Center(child: Text('Error loading profile: $err')),
         ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Error loading profile: $err')),
       ),
     );
   }
 }
 
 class _HomeBody extends StatelessWidget {
-  final dynamic profile; // PlayerProfile?
+  final dynamic profile;
   final AsyncValue<int> coinAsync;
   final AsyncValue<List<LevelProgress>> progressAsync;
   final bool isGuest;
+  final dynamic user;
+  final WidgetRef ref;
 
   const _HomeBody({
     required this.profile,
     required this.coinAsync,
     required this.progressAsync,
     required this.isGuest,
+    required this.user,
+    required this.ref,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Build a fast lookup: levelNumber → LevelProgress
     final progressMap = <int, LevelProgress>{};
     progressAsync.whenData((list) {
       for (final p in list) {
@@ -87,156 +77,232 @@ class _HomeBody extends StatelessWidget {
       }
     });
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Welcome banner
-          Text(
-            'Welcome, ${profile?.welcomeName ?? 'Guest'}',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 8),
-          if (isGuest)
-            Text(
-              'Playing as guest — create an account to save your progress across devices.',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: Colors.grey),
+    final coinBalance = coinAsync.whenData((v) => v).value ?? 0;
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Header row ────────────────────────────────────────────────
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // App name + subtitle
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'INTERCEPT',
+                        style: TextStyle(
+                          fontFamily: 'Oswald',
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.ink,
+                          letterSpacing: 3.96,
+                        ),
+                      ),
+                      const Text(
+                        'Field Transmission Decoder',
+                        style: TextStyle(
+                          fontFamily: 'SpecialElite',
+                          fontSize: 9,
+                          color: AppColors.inkFaded,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Coin balance
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '$coinBalance \u25c8',
+                      style: const TextStyle(
+                        fontFamily: 'CourierPrime',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.signal,
+                      ),
+                    ),
+                    if (user != null && !(user.isAnonymous))
+                      GestureDetector(
+                        onTap: () async {
+                          await ref.read(supabaseServiceProvider).signOut();
+                        },
+                        child: const Text(
+                          'Sign out',
+                          style: TextStyle(
+                            fontFamily: 'SpecialElite',
+                            fontSize: 8,
+                            color: AppColors.inkFaded,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
             ),
-          const SizedBox(height: 24),
 
-          // Stats
-          _StatsRow(
-            coins: coinAsync.whenData((v) => v).value ?? 0,
-            streak: profile?.currentStreak ?? 0,
-            wordsFound: profile?.totalWordsFound ?? 0,
-            loading: profile == null,
-          ),
-          const SizedBox(height: 32),
+            const SizedBox(height: 20),
 
-          // World map label
-          Text(
-            'Levels',
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
+            // ── Level grid with sector headers ────────────────────────────
+            _SectoredLevelGrid(progressMap: progressMap),
 
-          // Level grid
-          _LevelGrid(progressMap: progressMap),
+            const SizedBox(height: 16),
 
-          // The Vault entry banner
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-            child: GestureDetector(
+            // ── Vault banner ──────────────────────────────────────────────
+            GestureDetector(
               onTap: () => context.go('/vault'),
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4C1D95), Color(0xFF6B21A8)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                  color: AppColors.desk,
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(
+                    color: AppColors.signal.withValues(alpha: 0.4),
                   ),
-                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.lock_open, color: Colors.white, size: 28),
-                    SizedBox(width: 12),
+                    SizedBox(width: 4),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'The Vault',
+                            'THE VAULT',
                             style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Oswald',
+                              fontWeight: FontWeight.w600,
                               fontSize: 16,
+                              color: AppColors.parchment,
+                              letterSpacing: 2.0,
                             ),
                           ),
                           Text(
-                            'Infinite procedurally generated puzzles',
+                            'Infinite procedurally generated signals',
                             style: TextStyle(
-                                color: Colors.white70, fontSize: 12),
+                              fontFamily: 'SpecialElite',
+                              fontSize: 9,
+                              color: AppColors.dmInkFaded,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    Icon(Icons.chevron_right, color: Colors.white),
+                    Text(
+                      '\u2192',
+                      style: TextStyle(
+                        color: AppColors.signal,
+                        fontSize: 18,
+                      ),
+                    ),
+                    SizedBox(width: 4),
                   ],
                 ),
               ),
             ),
-          ),
 
-          const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
-          // Create Account / already signed in
-          if (isGuest)
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () => context.push('/signup'),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Text('Create Account'),
+            // ── Guest CTAs ────────────────────────────────────────────────
+            if (isGuest) ...[
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0x0A1C1410),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: const Color(0x1A1C1410)),
                 ),
-              ),
-            ),
-
-          if (isGuest) ...[
-            const SizedBox(height: 8),
-            Center(
-              child: TextButton(
-                onPressed: () => context.push('/signin'),
-                child: const Text('Already have an account? Sign in'),
-              ),
-            ),
-          ],
-
-          // Debug-only: puzzle inspector — never shown in release builds
-          if (kDebugMode) ...[
-            const SizedBox(height: 32),
-            const Divider(),
-            const SizedBox(height: 8),
-            Center(
-              child: TextButton.icon(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const PuzzleDebugScreen(),
+                child: const Text(
+                  'Playing as guest \u2014 create an account to save progress across devices.',
+                  style: TextStyle(
+                    fontFamily: 'SpecialElite',
+                    fontSize: 9,
+                    color: AppColors.inkFaded,
                   ),
                 ),
-                icon: const Icon(Icons.search, size: 18),
-                label: const Text('Debug Puzzles'),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.deepPurple.shade300,
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => context.push('/signup'),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.signal),
+                    foregroundColor: AppColors.signal,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(3)),
+                    ),
+                  ),
+                  child: const Text(
+                    'Create Account',
+                    style: TextStyle(fontFamily: 'Oswald', letterSpacing: 1.5),
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(height: 6),
+              Center(
+                child: TextButton(
+                  onPressed: () => context.push('/signin'),
+                  child: const Text(
+                    'Already have an account? Sign in',
+                    style: TextStyle(
+                      fontFamily: 'SpecialElite',
+                      fontSize: 10,
+                      color: AppColors.inkFaded,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+
+            // ── Debug-only ────────────────────────────────────────────────
+            if (kDebugMode) ...[
+              const SizedBox(height: 24),
+              const Divider(color: Color(0x1A1C1410)),
+              Center(
+                child: TextButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const PuzzleDebugScreen(),
+                    ),
+                  ),
+                  icon: const Icon(Icons.search, size: 16, color: AppColors.inkFaded),
+                  label: const Text(
+                    'Debug Puzzles',
+                    style: TextStyle(
+                      fontFamily: 'SpecialElite',
+                      fontSize: 10,
+                      color: AppColors.inkFaded,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 16),
           ],
-        ],
+        ),
       ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Level grid — 5 columns x 10 rows = 50 levels
+// _SectoredLevelGrid — groups levels into sectors of 10 with headers
 // ---------------------------------------------------------------------------
 
-class _LevelGrid extends StatelessWidget {
+class _SectoredLevelGrid extends StatelessWidget {
   final Map<int, LevelProgress> progressMap;
 
-  const _LevelGrid({required this.progressMap});
+  const _SectoredLevelGrid({required this.progressMap});
 
-  /// Level N is available if it is level 1 or level N-1 is completed.
   bool _isAvailable(int n) {
     if (n == 1) return true;
     final prev = progressMap[n - 1];
@@ -245,35 +311,82 @@ class _LevelGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 5,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        childAspectRatio: 1,
-      ),
-      itemCount: _totalHandcraftedLevels,
-      itemBuilder: (context, index) {
-        final levelNumber = index + 1;
-        final progress = progressMap[levelNumber];
+    final sectors = <Widget>[];
+
+    for (int sector = 0; sector < 5; sector++) {
+      final startLevel = sector * 10 + 1;
+      final endLevel = sector * 10 + 10;
+      final sectorNum = (sector + 1).toString().padLeft(2, '0');
+
+      // Sector header
+      sectors.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 12, bottom: 8),
+          child: Row(
+            children: [
+              const Text(
+                '\u25c6',
+                style: TextStyle(color: AppColors.deepAged, fontSize: 8),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'SECTOR $sectorNum',
+                style: const TextStyle(
+                  fontFamily: 'SpecialElite',
+                  fontSize: 8,
+                  color: AppColors.inkFaded,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Container(
+                  height: 1,
+                  color: const Color(0x1A1C1410),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      // 5-column grid for this sector
+      final levelWidgets = <Widget>[];
+      for (int level = startLevel; level <= endLevel; level++) {
+        final progress = progressMap[level];
         final completed = progress?.completed ?? false;
         final stars = progress?.stars;
-        final isBoss = _bossLevels.contains(levelNumber);
-        final available = _isAvailable(levelNumber);
+        final isBoss = _bossLevels.contains(level);
+        final available = _isAvailable(level);
 
-        return _LevelNode(
-          levelNumber: levelNumber,
+        levelWidgets.add(_LevelNode(
+          levelNumber: level,
           isBoss: isBoss,
           isCompleted: completed,
           isAvailable: available,
           stars: stars,
           onTap: available
-              ? () => context.go('/game/$levelNumber')
-              : () => _showLockedMessage(context, levelNumber),
-        );
-      },
+              ? () => context.go('/game/$level')
+              : () => _showLockedMessage(context, level),
+        ));
+      }
+
+      sectors.add(
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 5,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+          childAspectRatio: 1,
+          children: levelWidgets,
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: sectors,
     );
   }
 
@@ -296,7 +409,7 @@ class _LevelNode extends StatelessWidget {
   final bool isBoss;
   final bool isCompleted;
   final bool isAvailable;
-  final int? stars; // null = not yet completed
+  final int? stars;
   final VoidCallback onTap;
 
   const _LevelNode({
@@ -311,27 +424,23 @@ class _LevelNode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color bgColor;
-    final Color borderColor;
-    final Color textColor;
+    final Border border;
 
     if (!isAvailable) {
-      bgColor = Colors.grey.shade300;
-      borderColor = Colors.grey.shade400;
-      textColor = Colors.grey.shade600;
-    } else if (isBoss) {
-      bgColor = isCompleted
-          ? AppColors.accent.withValues(alpha: 0.3)
-          : AppColors.accent.withValues(alpha: 0.15);
-      borderColor = AppColors.accent;
-      textColor = AppColors.textPrimary;
+      bgColor = AppColors.aged.withValues(alpha: 0.5);
+      border = Border.all(color: const Color(0x1A1C1410));
     } else if (isCompleted) {
-      bgColor = AppColors.feedbackCorrect.withValues(alpha: 0.2);
-      borderColor = AppColors.feedbackCorrect;
-      textColor = AppColors.textPrimary;
+      bgColor = AppColors.verdigris.withValues(alpha: 0.15);
+      border = Border.all(
+        color: isBoss ? AppColors.signal : AppColors.verdigris,
+        width: isBoss ? 2 : 1,
+      );
     } else {
-      bgColor = AppColors.primary.withValues(alpha: 0.15);
-      borderColor = AppColors.primary;
-      textColor = AppColors.textPrimary;
+      bgColor = AppColors.parchment;
+      border = Border.all(
+        color: isBoss ? AppColors.signal : AppColors.signal.withValues(alpha: 0.4),
+        width: isBoss ? 2 : 1,
+      );
     }
 
     return GestureDetector(
@@ -339,130 +448,87 @@ class _LevelNode extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: borderColor, width: isBoss ? 2 : 1.5),
+          borderRadius: BorderRadius.circular(3),
+          border: border,
         ),
-        child: Stack(
-          children: [
-            // Level number — centred
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (isBoss && !isAvailable)
-                    const Icon(Icons.lock, size: 12, color: Colors.grey)
-                  else if (!isAvailable)
-                    const Icon(Icons.lock, size: 12, color: Colors.grey),
-                  Text(
-                    '$levelNumber',
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
+        child: Opacity(
+          opacity: isAvailable ? 1.0 : 0.5,
+          child: Stack(
+            children: [
+              // Boss indicator (top-right)
+              if (isBoss)
+                const Positioned(
+                  top: 2,
+                  right: 3,
+                  child: Text(
+                    '\u2316',
+                    style: TextStyle(color: AppColors.signal, fontSize: 9),
                   ),
-                ],
-              ),
-            ),
+                ),
 
-            // Boss star badge (top-right corner)
-            if (isBoss)
-              const Positioned(
-                top: 3,
-                right: 3,
-                child: Icon(Icons.star, color: AppColors.accent, size: 10),
-              ),
-
-            // Star rating (bottom — only when completed)
-            if (isCompleted && stars != null)
-              Positioned(
-                bottom: 3,
-                left: 0,
-                right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    3,
-                    (i) => Icon(
-                      i < stars! ? Icons.star : Icons.star_outline,
-                      color: AppColors.accent,
-                      size: 8,
+              // Level number — centered
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!isAvailable)
+                      const Icon(Icons.lock,
+                          size: 10, color: AppColors.inkFaded),
+                    Text(
+                      '$levelNumber',
+                      style: TextStyle(
+                        fontFamily: 'Oswald',
+                        fontWeight: FontWeight.w400,
+                        fontSize: 13,
+                        color: isAvailable ? AppColors.ink : AppColors.inkFaded,
+                        letterSpacing: 0.5,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
 
-            // Skipped indicator (completed but no stars)
-            if (isCompleted && stars == null)
-              Positioned(
-                bottom: 3,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Icon(
-                    Icons.skip_next,
-                    color: Colors.grey.shade500,
-                    size: 10,
+              // Star rating (bottom — only when completed)
+              if (isCompleted && stars != null)
+                Positioned(
+                  bottom: 2,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      3,
+                      (i) => Text(
+                        i < stars! ? '\u2605' : '\u2606',
+                        style: TextStyle(
+                          color: i < stars!
+                              ? AppColors.tungsten
+                              : AppColors.deepAged,
+                          fontSize: 7,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-          ],
+
+              // Skipped indicator
+              if (isCompleted && stars == null)
+                Positioned(
+                  bottom: 2,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Icon(
+                      Icons.skip_next,
+                      color: AppColors.inkFaded.withValues(alpha: 0.5),
+                      size: 9,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// _StatsRow
-// ---------------------------------------------------------------------------
-
-class _StatsRow extends StatelessWidget {
-  final int coins;
-  final int streak;
-  final int wordsFound;
-  final bool loading;
-
-  const _StatsRow({
-    required this.coins,
-    required this.streak,
-    required this.wordsFound,
-    required this.loading,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _StatCard(label: 'Coins', value: loading ? '—' : '$coins'),
-        _StatCard(label: 'Streak', value: loading ? '—' : '$streak days'),
-        _StatCard(label: 'Words', value: loading ? '—' : '$wordsFound'),
-      ],
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _StatCard({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: Theme.of(context)
-              .textTheme
-              .headlineSmall
-              ?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
-      ],
     );
   }
 }
