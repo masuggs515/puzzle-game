@@ -1,6 +1,7 @@
 // lib/features/game/screens/level_complete_screen.dart
 // Phase 4 — Core Game
 // Phase 7 — Rewarded video ad button ("Watch Ad for 15 Coins")
+// Phase 9 — MERIDIAN design polish
 // Spec: flutter-agent-spec.md § Navigation Routes
 //       master-development-plan.md § Rewarded Video Ad Policy
 //
@@ -42,7 +43,6 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
     await rewardedAdService.showAd(
       coinsToAward: 15,
       onRewarded: (coins) async {
-        // Award via Edge Function — never client-side.
         try {
           final supabaseService = ref.read(supabaseServiceProvider);
           await supabaseService.callEdgeFunction(
@@ -70,7 +70,6 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('15 coins added!'),
-            backgroundColor: AppColors.feedbackCorrect,
           ),
         );
       },
@@ -84,67 +83,109 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
     final rewardedAdService = ref.watch(rewardedAdServiceProvider);
     final isPayingUser = ref.read(revenueCatServiceProvider).isPayingUser;
 
-    // Show the rewarded ad button only for non-paying users.
     final showAdButton = !isPayingUser && !widget.args.wasSkipped;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.desk,
       body: SafeArea(
         child: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Title
-                Text(
-                  widget.args.wasSkipped
-                      ? 'Level Skipped'
-                      : widget.args.isVault
-                          ? 'Vault Level ${widget.args.vaultLevel ?? widget.args.levelNumber} Complete!'
-                          : 'Level ${widget.args.levelNumber} Complete!',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
                 const SizedBox(height: 32),
 
-                // Star rating
-                if (!widget.args.wasSkipped)
-                  _StarRating(stars: widget.args.stars),
-
-                const SizedBox(height: 32),
-
-                // Coins earned (hidden when zero)
-                if (widget.args.coinsEarned > 0) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.monetization_on,
-                        color: AppColors.accent,
-                        size: 32,
+                // ── Stamp ──────────────────────────────────────────────────
+                if (!widget.args.wasSkipped) ...[
+                  Transform.rotate(
+                    angle: -0.0524, // -3 degrees in radians
+                    child: Container(
+                      width: 88,
+                      height: 88,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppColors.signal,
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '+${widget.args.coinsEarned}',
-                        style: const TextStyle(
-                          color: AppColors.accent,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                      child: Container(
+                        margin: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppColors.signal.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'TRANS-\nMITTED',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Oswald',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.signal,
+                              letterSpacing: 1.5,
+                              height: 1.4,
+                            ),
+                          ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: 24),
                 ],
 
-                // Phase 7: Watch Ad for 15 Coins button.
-                // Shown between coins earned and achievements.
-                // Only for non-paying users on completed (not skipped) levels.
+                // ── Title for skipped levels ───────────────────────────────
+                if (widget.args.wasSkipped) ...[
+                  const Text(
+                    'SIGNAL SKIPPED',
+                    style: TextStyle(
+                      fontFamily: 'Oswald',
+                      fontSize: 24,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.dmInkFaded,
+                      letterSpacing: 2.4,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
+                // ── Level label ───────────────────────────────────────────
+                Text(
+                  widget.args.isVault
+                      ? 'VAULT V${widget.args.vaultLevel ?? widget.args.levelNumber}'
+                      : 'SIGNAL #${widget.args.levelNumber}',
+                  style: const TextStyle(
+                    fontFamily: 'Oswald',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.dmInkFaded,
+                    letterSpacing: 1.8,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // ── Star rating ────────────────────────────────────────────
+                if (!widget.args.wasSkipped)
+                  _MeridianStarRating(stars: widget.args.stars),
+
+                const SizedBox(height: 24),
+
+                // ── Stats row ─────────────────────────────────────────────
+                if (!widget.args.wasSkipped)
+                  _StatsRow(
+                    coinsEarned: widget.args.coinsEarned,
+                    stars: widget.args.stars,
+                  ),
+
+                const SizedBox(height: 24),
+
+                // ── Watch Ad button ────────────────────────────────────────
                 if (showAdButton) ...[
                   SizedBox(
                     width: double.infinity,
@@ -154,45 +195,54 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
                           : _watchAdForCoins,
                       icon: _adLoading
                           ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.signal,
+                              ),
                             )
-                          : const Icon(
-                              Icons.play_circle_outline,
-                              color: AppColors.accent,
+                          : const Text(
+                              '\u25ba',
+                              style: TextStyle(
+                                color: AppColors.signal,
+                                fontSize: 14,
+                              ),
                             ),
                       label: Text(
                         _adLoading
-                            ? 'Loading…'
+                            ? 'Loading\u2026'
                             : rewardedAdService.isReady
-                                ? 'Watch Ad for 15 Coins'
+                                ? 'Watch for 15 \u25c8'
                                 : 'Ad not available',
-                        style: const TextStyle(color: AppColors.accent),
+                        style: const TextStyle(
+                          fontFamily: 'SpecialElite',
+                          fontSize: 11,
+                          color: AppColors.signal,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.accent),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(color: AppColors.signal),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(3)),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                 ],
 
-                // Achievements
+                // ── Achievements ───────────────────────────────────────────
                 if (widget.args.achievementsUnlocked.isNotEmpty) ...[
                   _AchievementsList(
                     achievements: widget.args.achievementsUnlocked,
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                 ],
 
-                const SizedBox(height: 16),
-
-                // Continue to next level
+                // ── Next Signal button ─────────────────────────────────────
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
@@ -206,27 +256,29 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
                       }
                     },
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      backgroundColor: AppColors.signal,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(3)),
                       ),
                     ),
                     child: const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                      padding: EdgeInsets.symmetric(vertical: 12),
                       child: Text(
-                        'Continue',
+                        'NEXT SIGNAL \u2192',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Oswald',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.ink,
+                          letterSpacing: 2.4,
                         ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 10),
 
-                // Return to home / vault
+                // ── Return to Base button ──────────────────────────────────
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
@@ -234,25 +286,29 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
                         context.go(widget.args.isVault ? '/vault' : '/home'),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.3),
+                        color: AppColors.parchment.withValues(alpha: 0.2),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(3)),
                       ),
                     ),
                     child: const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                      padding: EdgeInsets.symmetric(vertical: 12),
                       child: Text(
-                        'Home',
+                        '\u2190 RETURN TO BASE',
                         style: TextStyle(
-                          fontSize: 18,
-                          color: AppColors.textSecondary,
+                          fontFamily: 'Oswald',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.dmInkFaded,
+                          letterSpacing: 1.8,
                         ),
                       ),
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 32),
               ],
             ),
           ),
@@ -262,10 +318,10 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
   }
 }
 
-class _StarRating extends StatelessWidget {
+class _MeridianStarRating extends StatelessWidget {
   final int stars;
 
-  const _StarRating({required this.stars});
+  const _MeridianStarRating({required this.stars});
 
   @override
   Widget build(BuildContext context) {
@@ -274,14 +330,83 @@ class _StarRating extends StatelessWidget {
       children: List.generate(
         3,
         (i) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Icon(
-            i < stars ? Icons.star : Icons.star_outline,
-            color: AppColors.accent,
-            size: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Text(
+            i < stars ? '\u2605' : '\u2606',
+            style: TextStyle(
+              color: i < stars ? AppColors.tungsten : AppColors.dmSurface,
+              fontSize: 36,
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _StatsRow extends StatelessWidget {
+  final int coinsEarned;
+  final int stars;
+
+  const _StatsRow({required this.coinsEarned, required this.stars});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        if (coinsEarned > 0)
+          _StatItem(
+            label: 'EARNED',
+            value: '+$coinsEarned \u25c8',
+            valueColor: AppColors.signal,
+          ),
+        _StatItem(
+          label: 'STARS',
+          value: '$stars / 3',
+          valueColor: AppColors.tungsten,
+        ),
+      ],
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color valueColor;
+
+  const _StatItem({
+    required this.label,
+    required this.value,
+    required this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontFamily: 'Oswald',
+            fontSize: 18,
+            fontWeight: FontWeight.w400,
+            color: valueColor,
+            letterSpacing: 1.0,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'CourierPrime',
+            fontSize: 9,
+            color: AppColors.dmInkFaded,
+            letterSpacing: 1.0,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -296,24 +421,26 @@ class _AchievementsList extends StatelessWidget {
     return Column(
       children: [
         const Text(
-          'Achievement Unlocked!',
+          '\u25c8 ACHIEVEMENT UNLOCKED',
           style: TextStyle(
-            color: AppColors.accent,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontFamily: 'SpecialElite',
+            fontSize: 10,
+            color: AppColors.tungsten,
+            letterSpacing: 1.5,
           ),
         ),
         const SizedBox(height: 8),
         ...achievements.map(
           (a) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.emoji_events, color: AppColors.accent, size: 18),
-                const SizedBox(width: 6),
-                Text(a, style: const TextStyle(color: AppColors.textPrimary)),
-              ],
+            child: Text(
+              a,
+              style: const TextStyle(
+                fontFamily: 'SpecialElite',
+                fontSize: 11,
+                color: AppColors.dmInk,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
         ),

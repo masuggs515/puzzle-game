@@ -1,17 +1,18 @@
 // lib/features/game/widgets/grid_cell_widget.dart
-// Phase 4 — Core Game (tile-placement redesign)
+// Phase 9 — MERIDIAN design
 
 import 'package:flutter/material.dart';
 import 'package:puzzle_game/core/theme/app_colors.dart';
+import 'package:puzzle_game/core/theme/app_text_styles.dart';
 import 'package:puzzle_game/features/game/models/game_state.dart';
 
 /// A single cell in the crossword grid. Acts as a DragTarget for PoolTiles.
 /// Intersection cells (shared between two word slots) have a distinct visual.
 class GridCellWidget extends StatelessWidget {
   final CellKey cellKey;
-  final PoolTile? placedTile;    // null = empty cell
-  final bool isIntersection;     // true = shared by two word slots
-  final SlotResult slotResult;   // feedback state for this cell's slot
+  final PoolTile? placedTile;
+  final bool isIntersection;
+  final SlotResult slotResult;
   final void Function(PoolTile tile, CellKey target) onTileDropped;
   final void Function(int tileId) onTileReturned;
   final double size;
@@ -66,95 +67,122 @@ class _CellContent extends StatelessWidget {
     required this.onTileReturned,
   });
 
-  Color _cellColor() {
+  (Color bg, Border border) _decoration() {
     if (tile != null) {
       switch (slotResult) {
         case SlotResult.correct:
-          return AppColors.feedbackCorrect.withValues(alpha: 0.3);
+          return (
+            AppColors.verdigris,
+            Border.all(color: AppColors.verdigris),
+          );
         case SlotResult.wrongWord:
-          return AppColors.feedbackWrongWord.withValues(alpha: 0.3);
         case SlotResult.wrongConstraint:
-          return AppColors.feedbackWrongConstraint.withValues(alpha: 0.3);
+          return (
+            const Color(0x268B3A1E),
+            Border.all(color: AppColors.rust, width: 1),
+          );
         case SlotResult.unvalidated:
-          return AppColors.tileSelected.withValues(alpha: 0.3);
+          if (isIntersection) {
+            return (
+              const Color(0x26C8651A),
+              Border.all(color: AppColors.signal, width: 2),
+            );
+          }
+          return (
+            const Color(0x14C8651A),
+            Border.all(color: AppColors.signal, width: 1),
+          );
       }
     }
-    if (isHovered) return AppColors.primary.withValues(alpha: 0.25);
-    return AppColors.surface.withValues(alpha: 0.5);
+    // Empty cell
+    if (isHovered) {
+      return (
+        const Color(0x14C8651A),
+        Border.all(color: AppColors.signal),
+      );
+    }
+    if (isIntersection) {
+      return (
+        const Color(0x0FC8651A),
+        Border.all(color: Color(0x66C8651A), style: BorderStyle.none),
+      );
+    }
+    return (
+      const Color(0x0A1C1410),
+      Border.all(color: Color(0x1F1C1410)),
+    );
   }
 
-  Color _borderColor() {
+  Color _letterColor() {
     switch (slotResult) {
       case SlotResult.correct:
-        return AppColors.feedbackCorrect;
+        return AppColors.parchment;
       case SlotResult.wrongWord:
-        return AppColors.feedbackWrongWord;
       case SlotResult.wrongConstraint:
-        return AppColors.feedbackWrongConstraint;
+        return AppColors.rust;
       case SlotResult.unvalidated:
-        break;
+        return AppColors.ink;
     }
-    if (isHovered) return AppColors.primary;
-    if (isIntersection) return AppColors.accent;
-    return Colors.white.withValues(alpha: 0.25);
   }
 
   @override
   Widget build(BuildContext context) {
     final letter = tile?.letter;
+    final (bg, border) = _decoration();
+
+    // Intersection empty cells get a dashed border
+    final bool useDashedBorder =
+        tile == null && isIntersection && slotResult == SlotResult.unvalidated && !isHovered;
 
     final cellWidget = Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: _cellColor(),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: _borderColor(),
-          width: isIntersection ? 2 : 1.5,
-        ),
+        color: bg,
+        borderRadius: const BorderRadius.all(Radius.circular(3)),
+        border: useDashedBorder ? null : border,
       ),
-      child: Stack(
-        children: [
-          // Intersection corner mark — small triangle in top-right corner
-          if (isIntersection)
-            Positioned(
-              top: 0,
-              right: 0,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(8),
-                ),
-                child: CustomPaint(
-                  size: Size(size * 0.28, size * 0.28),
-                  painter: _CornerTrianglePainter(color: AppColors.accent),
-                ),
-              ),
-            ),
-          // Letter or empty indicator
-          Center(
-            child: letter != null
-                ? Text(
-                    letter.toUpperCase(),
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: size * 0.42,
-                      fontWeight: FontWeight.bold,
+      child: useDashedBorder
+          ? CustomPaint(
+              painter: _DashedBorderPainter(),
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: CustomPaint(
+                      size: Size(size * 0.28, size * 0.28),
+                      painter: _CornerTrianglePainter(color: AppColors.tungsten),
                     ),
-                  )
-                : Icon(
-                    Icons.add,
-                    color:
-                        Colors.white.withValues(alpha: isHovered ? 0.7 : 0.2),
-                    size: size * 0.35,
                   ),
-          ),
-        ],
-      ),
+                  const Center(child: SizedBox.shrink()),
+                ],
+              ),
+            )
+          : Stack(
+              children: [
+                if (isIntersection)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: CustomPaint(
+                      size: Size(size * 0.28, size * 0.28),
+                      painter: _CornerTrianglePainter(color: AppColors.tungsten),
+                    ),
+                  ),
+                Center(
+                  child: letter != null
+                      ? Text(
+                          letter.toUpperCase(),
+                          style: AppTextStyles.tileLabel
+                              .copyWith(color: _letterColor()),
+                        )
+                      : null,
+                ),
+              ],
+            ),
     );
 
-    // If a tile is in this cell, make the whole cell draggable so the player
-    // can move it to another cell or back to the pool.
     if (tile != null) {
       return Draggable<PoolTile>(
         data: tile,
@@ -164,24 +192,21 @@ class _CellContent extends StatelessWidget {
             width: size,
             height: size,
             decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
+              color: AppColors.aged,
+              borderRadius: const BorderRadius.all(Radius.circular(3)),
+              border: Border.all(color: AppColors.signal),
+              boxShadow: const [
                 BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.4),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  color: Color(0x591C1410),
+                  blurRadius: 16,
+                  offset: Offset(0, 6),
                 ),
               ],
             ),
             child: Center(
               child: Text(
                 tile!.letter.toUpperCase(),
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: size * 0.42,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTextStyles.tileLabel.copyWith(color: AppColors.ink),
               ),
             ),
           ),
@@ -190,12 +215,9 @@ class _CellContent extends StatelessWidget {
           width: size,
           height: size,
           decoration: BoxDecoration(
-            color: AppColors.surface.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.15),
-              width: 1.5,
-            ),
+            color: AppColors.parchment.withValues(alpha: 0.3),
+            borderRadius: const BorderRadius.all(Radius.circular(3)),
+            border: Border.all(color: const Color(0x1F1C1410)),
           ),
         ),
         child: cellWidget,
@@ -206,9 +228,48 @@ class _CellContent extends StatelessWidget {
   }
 }
 
+class _DashedBorderPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0x66C8651A)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    const dash = 4.0;
+    const gap = 4.0;
+
+    final rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0.5, 0.5, size.width - 1, size.height - 1),
+      const Radius.circular(3),
+    );
+    final path = Path()..addRRect(rrect);
+    final metrics = path.computeMetrics();
+    for (final metric in metrics) {
+      double dist = 0;
+      bool draw = true;
+      while (dist < metric.length) {
+        final segLen = draw ? dash : gap;
+        if (draw) {
+          final startTangent = metric.getTangentForOffset(dist);
+          final endDist = (dist + segLen).clamp(0.0, metric.length);
+          final endTangent = metric.getTangentForOffset(endDist);
+          if (startTangent != null && endTangent != null) {
+            canvas.drawLine(startTangent.position, endTangent.position, paint);
+          }
+        }
+        dist += segLen;
+        draw = !draw;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedBorderPainter _) => false;
+}
+
 class _CornerTrianglePainter extends CustomPainter {
   final Color color;
-
   const _CornerTrianglePainter({required this.color});
 
   @override

@@ -1,5 +1,6 @@
 // lib/features/achievements/screens/achievements_screen.dart
 // Phase 5 — Economy & Progression
+// Phase 9 — MERIDIAN design polish
 // Spec: flutter-agent-spec.md § Achievements Screen
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/graph_paper_background.dart';
 import '../providers/achievements_provider.dart';
 
 // ---------------------------------------------------------------------------
@@ -81,77 +83,84 @@ class AchievementsScreen extends ConsumerWidget {
     final unlockedAsync = ref.watch(unlockedAchievementsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.parchment,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.desk,
         title: const Text(
-          'Achievements',
-          style: TextStyle(color: AppColors.textPrimary),
+          '\u25c8 DOSSIER',
+          style: TextStyle(
+            fontFamily: 'Oswald',
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: AppColors.parchment,
+            letterSpacing: 2.0,
+          ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: const Icon(Icons.arrow_back, color: AppColors.parchment),
           onPressed: () => context.go('/home'),
         ),
+        elevation: 0,
       ),
-      body: unlockedAsync.when(
-        data: (unlocked) {
-          final unlockedMap = <String, DateTime>{
-            for (final u in unlocked) u.achievementId: u.unlockedAt,
-          };
-          final unlockedCount =
-              _allAchievements.where((a) => unlockedMap.containsKey(a.id)).length;
+      body: GraphPaperBackground(
+        child: unlockedAsync.when(
+          data: (unlocked) {
+            final unlockedMap = <String, DateTime>{
+              for (final u in unlocked) u.achievementId: u.unlockedAt,
+            };
+            final unlockedCount =
+                _allAchievements.where((a) => unlockedMap.containsKey(a.id)).length;
 
-          return Column(
-            children: [
-              // Progress summary
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Row(
-                  children: [
-                    const Icon(Icons.emoji_events,
-                        color: AppColors.accent, size: 28),
-                    const SizedBox(width: 12),
-                    Text(
-                      '$unlockedCount / ${_allAchievements.length} unlocked',
-                      style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+            return Column(
+              children: [
+                // Progress summary
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        '$unlockedCount / ${_allAchievements.length} CLEARED',
+                        style: const TextStyle(
+                          fontFamily: 'CourierPrime',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.signal,
+                          letterSpacing: 0.8,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Divider(height: 1),
-              // Achievement list
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: _allAchievements.length,
-                  separatorBuilder: (context, index) =>
-                      const Divider(height: 1, indent: 72),
-                  itemBuilder: (context, index) {
-                    final def = _allAchievements[index];
-                    final unlockedAt = unlockedMap[def.id];
-                    final isUnlocked = unlockedAt != null;
-                    return _AchievementTile(
-                      def: def,
-                      isUnlocked: isUnlocked,
-                      unlockedAt: unlockedAt,
-                    );
-                  },
+                Container(height: 1, color: const Color(0x1A1C1410)),
+                // Achievement list
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _allAchievements.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      final def = _allAchievements[index];
+                      final unlockedAt = unlockedMap[def.id];
+                      final isUnlocked = unlockedAt != null;
+                      return _AchievementCard(
+                        def: def,
+                        isUnlocked: isUnlocked,
+                        unlockedAt: unlockedAt,
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
-        loading: () =>
-            const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Text(
-            'Error loading achievements: $e',
-            style: const TextStyle(color: AppColors.textSecondary),
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(
+            child: Text(
+              'Error loading achievements: $e',
+              style: const TextStyle(color: AppColors.inkFaded),
+            ),
           ),
         ),
       ),
@@ -160,15 +169,15 @@ class AchievementsScreen extends ConsumerWidget {
 }
 
 // ---------------------------------------------------------------------------
-// _AchievementTile
+// _AchievementCard
 // ---------------------------------------------------------------------------
 
-class _AchievementTile extends StatelessWidget {
+class _AchievementCard extends StatelessWidget {
   final _AchievementDef def;
   final bool isUnlocked;
   final DateTime? unlockedAt;
 
-  const _AchievementTile({
+  const _AchievementCard({
     required this.def,
     required this.isUnlocked,
     this.unlockedAt,
@@ -176,71 +185,73 @@ class _AchievementTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      leading: Container(
-        width: 44,
-        height: 44,
+    return Opacity(
+      opacity: isUnlocked ? 1.0 : 0.5,
+      child: Container(
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isUnlocked
-              ? AppColors.accent.withValues(alpha: 0.2)
-              : Colors.grey.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: isUnlocked ? AppColors.accent : Colors.grey.shade400,
-            width: 1.5,
-          ),
-        ),
-        child: Icon(
-          Icons.emoji_events,
-          color: isUnlocked ? AppColors.accent : Colors.grey.shade400,
-          size: 22,
-        ),
-      ),
-      title: Text(
-        def.name,
-        style: TextStyle(
-          color: isUnlocked ? AppColors.textPrimary : AppColors.textSecondary,
-          fontWeight:
-              isUnlocked ? FontWeight.bold : FontWeight.normal,
-        ),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            def.description,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 12,
+          color: const Color(0x0A1C1410),
+          borderRadius: BorderRadius.circular(4),
+          border: Border(
+            left: BorderSide(
+              color: isUnlocked ? AppColors.verdigris : Colors.transparent,
+              width: 3,
             ),
+            top: const BorderSide(color: Color(0x1A1C1410)),
+            right: const BorderSide(color: Color(0x1A1C1410)),
+            bottom: const BorderSide(color: Color(0x1A1C1410)),
           ),
-          if (isUnlocked && unlockedAt != null)
-            Text(
-              'Unlocked ${_formatDate(unlockedAt!)}',
-              style: TextStyle(
-                color: AppColors.accent.withValues(alpha: 0.8),
-                fontSize: 11,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    def.name,
+                    style: const TextStyle(
+                      fontFamily: 'SpecialElite',
+                      fontSize: 13,
+                      color: AppColors.ink,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    def.description,
+                    style: const TextStyle(
+                      fontFamily: 'CourierPrime',
+                      fontSize: 10,
+                      color: AppColors.inkFaded,
+                    ),
+                  ),
+                  if (isUnlocked && unlockedAt != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      'Cleared ${_formatDate(unlockedAt!)}',
+                      style: TextStyle(
+                        fontFamily: 'CourierPrime',
+                        fontSize: 9,
+                        color: AppColors.verdigris.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-        ],
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.monetization_on,
-              color: AppColors.accent, size: 14),
-          const SizedBox(width: 3),
-          Text(
-            '+${def.coinReward}',
-            style: TextStyle(
-              color: isUnlocked ? AppColors.accent : AppColors.textSecondary,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
+            const SizedBox(width: 12),
+            Text(
+              '+${def.coinReward} \u25c8',
+              style: TextStyle(
+                fontFamily: 'CourierPrime',
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: isUnlocked ? AppColors.signal : AppColors.inkFaded,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

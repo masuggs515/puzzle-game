@@ -2,12 +2,14 @@
 // Root application widget — sets up MaterialApp, GoRouter, and theme.
 // Phase 4: added /game/:levelNumber and /level-complete routes.
 // Phase 6: converted to ConsumerStatefulWidget for AppLifecycleObserver (app_open event).
+// Phase 9: added ShellRoute for bottom navigation bar (home, achievements, shop).
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/theme/app_theme.dart';
+import 'core/widgets/main_scaffold.dart';
 import 'features/achievements/screens/achievements_screen.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/auth/screens/sign_in_screen.dart';
@@ -23,14 +25,12 @@ import 'features/vault/screens/vault_screen.dart';
 final _router = GoRouter(
   initialLocation: '/',
   routes: [
+    // Splash — no shell (no bottom nav)
     GoRoute(
       path: '/',
       builder: (context, state) => const SplashScreen(),
     ),
-    GoRoute(
-      path: '/home',
-      builder: (context, state) => const HomeScreen(),
-    ),
+    // Auth screens — no shell
     GoRoute(
       path: '/signup',
       builder: (context, state) => const SignUpScreen(),
@@ -39,6 +39,7 @@ final _router = GoRouter(
       path: '/signin',
       builder: (context, state) => const SignInScreen(),
     ),
+    // Game screens — no shell
     GoRoute(
       path: '/game/:levelNumber',
       builder: (context, state) => GameScreen(
@@ -52,14 +53,6 @@ final _router = GoRouter(
       ),
     ),
     GoRoute(
-      path: '/achievements',
-      builder: (context, state) => const AchievementsScreen(),
-    ),
-    GoRoute(
-      path: '/shop',
-      builder: (context, state) => const ShopScreen(),
-    ),
-    GoRoute(
       path: '/vault',
       builder: (context, state) => const VaultScreen(),
     ),
@@ -68,6 +61,24 @@ final _router = GoRouter(
       builder: (context, state) => GameScreen(
         vaultLevel: int.parse(state.pathParameters['vaultLevel']!),
       ),
+    ),
+    // Shell routes — home, achievements, shop share the bottom nav bar
+    ShellRoute(
+      builder: (context, state, child) => MainScaffold(child: child),
+      routes: [
+        GoRoute(
+          path: '/home',
+          builder: (context, state) => const HomeScreen(),
+        ),
+        GoRoute(
+          path: '/achievements',
+          builder: (context, state) => const AchievementsScreen(),
+        ),
+        GoRoute(
+          path: '/shop',
+          builder: (context, state) => const ShopScreen(),
+        ),
+      ],
     ),
   ],
 );
@@ -106,7 +117,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Puzzle Game',
+      title: 'Intercept',
       theme: AppTheme.light,
       routerConfig: _router,
       debugShowCheckedModeBanner: false,

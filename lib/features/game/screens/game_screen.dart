@@ -3,6 +3,7 @@
 // Phase 6 — Analytics call sites
 // Phase 7 — Interstitial ad before level-complete navigation
 // Phase 8 — Vault mode support
+// Phase 9 — MERIDIAN design polish
 // Spec: flutter-agent-spec.md § Navigation Routes
 //       analytics-agent-spec.md
 //       master-development-plan.md § Ad Strategy
@@ -14,6 +15,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:puzzle_game/core/constants/game_constants.dart';
@@ -118,9 +120,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   // Persistence helpers
   // ---------------------------------------------------------------------------
 
-  /// Schedules an async restore of tile placements from local storage.
-  /// Runs after the first frame so the grid widgets are built and ready
-  /// to accept tile placements.
   void _scheduleRestore(int levelNumber) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted || _stateRestored) return;
@@ -141,9 +140,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     });
   }
 
-  /// Debounced save — fires 300 ms after the last state change.
-  /// Skipped when the level is already complete to avoid saving a stale state
-  /// that would be restored on a replay. Skipped for vault levels.
   void _scheduleSave(GameState newState) {
     if (_isVault) return;
     if (newState.phase == GamePhase.levelComplete) return;
@@ -167,19 +163,105 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (balance < GameConstants.hintCost) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Not enough coins. Hints cost ${GameConstants.hintCost} coins.',
-          ),
-          backgroundColor: AppColors.feedbackWrongWord,
+        const SnackBar(
+          content: Text('Not enough coins for Field Assist.'),
         ),
       );
       return;
     }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: AppColors.ink,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: 3,
+              decoration: const BoxDecoration(
+                color: AppColors.signal,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'REQUEST FIELD ASSIST',
+                    style: TextStyle(
+                      fontFamily: 'Oswald',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.parchment,
+                      letterSpacing: 1.8,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Reveal one letter position. Costs 5 \u25c8.',
+                    style: TextStyle(
+                      fontFamily: 'SpecialElite',
+                      fontSize: 13,
+                      color: AppColors.dmInkFaded,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Current balance: $balance \u25c8',
+                    style: const TextStyle(
+                      fontFamily: 'CourierPrime',
+                      fontSize: 11,
+                      color: AppColors.dmInkFaded,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: const Text(
+                          'Stand down',
+                          style: TextStyle(
+                            fontFamily: 'SpecialElite',
+                            fontSize: 13,
+                            color: AppColors.signal,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: const Text(
+                          'Confirm \u2014 spend 5 \u25c8',
+                          style: TextStyle(
+                            fontFamily: 'SpecialElite',
+                            fontSize: 13,
+                            color: AppColors.signal,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed != true) return;
+
     final granted =
         await _notifier?.onHintRequested(coinBalance: balance) ?? false;
     if (granted) {
-      // Invalidate coin balance so the HUD updates.
       ref.invalidate(coinBalanceProvider);
     }
   }
@@ -194,7 +276,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           content: Text(
             'Not enough coins. Skipping costs ${GameConstants.skipCost} coins.',
           ),
-          backgroundColor: AppColors.feedbackWrongWord,
         ),
       );
       return;
@@ -202,29 +283,79 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text(
-          'Skip this level?',
-          style: TextStyle(color: AppColors.textPrimary),
+      builder: (ctx) => Dialog(
+        backgroundColor: AppColors.ink,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
-        content: Text(
-          'This costs ${GameConstants.skipCost} coins.',
-          style: const TextStyle(color: AppColors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text(
-              'Skip',
-              style: TextStyle(color: AppColors.accent),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: 3,
+              decoration: const BoxDecoration(
+                color: AppColors.signal,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'SKIP THIS SIGNAL?',
+                    style: TextStyle(
+                      fontFamily: 'Oswald',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.parchment,
+                      letterSpacing: 1.8,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Costs ${GameConstants.skipCost} \u25c8. Signal marked as skipped.',
+                    style: const TextStyle(
+                      fontFamily: 'SpecialElite',
+                      fontSize: 13,
+                      color: AppColors.dmInkFaded,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: const Text(
+                          'Stay on signal',
+                          style: TextStyle(
+                            fontFamily: 'SpecialElite',
+                            fontSize: 13,
+                            color: AppColors.signal,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: Text(
+                          'Skip \u2014 spend ${GameConstants.skipCost} \u25c8',
+                          style: const TextStyle(
+                            fontFamily: 'SpecialElite',
+                            fontSize: 13,
+                            color: AppColors.rust,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
 
@@ -265,8 +396,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final puzzleAsync = _isVault
         ? ref.watch(vaultGamePuzzleProvider(widget.vaultLevel!))
         : ref.watch(gamePuzzleProvider(widget.levelNumber!));
-    // categoryListsProvider preloads CategoryListLoader so constraint
-    // validation works. Both must be ready before showing the game.
     final categoriesAsync = ref.watch(categoryListsProvider);
 
     return PopScope(
@@ -280,7 +409,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.parchment,
         body: puzzleAsync.when(
           data: (puzzle) => categoriesAsync.when(
             data: (_) => _buildGameBody(context, puzzle),
@@ -317,7 +446,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       _levelCompleteNavigated = true;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) return;
-        // Capture router before the async gap to satisfy the linter.
         final router = GoRouter.of(context);
         final coinBalanceBefore = ref.read(coinBalanceProvider).value ?? 0;
         final result = await _notifier!.onLevelCompletedBackend(
@@ -327,7 +455,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         );
         if (!mounted) return;
 
-        // Analytics: level_complete — fire-and-forget.
         final analytics = ref.read(analyticsServiceProvider);
         final levelNum = puzzle.levelNumber ?? _effectiveLevelNumber;
         final levelType =
@@ -349,7 +476,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           achievementsUnlocked: result.achievementsUnlocked,
         );
 
-        // Analytics: coin_transaction for coins earned.
         analytics.trackCoinTransaction(
           transactionType: 'level_complete',
           amount: result.coinsEarned,
@@ -358,7 +484,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           referenceId: '$levelNum',
         );
 
-        // Analytics: streak_updated if streak was returned.
         if (result.newStreak > 0) {
           analytics.trackStreakUpdated(
             newStreak: result.newStreak,
@@ -368,20 +493,17 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           );
         }
 
-        // Analytics: achievement_unlocked for each achievement.
         for (var i = 0; i < result.achievementsUnlocked.length; i++) {
           analytics.trackAchievementUnlocked(
             achievementId: result.achievementsUnlocked[i],
-            coinsAwarded: 0, // per-achievement amounts not returned by edge fn
+            coinsAwarded: 0,
             levelNumber: levelNum,
             totalAchievementsUnlocked: i + 1,
           );
         }
 
-        // Invalidate coin balance so home screen shows updated value.
         ref.invalidate(coinBalanceProvider);
 
-        // Phase 8: Update vault level state if vault mode.
         if (_isVault) {
           final vl = widget.vaultLevel!;
           final current = ref.read(currentVaultLevelProvider);
@@ -392,8 +514,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           ref.invalidate(profileProvider);
         }
 
-        // Clear saved state now that the level is complete so a replay
-        // starts fresh. Skipped for vault levels.
         if (!_isVault) {
           await PuzzleStatePersistence.clear(
             puzzle.levelNumber ?? widget.levelNumber!,
@@ -401,11 +521,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         }
         if (!mounted) return;
 
-        // Phase 7: Show interstitial ad if due — NEVER on boss levels,
-        // NEVER for paying users. onAdDismissed always fires even on failure.
         final adFreqManager = ref.read(adFrequencyManagerProvider);
         final revenueCat = ref.read(revenueCatServiceProvider);
-        // Capture levelsSinceLastAd BEFORE shouldShowAd() resets the counter.
         final levelsSinceLastAd = adFreqManager.levelsSinceLastAd;
         final shouldShowAd = adFreqManager.shouldShowAd(
           isBossLevel: _isVault ? _isVaultBoss : puzzle.isBoss,
@@ -470,7 +587,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Column(
                 children: [
-                  // Crossword grid — centerpiece of the screen
                   CrosswordGridWidget(
                     puzzle: puzzle,
                     tiles: gameState.tiles,
@@ -481,7 +597,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                         _notifier?.returnTile(tileId),
                   ),
                   const SizedBox(height: 16),
-                  // Letter pool — tile bank below the grid
                   LetterPoolWidget(
                     tiles: gameState.tiles,
                     hintTileIds: gameState.hintTileIds,
@@ -499,7 +614,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             onClearAll: () => _notifier?.clearAll(),
           ),
 
-          // Feedback banner (shown when there is an active feedback message)
+          // Feedback banner
           if (gameState.feedbackMessage != null)
             _FeedbackBanner(message: gameState.feedbackMessage!),
         ],
@@ -507,8 +622,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  /// Fires level_abandoned analytics — fire-and-forget. Safe to call when game
-  /// state may not yet be loaded (guards internally).
   void _fireAbandonedAnalytics(int levelNumber) {
     final gameState = _gameState ?? _notifier?.currentState;
     if (gameState == null) return;
@@ -534,29 +647,79 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Future<bool> _confirmLeave(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text(
-          'Leave puzzle?',
-          style: TextStyle(color: AppColors.textPrimary),
+      builder: (ctx) => Dialog(
+        backgroundColor: AppColors.ink,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
-        content: const Text(
-          'Your tile placements will be saved. You can resume where you left off.',
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Keep Playing'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text(
-              'Leave',
-              style: TextStyle(color: AppColors.feedbackWrongWord),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: 3,
+              decoration: const BoxDecoration(
+                color: AppColors.signal,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'ABANDON SIGNAL?',
+                    style: TextStyle(
+                      fontFamily: 'Oswald',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.parchment,
+                      letterSpacing: 1.8,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Your tile placements are saved.',
+                    style: TextStyle(
+                      fontFamily: 'SpecialElite',
+                      fontSize: 13,
+                      color: AppColors.dmInkFaded,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: const Text(
+                          'Stay on signal',
+                          style: TextStyle(
+                            fontFamily: 'SpecialElite',
+                            fontSize: 13,
+                            color: AppColors.signal,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: const Text(
+                          'Leave',
+                          style: TextStyle(
+                            fontFamily: 'SpecialElite',
+                            fontSize: 13,
+                            color: AppColors.rust,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
     return result ?? false;
@@ -588,134 +751,124 @@ class _GameHud extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String levelLabel;
+    final String levelTypeBadge;
+    if (isVault) {
+      levelLabel = 'VAULT V$levelNumber';
+      levelTypeBadge = isBoss ? 'BOSS VAULT' : 'VAULT';
+    } else {
+      levelLabel = 'SIGNAL #$levelNumber';
+      levelTypeBadge = isBoss ? 'BOSS' : 'STANDARD';
+    }
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      color: AppColors.surface.withValues(alpha: 0.1),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      color: AppColors.desk,
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+            icon: const Icon(Icons.arrow_back,
+                color: AppColors.parchment, size: 20),
             onPressed: onBack,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
           ),
-          // Level title
+          // Level title + badge
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                if (isBoss) ...[
-                  const Icon(Icons.star, color: AppColors.accent, size: 18),
-                  const SizedBox(width: 4),
-                ],
                 Text(
-                  isVault ? 'Vault V$levelNumber' : 'Level $levelNumber',
+                  levelLabel,
                   style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Oswald',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.parchment,
+                    letterSpacing: 1.8,
                   ),
                 ),
-                if (isBoss) ...[
-                  const SizedBox(width: 4),
-                  const Icon(Icons.star, color: AppColors.accent, size: 18),
-                ],
+                Text(
+                  levelTypeBadge,
+                  style: const TextStyle(
+                    fontFamily: 'CourierPrime',
+                    fontSize: 7,
+                    color: AppColors.dmInkFaded,
+                    letterSpacing: 1.0,
+                  ),
+                ),
               ],
             ),
           ),
           // Hint button
-          _HudActionButton(
-            icon: Icons.lightbulb_outline,
+          _MeridianHudButton(
+            label: 'Field Assist',
             cost: GameConstants.hintCost,
-            label: 'Hint',
             onPressed: onHintPressed,
+            color: AppColors.signal,
           ),
           const SizedBox(width: 4),
-          // Skip button
-          _HudActionButton(
-            icon: Icons.skip_next,
-            cost: GameConstants.skipCost,
-            label: 'Skip',
-            onPressed: onSkipPressed,
-          ),
-          const SizedBox(width: 4),
+          // Skip button (hidden for vault)
+          if (!isVault)
+            _MeridianHudButton(
+              label: 'Skip',
+              cost: GameConstants.skipCost,
+              onPressed: onSkipPressed,
+              color: AppColors.rust,
+            ),
+          const SizedBox(width: 8),
           // Coin balance
-          Row(
-            children: [
-              const Icon(
-                Icons.monetization_on,
-                color: AppColors.accent,
-                size: 18,
-              ),
-              const SizedBox(width: 2),
-              Text(
-                '$coinBalance',
-                style: const TextStyle(
-                  color: AppColors.accent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
+          Text(
+            '$coinBalance \u25c8',
+            style: const TextStyle(
+              fontFamily: 'CourierPrime',
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.signal,
+              letterSpacing: 0.5,
+            ),
           ),
+          const SizedBox(width: 4),
         ],
       ),
     );
   }
 }
 
-/// A compact HUD button showing an icon, coin cost, and a label.
-class _HudActionButton extends StatelessWidget {
-  final IconData icon;
-  final int cost;
+class _MeridianHudButton extends StatelessWidget {
   final String label;
+  final int cost;
   final VoidCallback onPressed;
+  final Color color;
 
-  const _HudActionButton({
-    required this.icon,
-    required this.cost,
+  const _MeridianHudButton({
     required this.label,
+    required this.cost,
     required this.onPressed,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: AppColors.textSecondary, size: 18),
-            const SizedBox(height: 1),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.monetization_on,
-                  color: AppColors.accent,
-                  size: 10,
-                ),
-                const SizedBox(width: 1),
-                Text(
-                  '$cost',
-                  style: const TextStyle(
-                    color: AppColors.accent,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            Text(
-              label,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 9,
-              ),
-            ),
-          ],
+      borderRadius: const BorderRadius.all(Radius.circular(3)),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: const BorderRadius.all(Radius.circular(3)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Text(
+          '$label  $cost \u25c8',
+          style: TextStyle(
+            fontFamily: 'SpecialElite',
+            fontSize: 9,
+            color: color,
+            letterSpacing: 0.5,
+          ),
         ),
       ),
     );
@@ -730,60 +883,59 @@ class _SubmitBar extends StatelessWidget {
   final VoidCallback onSubmit;
   final VoidCallback onClearAll;
 
-  const _SubmitBar({
-    required this.onSubmit,
-    required this.onClearAll,
-  });
+  const _SubmitBar({required this.onSubmit, required this.onClearAll});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      color: AppColors.surface.withValues(alpha: 0.1),
+      color: AppColors.desk,
       child: Row(
         children: [
           Expanded(
-            flex: 2,
-            child: FilledButton(
-              onPressed: onSubmit,
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            flex: 3,
+            child: SizedBox(
+              height: 48,
+              child: FilledButton(
+                onPressed: onSubmit,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.signal,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                  ),
+                  elevation: 0,
                 ),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  'Submit',
+                child: const Text(
+                  'TRANSMIT \u2192',
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Oswald',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 2.4,
+                    color: AppColors.ink,
                   ),
                 ),
               ),
             ),
           ),
           const SizedBox(width: 8),
-          Expanded(
+          SizedBox(
+            height: 48,
             child: OutlinedButton(
               onPressed: onClearAll,
               style: OutlinedButton.styleFrom(
-                side: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.3),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0x331C1410)),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(3)),
                 ),
               ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  'Clear All',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 14,
-                  ),
+              child: const Text(
+                'CLEAR',
+                style: TextStyle(
+                  fontFamily: 'CourierPrime',
+                  fontSize: 10,
+                  color: Color(0x731C1410),
+                  letterSpacing: 1.0,
                 ),
               ),
             ),
@@ -800,40 +952,43 @@ class _SubmitBar extends StatelessWidget {
 
 class _FeedbackBanner extends StatelessWidget {
   final FeedbackMessage message;
-
   const _FeedbackBanner({required this.message});
 
   @override
   Widget build(BuildContext context) {
     final Color bannerColor;
-    const Color textColor = Colors.white;
+    final String bannerText;
 
     switch (message.type) {
       case FeedbackType.correct:
-        bannerColor = AppColors.feedbackCorrect;
+        bannerColor = AppColors.verdigris;
+        bannerText = 'DECODED \u2713';
       case FeedbackType.wrongWord:
-        bannerColor = AppColors.feedbackWrongWord;
+        bannerColor = AppColors.rust;
+        bannerText = message.message;
       case FeedbackType.wrongConstraint:
-        bannerColor = AppColors.feedbackWrongConstraint;
+        bannerColor = AppColors.rust;
+        bannerText = message.message;
       case FeedbackType.hint:
-        bannerColor = AppColors.primary;
+        bannerColor = AppColors.signal;
+        bannerText = message.message;
     }
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+    return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
       color: bannerColor,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            message.message,
+            bannerText,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              color: textColor,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontFamily: 'SpecialElite',
+              fontSize: 11,
+              letterSpacing: 1.32,
+              color: AppColors.parchment,
             ),
           ),
           if (message.constraintText != null) ...[
@@ -842,13 +997,17 @@ class _FeedbackBanner extends StatelessWidget {
               message.constraintText!,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: textColor.withValues(alpha: 0.85),
-                fontSize: 13,
+                fontFamily: 'SpecialElite',
+                fontSize: 10,
+                color: AppColors.parchment.withValues(alpha: 0.85),
               ),
             ),
           ],
         ],
       ),
-    );
+    )
+        .animate()
+        .slideY(begin: 0.3, duration: 200.ms, curve: Curves.easeOut)
+        .fadeIn(duration: 200.ms);
   }
 }
