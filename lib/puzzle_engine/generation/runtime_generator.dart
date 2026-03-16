@@ -19,7 +19,14 @@ class RuntimeGenerator {
     required int vaultLevel,
   }) {
     final seed = _deriveSeed(userId, vaultLevel);
-    final difficulty = DifficultyProfile.forLevel(vaultLevel + 200);
+    // Map vault level to a working difficulty band (1–185).
+    // DifficultyProfile.forLevel(191+) mandates tiers [4,5] only — the solver
+    // cannot reliably satisfy those against a finite word list, so we cap at 185.
+    // Vault 1–10  → levels  1–20  (tier 1, easy)
+    // Vault 11–40 → levels 21–80  (tiers 1–3, medium)
+    // Vault 41+   → levels 81–185 (tiers 1–4, hard, capped)
+    final mappedLevel = (vaultLevel * 2).clamp(1, 185);
+    final difficulty = DifficultyProfile.forLevel(mappedLevel);
     return preGenerator.generate(difficulty, seed: seed);
   }
 

@@ -40,7 +40,10 @@ final _vaultAnswerWordsProvider = FutureProvider<List<String>>((ref) async {
 
 final _runtimeGeneratorProvider = FutureProvider<RuntimeGenerator>((ref) async {
   final answerWords = await ref.watch(_vaultAnswerWordsProvider.future);
-  final library = ConstraintLibrary.build();
+  // Pass the full answer word set so that dictionary-lookup constraints
+  // (RemoveFirstLetter, RemoveLastLetter, ContainsHiddenWord, etc.) have
+  // a non-empty validator and the CSP solver can find valid domains.
+  final library = ConstraintLibrary.build(validWords: answerWords.toSet());
   final solver = CspSolver(
     answerWords: answerWords,
     constraintLibrary: library,
