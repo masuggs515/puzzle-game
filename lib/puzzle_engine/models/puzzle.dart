@@ -1,6 +1,6 @@
 import 'package:puzzle_game/puzzle_engine/models/constraint_assignment.dart';
 
-enum LevelType { sprint, puzzle, vault }
+enum LevelType { sprint, puzzle }
 
 class WordSlot {
   final int id;

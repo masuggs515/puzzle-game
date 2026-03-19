@@ -23,6 +23,6 @@ class AppTextStyles {
   static const monoXS     = TextStyle(fontFamily: 'CourierPrime', fontSize: 9,  letterSpacing: 0.9);
 
   // Game-specific
-  static const tileLabel        = TextStyle(fontFamily: 'Oswald', fontSize: 20, fontWeight: FontWeight.w400, letterSpacing: 1.0);
+  static const tileLabel        = TextStyle(fontFamily: 'Oswald', fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: 1.0);
   static const constraintLabel  = TextStyle(fontFamily: 'SpecialElite', fontSize: 11, letterSpacing: 1.32);
 }

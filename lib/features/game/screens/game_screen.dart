@@ -20,6 +20,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:puzzle_game/core/constants/game_constants.dart';
 import 'package:puzzle_game/core/theme/app_colors.dart';
+import 'package:puzzle_game/core/widgets/graph_paper_background.dart';
 import 'package:puzzle_game/features/auth/providers/auth_provider.dart';
 import 'package:puzzle_game/features/shop/providers/shop_provider.dart';
 import 'package:puzzle_game/features/game/models/game_state.dart';
@@ -30,7 +31,6 @@ import 'package:puzzle_game/features/game/providers/valid_words_provider.dart';
 import 'package:puzzle_game/features/game/services/puzzle_state_persistence.dart';
 import 'package:puzzle_game/features/game/widgets/crossword_grid_widget.dart';
 import 'package:puzzle_game/features/game/widgets/letter_pool_widget.dart';
-import 'package:puzzle_game/features/vault/providers/vault_provider.dart';
 import 'package:puzzle_game/puzzle_engine/models/puzzle.dart';
 
 // ---------------------------------------------------------------------------
@@ -38,12 +38,9 @@ import 'package:puzzle_game/puzzle_engine/models/puzzle.dart';
 // ---------------------------------------------------------------------------
 
 class GameScreen extends ConsumerStatefulWidget {
-  final int? levelNumber;
-  final int? vaultLevel;
+  final int levelNumber;
 
-  const GameScreen({super.key, this.levelNumber, this.vaultLevel})
-      : assert(levelNumber != null || vaultLevel != null,
-            'GameScreen requires either levelNumber or vaultLevel');
+  const GameScreen({super.key, required this.levelNumber});
 
   @override
   ConsumerState<GameScreen> createState() => _GameScreenState();
@@ -55,11 +52,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   bool _levelCompleteNavigated = false;
   Timer? _saveDebounceTimer;
   bool _stateRestored = false;
-
-  bool get _isVault => widget.vaultLevel != null;
-  int get _effectiveLevelNumber =>
-      _isVault ? widget.vaultLevel! : (widget.levelNumber ?? 0);
-  bool get _isVaultBoss => _isVault && widget.vaultLevel! % 10 == 0;
 
   void _initGame(Puzzle puzzle) {
     if (_notifier != null) return; // already initialised for this level
@@ -86,13 +78,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       analytics: analytics,
     );
     // Analytics: level_start — fire-and-forget.
-    final isBossForAnalytics = _isVault ? _isVaultBoss : puzzle.isBoss;
-    final levelTypeForAnalytics =
-        _isVault ? 'vault' : (puzzle.isBoss ? 'bossLevel' : 'standard');
     analytics.trackLevelStart(
-      levelNumber: puzzle.levelNumber ?? _effectiveLevelNumber,
-      levelType: levelTypeForAnalytics,
-      isBoss: isBossForAnalytics,
+      levelNumber: puzzle.levelNumber ?? widget.levelNumber,
+      levelType: puzzle.isBoss ? 'bossLevel' : 'standard',
+      isBoss: puzzle.isBoss,
       coinBalance: ref.read(coinBalanceProvider).value ?? 0,
       intersectionCount: puzzle.intersections.length,
       constraintTiers: puzzle.wordSlots
@@ -102,11 +91,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _notifier!.addListener((newState) {
       if (mounted) {
         setState(() => _gameState = newState);
-        if (!_isVault) _scheduleSave(newState);
+        _scheduleSave(newState);
       }
     });
     _gameState = _notifier!.currentState;
-    if (!_isVault) _scheduleRestore(_effectiveLevelNumber);
+    _scheduleRestore(widget.levelNumber);
   }
 
   @override
@@ -141,12 +130,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   void _scheduleSave(GameState newState) {
-    if (_isVault) return;
     if (newState.phase == GamePhase.levelComplete) return;
     _saveDebounceTimer?.cancel();
     _saveDebounceTimer = Timer(const Duration(milliseconds: 300), () {
       PuzzleStatePersistence.save(
-        widget.levelNumber!,
+        widget.levelNumber,
         newState.tiles,
         newState.hintsUsedThisLevel,
         newState.attemptsThisLevel,
@@ -267,7 +255,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Future<void> _requestSkip(Puzzle puzzle) async {
-    if (_isVault) return;
     final balance = ref.read(coinBalanceProvider).value ?? 0;
     if (balance < GameConstants.skipCost) {
       if (!mounted) return;
@@ -371,31 +358,27 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       amount: -GameConstants.skipCost,
       balanceBefore: balance,
       balanceAfter: result.newBalance,
-      referenceId: '${puzzle.levelNumber ?? _effectiveLevelNumber}',
+      referenceId: '${puzzle.levelNumber ?? widget.levelNumber}',
     );
 
     ref.invalidate(coinBalanceProvider);
     // Clear saved mid-puzzle state so a replay starts fresh.
-    if (!_isVault) await PuzzleStatePersistence.clear(widget.levelNumber!);
+    await PuzzleStatePersistence.clear(widget.levelNumber);
     if (!mounted) return;
     context.go(
       '/level-complete',
       extra: LevelCompleteArgs(
-        levelNumber: puzzle.levelNumber ?? _effectiveLevelNumber,
+        levelNumber: puzzle.levelNumber ?? widget.levelNumber,
         stars: 0,
         coinsEarned: 0,
         wasSkipped: true,
-        isVault: _isVault,
-        vaultLevel: _isVault ? widget.vaultLevel : null,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final puzzleAsync = _isVault
-        ? ref.watch(vaultGamePuzzleProvider(widget.vaultLevel!))
-        : ref.watch(gamePuzzleProvider(widget.levelNumber!));
+    final puzzleAsync = ref.watch(gamePuzzleProvider(widget.levelNumber));
     final categoriesAsync = ref.watch(categoryListsProvider);
 
     return PopScope(
@@ -404,13 +387,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         if (didPop) return;
         final shouldLeave = await _confirmLeave(context);
         if (shouldLeave && context.mounted) {
-          _fireAbandonedAnalytics(_effectiveLevelNumber);
-          context.go(_isVault ? '/vault' : '/home');
+          _fireAbandonedAnalytics(widget.levelNumber);
+          context.go('/home');
         }
       },
       child: Scaffold(
         backgroundColor: AppColors.parchment,
-        body: puzzleAsync.when(
+        body: GraphPaperBackground(
+          opacity: 0.5,
+          child: puzzleAsync.when(
           data: (puzzle) => categoriesAsync.when(
             data: (_) => _buildGameBody(context, puzzle),
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -431,6 +416,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             ),
           ),
         ),
+        ),
       ),
     );
   }
@@ -449,22 +435,20 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         final router = GoRouter.of(context);
         final coinBalanceBefore = ref.read(coinBalanceProvider).value ?? 0;
         final result = await _notifier!.onLevelCompletedBackend(
-          levelNumber: puzzle.levelNumber ?? _effectiveLevelNumber,
-          isBoss: _isVault ? _isVaultBoss : puzzle.isBoss,
-          isVault: _isVault,
+          levelNumber: puzzle.levelNumber ?? widget.levelNumber,
+          isBoss: puzzle.isBoss,
+          isVault: false,
         );
         if (!mounted) return;
 
         final analytics = ref.read(analyticsServiceProvider);
-        final levelNum = puzzle.levelNumber ?? _effectiveLevelNumber;
-        final levelType =
-            _isVault ? 'vault' : (puzzle.isBoss ? 'bossLevel' : 'standard');
-        final isBossForComplete = _isVault ? _isVaultBoss : puzzle.isBoss;
+        final levelNum = puzzle.levelNumber ?? widget.levelNumber;
+        final levelType = puzzle.isBoss ? 'bossLevel' : 'standard';
 
         analytics.trackLevelComplete(
           levelNumber: levelNum,
           levelType: levelType,
-          isBoss: isBossForComplete,
+          isBoss: puzzle.isBoss,
           stars: gameState.stars,
           hintsUsed: gameState.hintsUsedThisLevel,
           attemptsTotal: gameState.attemptsThisLevel,
@@ -504,28 +488,16 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
         ref.invalidate(coinBalanceProvider);
 
-        if (_isVault) {
-          final vl = widget.vaultLevel!;
-          final current = ref.read(currentVaultLevelProvider);
-          if (vl > current) {
-            ref.read(currentVaultLevelProvider.notifier).state = vl;
-          }
-          ref.invalidate(vaultLevelProvider);
-          ref.invalidate(profileProvider);
-        }
-
-        if (!_isVault) {
-          await PuzzleStatePersistence.clear(
-            puzzle.levelNumber ?? widget.levelNumber!,
-          );
-        }
+        await PuzzleStatePersistence.clear(
+          puzzle.levelNumber ?? widget.levelNumber,
+        );
         if (!mounted) return;
 
         final adFreqManager = ref.read(adFrequencyManagerProvider);
         final revenueCat = ref.read(revenueCatServiceProvider);
         final levelsSinceLastAd = adFreqManager.levelsSinceLastAd;
         final shouldShowAd = adFreqManager.shouldShowAd(
-          isBossLevel: _isVault ? _isVaultBoss : puzzle.isBoss,
+          isBossLevel: puzzle.isBoss,
           isPayingUser: revenueCat.isPayingUser,
         );
 
@@ -534,12 +506,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           router.go(
             '/level-complete',
             extra: LevelCompleteArgs(
-              levelNumber: puzzle.levelNumber ?? _effectiveLevelNumber,
+              levelNumber: puzzle.levelNumber ?? widget.levelNumber,
               stars: gameState.stars,
               coinsEarned: result.coinsEarned,
               achievementsUnlocked: result.achievementsUnlocked,
-              isVault: _isVault,
-              vaultLevel: _isVault ? widget.vaultLevel : null,
             ),
           );
         }
@@ -564,17 +534,17 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         children: [
           // HUD bar
           _GameHud(
-            levelNumber: puzzle.levelNumber ?? _effectiveLevelNumber,
-            isBoss: _isVault ? _isVaultBoss : puzzle.isBoss,
-            isVault: _isVault,
+            levelNumber: puzzle.levelNumber ?? widget.levelNumber,
+            isBoss: puzzle.isBoss,
+            isVault: false,
             coinBalance: coinBalance,
             onBack: () async {
               final shouldLeave = await _confirmLeave(context);
               if (shouldLeave && context.mounted) {
                 _fireAbandonedAnalytics(
-                  _gameState?.puzzle.levelNumber ?? _effectiveLevelNumber,
+                  _gameState?.puzzle.levelNumber ?? widget.levelNumber,
                 );
-                context.go(_isVault ? '/vault' : '/home');
+                context.go('/home');
               }
             },
             onHintPressed: _requestHint,
@@ -626,13 +596,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final gameState = _gameState ?? _notifier?.currentState;
     if (gameState == null) return;
     final puzzle = gameState.puzzle;
-    final levelType =
-        _isVault ? 'vault' : (puzzle.isBoss ? 'bossLevel' : 'standard');
-    final isBossForAbandoned = _isVault ? _isVaultBoss : puzzle.isBoss;
+    final levelType = puzzle.isBoss ? 'bossLevel' : 'standard';
     ref.read(analyticsServiceProvider).trackLevelAbandoned(
       levelNumber: levelNumber,
       levelType: levelType,
-      isBoss: isBossForAbandoned,
+      isBoss: puzzle.isBoss,
       timeSpentMs: DateTime.now()
           .difference(gameState.levelStartTime)
           .inMilliseconds,
@@ -809,7 +777,7 @@ class _GameHud extends StatelessWidget {
             color: AppColors.signal,
           ),
           const SizedBox(width: 4),
-          // Skip button (hidden for vault)
+          // Skip button
           if (!isVault)
             _MeridianHudButton(
               label: 'Skip',

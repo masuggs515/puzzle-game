@@ -5,7 +5,7 @@
 //
 // Shows player stats and a scrollable world-map level grid.
 // Levels unlock sequentially — level N requires level N-1 to be completed.
-// Boss levels (8, 15, 24, 32, 42, 50) have a gold visual treatment.
+// Boss levels (8, 15, 24, 32, 42, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100) have a gold visual treatment.
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +18,8 @@ import '../../../features/auth/providers/auth_provider.dart';
 import '../../../features/home/providers/home_provider.dart';
 import '../../../features/puzzle_engine/screens/puzzle_debug_screen.dart';
 
-// Boss level numbers for the hand-crafted set (1–50).
-const _bossLevels = {8, 15, 24, 32, 42, 50};
+// Boss level numbers for the hand-crafted set (1–100).
+const _bossLevels = {8, 15, 24, 32, 42, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100};
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -155,56 +155,45 @@ class _HomeBody extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // ── Vault banner ──────────────────────────────────────────────
-            GestureDetector(
-              onTap: () => context.go('/vault'),
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.desk,
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(
-                    color: AppColors.signal.withValues(alpha: 0.4),
+            // ── Coming Soon banner ────────────────────────────────────────
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.aged,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                  color: AppColors.inkFaded.withValues(alpha: 0.2),
+                ),
+              ),
+              child: const Row(
+                children: [
+                  SizedBox(width: 4),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'MORE SIGNALS COMING SOON',
+                          style: TextStyle(
+                            fontFamily: 'Oswald',
+                            fontWeight: FontWeight.w400,
+                            fontSize: 13,
+                            color: AppColors.inkFaded,
+                            letterSpacing: 2.0,
+                          ),
+                        ),
+                        Text(
+                          'New signal packs and modes in development',
+                          style: TextStyle(
+                            fontFamily: 'SpecialElite',
+                            fontSize: 9,
+                            color: AppColors.inkFaded,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                child: const Row(
-                  children: [
-                    SizedBox(width: 4),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'THE VAULT',
-                            style: TextStyle(
-                              fontFamily: 'Oswald',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              color: AppColors.parchment,
-                              letterSpacing: 2.0,
-                            ),
-                          ),
-                          Text(
-                            'Infinite procedurally generated signals',
-                            style: TextStyle(
-                              fontFamily: 'SpecialElite',
-                              fontSize: 9,
-                              color: AppColors.dmInkFaded,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      '\u2192',
-                      style: TextStyle(
-                        color: AppColors.signal,
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(width: 4),
-                  ],
-                ),
+                ],
               ),
             ),
 
@@ -313,7 +302,7 @@ class _SectoredLevelGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final sectors = <Widget>[];
 
-    for (int sector = 0; sector < 5; sector++) {
+    for (int sector = 0; sector < 10; sector++) {
       final startLevel = sector * 10 + 1;
       final endLevel = sector * 10 + 10;
       final sectorNum = (sector + 1).toString().padLeft(2, '0');
@@ -427,19 +416,19 @@ class _LevelNode extends StatelessWidget {
     final Border border;
 
     if (!isAvailable) {
-      bgColor = AppColors.aged.withValues(alpha: 0.5);
-      border = Border.all(color: const Color(0x1A1C1410));
+      bgColor = AppColors.aged;
+      border = Border.all(color: const Color(0x401C1410));
     } else if (isCompleted) {
-      bgColor = AppColors.verdigris.withValues(alpha: 0.15);
+      bgColor = AppColors.verdigris.withValues(alpha: 0.22);
       border = Border.all(
         color: isBoss ? AppColors.signal : AppColors.verdigris,
-        width: isBoss ? 2 : 1,
+        width: isBoss ? 2 : 1.5,
       );
     } else {
-      bgColor = AppColors.parchment;
+      bgColor = AppColors.aged;
       border = Border.all(
-        color: isBoss ? AppColors.signal : AppColors.signal.withValues(alpha: 0.4),
-        width: isBoss ? 2 : 1,
+        color: isBoss ? AppColors.signal : AppColors.signal.withValues(alpha: 0.7),
+        width: isBoss ? 2 : 1.5,
       );
     }
 

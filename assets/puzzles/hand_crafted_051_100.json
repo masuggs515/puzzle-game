@@ -1,0 +1,3364 @@
+{
+  "format_version": "1.0",
+  "generated_at": "2026-03-18",
+  "total_puzzles": 50,
+  "puzzles": [
+    {
+      "seed": "hc_051",
+      "level_number": 51,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "crow",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "coral",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "c",
+        "r",
+        "o",
+        "w",
+        "o",
+        "r",
+        "a",
+        "l"
+      ],
+      "metadata": {
+        "solution": [
+          "crow",
+          "coral"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_052",
+      "level_number": 52,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "wolf",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_food",
+          "constraint_tier": 1,
+          "constraint_display": "A type of food",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "wrap",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "w",
+        "o",
+        "l",
+        "f",
+        "r",
+        "a",
+        "p"
+      ],
+      "metadata": {
+        "solution": [
+          "wolf",
+          "wrap"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_053",
+      "level_number": 53,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "seal",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "scarf",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "s",
+        "e",
+        "a",
+        "l",
+        "c",
+        "a",
+        "r",
+        "f"
+      ],
+      "metadata": {
+        "solution": [
+          "seal",
+          "scarf"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_054",
+      "level_number": 54,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "hawk",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A weather word",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "hail",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "h",
+        "a",
+        "w",
+        "k",
+        "a",
+        "i",
+        "l"
+      ],
+      "metadata": {
+        "solution": [
+          "hawk",
+          "hail"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_055",
+      "level_number": 55,
+      "level_type": "sprint",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [
+        1,
+        2
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "toad",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "teal",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        },
+        {
+          "id": 2,
+          "constraint_id": "starts_with_vowel",
+          "constraint_tier": 2,
+          "constraint_display": "Starts with a vowel",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "arch",
+          "grid_row": 2,
+          "grid_col": 0,
+          "is_horizontal": true
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": [
+        "t",
+        "o",
+        "a",
+        "d",
+        "e",
+        "l",
+        "a",
+        "r",
+        "c",
+        "h"
+      ],
+      "metadata": {
+        "solution": [
+          "toad",
+          "teal",
+          "arch"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_056",
+      "level_number": 56,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1,
+        2
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "deer",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "has_double_letter",
+          "constraint_tier": 2,
+          "constraint_display": "Contains a double letter (e.g. LL, SS)",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "deep",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "d",
+        "e",
+        "e",
+        "r",
+        "e",
+        "e",
+        "p"
+      ],
+      "metadata": {
+        "solution": [
+          "deer",
+          "deep"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_057",
+      "level_number": 57,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "frog",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A weather word",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "frost",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "f",
+        "r",
+        "o",
+        "g",
+        "r",
+        "o",
+        "s",
+        "t"
+      ],
+      "metadata": {
+        "solution": [
+          "frog",
+          "frost"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_058",
+      "level_number": 58,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "wren",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A weather word",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "wind",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "w",
+        "r",
+        "e",
+        "n",
+        "i",
+        "n",
+        "d"
+      ],
+      "metadata": {
+        "solution": [
+          "wren",
+          "wind"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_059",
+      "level_number": 59,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "lark",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "lake",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "l",
+        "a",
+        "r",
+        "k",
+        "a",
+        "k",
+        "e"
+      ],
+      "metadata": {
+        "solution": [
+          "lark",
+          "lake"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_060",
+      "level_number": 60,
+      "level_type": "sprint",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "boot",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "brook",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "okra",
+          "grid_row": 2,
+          "grid_col": 0,
+          "is_horizontal": true
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": [
+        "b",
+        "o",
+        "o",
+        "t",
+        "r",
+        "o",
+        "k",
+        "o",
+        "k",
+        "r",
+        "a"
+      ],
+      "metadata": {
+        "solution": [
+          "boot",
+          "brook",
+          "okra"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_061",
+      "level_number": 61,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "crane",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "creek",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "c",
+        "r",
+        "a",
+        "n",
+        "e",
+        "r",
+        "e",
+        "e",
+        "k"
+      ],
+      "metadata": {
+        "solution": [
+          "crane",
+          "creek"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_062",
+      "level_number": 62,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "trout",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "tunic",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "t",
+        "r",
+        "o",
+        "u",
+        "t",
+        "u",
+        "n",
+        "i",
+        "c"
+      ],
+      "metadata": {
+        "solution": [
+          "trout",
+          "tunic"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_063",
+      "level_number": 63,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "moose",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A weather word",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "mist",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "m",
+        "o",
+        "o",
+        "s",
+        "e",
+        "i",
+        "s",
+        "t"
+      ],
+      "metadata": {
+        "solution": [
+          "moose",
+          "mist"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_064",
+      "level_number": 64,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "snake",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A weather word",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "snow",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "s",
+        "n",
+        "a",
+        "k",
+        "e",
+        "n",
+        "o",
+        "w"
+      ],
+      "metadata": {
+        "solution": [
+          "snake",
+          "snow"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_065",
+      "level_number": 65,
+      "level_type": "sprint",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [
+        1,
+        2
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "dove",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "has_double_letter",
+          "constraint_tier": 2,
+          "constraint_display": "Contains a double letter (e.g. LL, SS)",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "door",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "onion",
+          "grid_row": 2,
+          "grid_col": 0,
+          "is_horizontal": true
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": [
+        "d",
+        "o",
+        "v",
+        "e",
+        "o",
+        "r",
+        "o",
+        "n",
+        "i",
+        "o",
+        "n"
+      ],
+      "metadata": {
+        "solution": [
+          "dove",
+          "door",
+          "onion"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_066",
+      "level_number": 66,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "robin",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A weather word",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "rain",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "r",
+        "o",
+        "b",
+        "i",
+        "n",
+        "a",
+        "i",
+        "n"
+      ],
+      "metadata": {
+        "solution": [
+          "robin",
+          "rain"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_067",
+      "level_number": 67,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1,
+        2
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "duck",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "no_repeated_letters",
+          "constraint_tier": 2,
+          "constraint_display": "All letters are unique",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "dusk",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "d",
+        "u",
+        "c",
+        "k",
+        "u",
+        "s",
+        "k"
+      ],
+      "metadata": {
+        "solution": [
+          "duck",
+          "dusk"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_068",
+      "level_number": 68,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1,
+        2
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "vole",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "ends_with_vowel",
+          "constraint_tier": 2,
+          "constraint_display": "Ends with a vowel",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "vine",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "v",
+        "o",
+        "l",
+        "e",
+        "i",
+        "n",
+        "e"
+      ],
+      "metadata": {
+        "solution": [
+          "vole",
+          "vine"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_069",
+      "level_number": 69,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1,
+        2
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "moth",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "has_double_letter",
+          "constraint_tier": 2,
+          "constraint_display": "Contains a double letter (e.g. LL, SS)",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "moon",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "m",
+        "o",
+        "t",
+        "h",
+        "o",
+        "o",
+        "n"
+      ],
+      "metadata": {
+        "solution": [
+          "moth",
+          "moon"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_070",
+      "level_number": 70,
+      "level_type": "sprint",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "peach",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "pink",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A body part",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "neck",
+          "grid_row": 2,
+          "grid_col": 0,
+          "is_horizontal": true
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": [
+        "p",
+        "e",
+        "a",
+        "c",
+        "h",
+        "i",
+        "k",
+        "n",
+        "e",
+        "c",
+        "k"
+      ],
+      "metadata": {
+        "solution": [
+          "peach",
+          "pink",
+          "neck"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_071",
+      "level_number": 71,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1,
+        2
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "pool",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "has_double_letter",
+          "constraint_tier": 2,
+          "constraint_display": "Contains a double letter (e.g. LL, SS)",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "poor",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "p",
+        "o",
+        "o",
+        "l",
+        "o",
+        "o",
+        "r"
+      ],
+      "metadata": {
+        "solution": [
+          "pool",
+          "poor"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_072",
+      "level_number": 72,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "grape",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A weather word",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "gale",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "g",
+        "r",
+        "a",
+        "p",
+        "e",
+        "a",
+        "l",
+        "e"
+      ],
+      "metadata": {
+        "solution": [
+          "grape",
+          "gale"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_073",
+      "level_number": 73,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "pear",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "pond",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "p",
+        "e",
+        "a",
+        "r",
+        "o",
+        "n",
+        "d"
+      ],
+      "metadata": {
+        "solution": [
+          "pear",
+          "pond"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_074",
+      "level_number": 74,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "leek",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "lake",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "l",
+        "e",
+        "e",
+        "k",
+        "a",
+        "k",
+        "e"
+      ],
+      "metadata": {
+        "solution": [
+          "leek",
+          "lake"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_075",
+      "level_number": 75,
+      "level_type": "sprint",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "corn",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "coat",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "okra",
+          "grid_row": 1,
+          "grid_col": 0,
+          "is_horizontal": true
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 1
+        }
+      ],
+      "letter_pool": [
+        "c",
+        "o",
+        "r",
+        "n",
+        "a",
+        "t",
+        "o",
+        "k",
+        "r",
+        "a"
+      ],
+      "metadata": {
+        "solution": [
+          "corn",
+          "coat",
+          "okra"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_076",
+      "level_number": 76,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_food",
+          "constraint_tier": 1,
+          "constraint_display": "A type of food",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "soup",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A weather word",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "snow",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "s",
+        "o",
+        "u",
+        "p",
+        "n",
+        "o",
+        "w"
+      ],
+      "metadata": {
+        "solution": [
+          "soup",
+          "snow"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_077",
+      "level_number": 77,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_food",
+          "constraint_tier": 1,
+          "constraint_display": "A type of food",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "stew",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "shirt",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "s",
+        "t",
+        "e",
+        "w",
+        "h",
+        "i",
+        "r",
+        "t"
+      ],
+      "metadata": {
+        "solution": [
+          "stew",
+          "shirt"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_078",
+      "level_number": 78,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "belt",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "bean",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "b",
+        "e",
+        "l",
+        "t",
+        "e",
+        "a",
+        "n"
+      ],
+      "metadata": {
+        "solution": [
+          "belt",
+          "bean"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_079",
+      "level_number": 79,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "gown",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "gulf",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "g",
+        "o",
+        "w",
+        "n",
+        "u",
+        "l",
+        "f"
+      ],
+      "metadata": {
+        "solution": [
+          "gown",
+          "gulf"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_080",
+      "level_number": 80,
+      "level_type": "sprint",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "beet",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "boot",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "toad",
+          "grid_row": 3,
+          "grid_col": 0,
+          "is_horizontal": true
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 3
+        }
+      ],
+      "letter_pool": [
+        "b",
+        "e",
+        "e",
+        "t",
+        "o",
+        "o",
+        "t",
+        "o",
+        "a",
+        "d"
+      ],
+      "metadata": {
+        "solution": [
+          "beet",
+          "boot",
+          "toad"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_081",
+      "level_number": 81,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1,
+        2
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "kale",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "has_double_letter",
+          "constraint_tier": 2,
+          "constraint_display": "Contains a double letter (e.g. LL, SS)",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "keen",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "k",
+        "a",
+        "l",
+        "e",
+        "e",
+        "e",
+        "n"
+      ],
+      "metadata": {
+        "solution": [
+          "kale",
+          "keen"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_082",
+      "level_number": 82,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "rose",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "robe",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "r",
+        "o",
+        "s",
+        "e",
+        "o",
+        "b",
+        "e"
+      ],
+      "metadata": {
+        "solution": [
+          "rose",
+          "robe"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_083",
+      "level_number": 83,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "plum",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "pond",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "p",
+        "l",
+        "u",
+        "m",
+        "o",
+        "n",
+        "d"
+      ],
+      "metadata": {
+        "solution": [
+          "plum",
+          "pond"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_084",
+      "level_number": 84,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "gold",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "gown",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "g",
+        "o",
+        "l",
+        "d",
+        "o",
+        "w",
+        "n"
+      ],
+      "metadata": {
+        "solution": [
+          "gold",
+          "gown"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_085",
+      "level_number": 85,
+      "level_type": "sprint",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A weather word",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "heat",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A body part",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "heel",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "eagle",
+          "grid_row": 2,
+          "grid_col": 0,
+          "is_horizontal": true
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": [
+        "h",
+        "e",
+        "a",
+        "t",
+        "e",
+        "l",
+        "e",
+        "a",
+        "g",
+        "l",
+        "e"
+      ],
+      "metadata": {
+        "solution": [
+          "heat",
+          "heel",
+          "eagle"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_086",
+      "level_number": 86,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "lime",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A body part",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "lung",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "l",
+        "i",
+        "m",
+        "e",
+        "u",
+        "n",
+        "g"
+      ],
+      "metadata": {
+        "solution": [
+          "lime",
+          "lung"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_087",
+      "level_number": 87,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "brown",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "brook",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "b",
+        "r",
+        "o",
+        "w",
+        "n",
+        "r",
+        "o",
+        "o",
+        "k"
+      ],
+      "metadata": {
+        "solution": [
+          "brown",
+          "brook"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_088",
+      "level_number": 88,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "sage",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "swamp",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "s",
+        "a",
+        "g",
+        "e",
+        "w",
+        "a",
+        "m",
+        "p"
+      ],
+      "metadata": {
+        "solution": [
+          "sage",
+          "swamp"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_089",
+      "level_number": 89,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_color",
+          "constraint_tier": 1,
+          "constraint_display": "A color",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "teal",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "tunic",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "t",
+        "e",
+        "a",
+        "l",
+        "u",
+        "n",
+        "i",
+        "c"
+      ],
+      "metadata": {
+        "solution": [
+          "teal",
+          "tunic"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_090",
+      "level_number": 90,
+      "level_type": "sprint",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "robin",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "robe",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "belt",
+          "grid_row": 2,
+          "grid_col": 0,
+          "is_horizontal": true
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": [
+        "r",
+        "o",
+        "b",
+        "i",
+        "n",
+        "o",
+        "e",
+        "b",
+        "e",
+        "l",
+        "t"
+      ],
+      "metadata": {
+        "solution": [
+          "robin",
+          "robe",
+          "belt"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_091",
+      "level_number": 91,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_food",
+          "constraint_tier": 1,
+          "constraint_display": "A type of food",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "steak",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "swamp",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "s",
+        "t",
+        "e",
+        "a",
+        "k",
+        "w",
+        "a",
+        "m",
+        "p"
+      ],
+      "metadata": {
+        "solution": [
+          "steak",
+          "swamp"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_092",
+      "level_number": 92,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_vegetable",
+          "constraint_tier": 1,
+          "constraint_display": "A type of vegetable",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "corn",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "cove",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "c",
+        "o",
+        "r",
+        "n",
+        "o",
+        "v",
+        "e"
+      ],
+      "metadata": {
+        "solution": [
+          "corn",
+          "cove"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_093",
+      "level_number": 93,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "plum",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "port",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "p",
+        "l",
+        "u",
+        "m",
+        "o",
+        "r",
+        "t"
+      ],
+      "metadata": {
+        "solution": [
+          "plum",
+          "port"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_094",
+      "level_number": 94,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "melon",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A weather word",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "mist",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "m",
+        "e",
+        "l",
+        "o",
+        "n",
+        "i",
+        "s",
+        "t"
+      ],
+      "metadata": {
+        "solution": [
+          "melon",
+          "mist"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_095",
+      "level_number": 95,
+      "level_type": "sprint",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [
+        1,
+        2
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_fruit",
+          "constraint_tier": 1,
+          "constraint_display": "A type of fruit",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "grape",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "no_repeated_letters",
+          "constraint_tier": 2,
+          "constraint_display": "All letters are unique",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "gust",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A weather word",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "snow",
+          "grid_row": 2,
+          "grid_col": 0,
+          "is_horizontal": true
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": [
+        "g",
+        "r",
+        "a",
+        "p",
+        "e",
+        "u",
+        "t",
+        "s",
+        "n",
+        "o",
+        "w"
+      ],
+      "metadata": {
+        "solution": [
+          "grape",
+          "gust",
+          "snow"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_096",
+      "level_number": 96,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "crane",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_clothing",
+          "constraint_tier": 1,
+          "constraint_display": "An item of clothing",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "coat",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "c",
+        "r",
+        "a",
+        "n",
+        "e",
+        "o",
+        "a",
+        "t"
+      ],
+      "metadata": {
+        "solution": [
+          "crane",
+          "coat"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_097",
+      "level_number": 97,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1,
+        2
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_vehicle",
+          "constraint_tier": 1,
+          "constraint_display": "A vehicle",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "boat",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "has_double_letter",
+          "constraint_tier": 2,
+          "constraint_display": "Contains a double letter (e.g. LL, SS)",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "boon",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "b",
+        "o",
+        "a",
+        "t",
+        "o",
+        "o",
+        "n"
+      ],
+      "metadata": {
+        "solution": [
+          "boat",
+          "boon"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_098",
+      "level_number": 98,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A body part",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "palm",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "port",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "p",
+        "a",
+        "l",
+        "m",
+        "o",
+        "r",
+        "t"
+      ],
+      "metadata": {
+        "solution": [
+          "palm",
+          "port"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_099",
+      "level_number": 99,
+      "level_type": "sprint",
+      "is_boss": false,
+      "word_count": 2,
+      "intersection_count": 1,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_body_part",
+          "constraint_tier": 1,
+          "constraint_display": "A body part",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "skin",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_weather",
+          "constraint_tier": 1,
+          "constraint_display": "A weather word",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "snow",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        }
+      ],
+      "letter_pool": [
+        "s",
+        "k",
+        "i",
+        "n",
+        "n",
+        "o",
+        "w"
+      ],
+      "metadata": {
+        "solution": [
+          "skin",
+          "snow"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    },
+    {
+      "seed": "hc_100",
+      "level_number": 100,
+      "level_type": "sprint",
+      "is_boss": true,
+      "word_count": 3,
+      "intersection_count": 2,
+      "constraint_tiers": [
+        1
+      ],
+      "word_slots": [
+        {
+          "id": 0,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 5,
+          "constraint_params": null,
+          "assigned_word": "crane",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": true
+        },
+        {
+          "id": 1,
+          "constraint_id": "is_water_body",
+          "constraint_tier": 1,
+          "constraint_display": "A body of water",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "cove",
+          "grid_row": 0,
+          "grid_col": 0,
+          "is_horizontal": false
+        },
+        {
+          "id": 2,
+          "constraint_id": "is_animal",
+          "constraint_tier": 1,
+          "constraint_display": "A type of animal",
+          "required_length": 4,
+          "constraint_params": null,
+          "assigned_word": "vole",
+          "grid_row": 2,
+          "grid_col": 0,
+          "is_horizontal": true
+        }
+      ],
+      "intersections": [
+        {
+          "slot_a": 0,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 0
+        },
+        {
+          "slot_a": 2,
+          "slot_b": 1,
+          "position_in_a": 0,
+          "position_in_b": 2
+        }
+      ],
+      "letter_pool": [
+        "c",
+        "r",
+        "a",
+        "n",
+        "e",
+        "o",
+        "e",
+        "v",
+        "o",
+        "l",
+        "e"
+      ],
+      "metadata": {
+        "solution": [
+          "crane",
+          "cove",
+          "vole"
+        ],
+        "hand_crafted": true,
+        "notes": ""
+      }
+    }
+  ]
+}

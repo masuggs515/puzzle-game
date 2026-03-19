@@ -97,19 +97,19 @@ class _CellContent extends StatelessWidget {
     // Empty cell
     if (isHovered) {
       return (
-        const Color(0x14C8651A),
+        const Color(0x2AC8651A),
         Border.all(color: AppColors.signal),
       );
     }
     if (isIntersection) {
       return (
-        const Color(0x0FC8651A),
+        const Color(0x1AC8651A),
         Border.all(color: Color(0x66C8651A), style: BorderStyle.none),
       );
     }
     return (
-      const Color(0x0A1C1410),
-      Border.all(color: Color(0x1F1C1410)),
+      AppColors.aged,
+      Border.all(color: Color(0x591C1410)),
     );
   }
 

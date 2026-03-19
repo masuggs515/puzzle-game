@@ -30,5 +30,4 @@ class GameConstants {
   // Progression
   static const int levelsPerWorld = 30;
   static const int totalHandcraftedLevels = 200;
-  static const int vaultStartLevel = 201;
 }

@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle_game/puzzle_engine/constraints/constraint_library.dart';
 import 'package:puzzle_game/puzzle_engine/generation/difficulty_profile.dart';
-import 'package:puzzle_game/puzzle_engine/generation/runtime_generator.dart';
 import 'package:puzzle_game/puzzle_engine/generation/pre_generator.dart';
 import 'package:puzzle_game/puzzle_engine/models/puzzle.dart';
 import 'package:puzzle_game/puzzle_engine/solver/csp_solver.dart';
@@ -95,91 +94,8 @@ void main() {
       expect(DifficultyProfile.forLevel(200).levelType, equals(LevelType.puzzle));
     });
 
-    test('level type is vault for levels above 200', () {
-      expect(DifficultyProfile.forLevel(201).levelType, equals(LevelType.vault));
-    });
-  });
-
-  group('RuntimeGenerator', () {
-    late ConstraintLibrary library;
-    late CspSolver solver;
-    late PuzzleValidator validator;
-    late PreGenerator preGen;
-    late RuntimeGenerator runtimeGen;
-
-    // Use a larger word list to improve solver success rate
-    final testWords = [
-      'cat', 'dog', 'hat', 'bat', 'rat', 'sat', 'fat', 'mat', 'pat', 'vat',
-      'car', 'bar', 'far', 'jar', 'tar', 'war', 'par', 'mar', 'gar',
-      'log', 'bog', 'cog', 'fog', 'hog', 'jog', 'tog',
-      'red', 'bed', 'fed', 'led', 'wed', 'ned', 'ted',
-      'arm', 'art', 'arc', 'are',
-      'blue', 'bear', 'bird', 'bolt', 'born', 'bold',
-      'deer', 'dark', 'done', 'dusk', 'dust',
-      'fire', 'fish', 'flag', 'flat', 'flew', 'flex',
-      'gold', 'golf', 'gust', 'gust',
-      'hail', 'half', 'hall', 'hand', 'hard',
-      'lake', 'land', 'lean', 'left', 'lime',
-      'mist', 'mild', 'mint', 'mole', 'mood',
-      'nest', 'note', 'noun',
-      'rain', 'race', 'rack', 'rail', 'rank',
-      'seal', 'shin', 'ship', 'shoe', 'shot',
-      'tail', 'tale', 'tank', 'tape',
-      'vine', 'void', 'vote',
-      'wave', 'wind', 'wolf', 'wood', 'word',
-    ];
-
-    setUp(() {
-      library = ConstraintLibrary.build(validWords: testWords.toSet());
-      solver = CspSolver(
-        answerWords: testWords,
-        constraintLibrary: library,
-        seed: 42,
-      );
-      validator = PuzzleValidator(
-        answerWordSet: testWords.toSet(),
-        allValidWords: testWords.toSet(),
-      );
-      preGen = PreGenerator(
-        solver: solver,
-        validator: validator,
-        constraintLibrary: library,
-      );
-      runtimeGen = RuntimeGenerator(preGenerator: preGen);
-    });
-
-    test('same userId and vaultLevel produces same puzzle', () {
-      final puzzle1 = runtimeGen.generateVaultPuzzle(
-        userId: 'user-abc-123',
-        vaultLevel: 5,
-      );
-      final puzzle2 = runtimeGen.generateVaultPuzzle(
-        userId: 'user-abc-123',
-        vaultLevel: 5,
-      );
-
-      // Both should produce the same result (both null or both same puzzle)
-      if (puzzle1 != null && puzzle2 != null) {
-        expect(puzzle1.seed, equals(puzzle2.seed));
-        expect(
-          puzzle1.wordSlots.map((s) => s.assignedWord).toList(),
-          equals(puzzle2.wordSlots.map((s) => s.assignedWord).toList()),
-        );
-      } else {
-        // Both null is also valid (unsolvable for this config)
-        expect(puzzle1, equals(puzzle2));
-      }
-    });
-
-    test('different vaultLevel produces different seeds', () {
-      // The seed derivation should differ for different vault levels
-      // We cannot test puzzle equality directly without a large word list,
-      // but we can verify the generator doesn't crash and behaves deterministically.
-      runtimeGen.generateVaultPuzzle(userId: 'user-xyz', vaultLevel: 1);
-      runtimeGen.generateVaultPuzzle(userId: 'user-xyz', vaultLevel: 2);
-
-      // Not asserting non-null (small word list), just no crash
-      expect(true, isTrue); // Reached here without exception
+    test('level type is puzzle for levels above 200', () {
+      expect(DifficultyProfile.forLevel(201).levelType, equals(LevelType.puzzle));
     });
   });
 

@@ -20,7 +20,6 @@ import 'features/game/screens/game_screen.dart';
 import 'features/game/screens/level_complete_screen.dart';
 import 'features/home/screens/home_screen.dart';
 import 'features/shop/screens/shop_screen.dart';
-import 'features/vault/screens/vault_screen.dart';
 
 final _router = GoRouter(
   initialLocation: '/',
@@ -46,20 +45,11 @@ final _router = GoRouter(
         levelNumber: int.parse(state.pathParameters['levelNumber']!),
       ),
     ),
+
     GoRoute(
       path: '/level-complete',
       builder: (context, state) => LevelCompleteScreen(
         args: state.extra as LevelCompleteArgs,
-      ),
-    ),
-    GoRoute(
-      path: '/vault',
-      builder: (context, state) => const VaultScreen(),
-    ),
-    GoRoute(
-      path: '/vault/:vaultLevel',
-      builder: (context, state) => GameScreen(
-        vaultLevel: int.parse(state.pathParameters['vaultLevel']!),
       ),
     ),
     // Shell routes — home, achievements, shop share the bottom nav bar

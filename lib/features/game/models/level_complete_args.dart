@@ -8,8 +8,6 @@ class LevelCompleteArgs {
   final int coinsEarned; // always 0 in Phase 4
   final bool wasSkipped;
   final List<String> achievementsUnlocked;
-  final bool isVault;
-  final int? vaultLevel; // the vault level number when isVault is true
 
   const LevelCompleteArgs({
     required this.levelNumber,
@@ -17,7 +15,5 @@ class LevelCompleteArgs {
     this.coinsEarned = 0,
     this.wasSkipped = false,
     this.achievementsUnlocked = const [],
-    this.isVault = false,
-    this.vaultLevel,
   });
 }
