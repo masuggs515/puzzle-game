@@ -88,7 +88,7 @@ class DifficultyProfile {
   }
 
   static LevelType _levelType(int level) {
-    if (level > 200) return LevelType.vault;
+    if (level > 200) return LevelType.puzzle;
     return LevelType.puzzle;
   }
 }

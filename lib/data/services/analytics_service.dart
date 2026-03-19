@@ -298,25 +298,6 @@ class AnalyticsService {
     });
   }
 
-  // ── Event: vault_entered ──────────────────────────────────────────────────
-
-  Future<void> trackVaultEntered({
-    required bool isFirstTime,
-    required int levelsCompleted,
-    required int coinBalance,
-  }) async {
-    await _track('vault_entered', {
-      'is_first_time': isFirstTime,
-      'levels_completed': levelsCompleted,
-      'coin_balance': coinBalance,
-    });
-
-    if (isFirstTime) {
-      _mixpanel?.registerSuperProperties({'has_reached_vault': true});
-      _mixpanel?.getPeople().set('has_reached_vault', true);
-    }
-  }
-
   // ── Event: achievement_unlocked ───────────────────────────────────────────
 
   Future<void> trackAchievementUnlocked({

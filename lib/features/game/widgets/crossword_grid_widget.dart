@@ -193,13 +193,13 @@ class _ConstraintChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: isSolved
-            ? AppColors.verdigris.withValues(alpha: 0.12)
-            : const Color(0x0A1C1410),
+            ? AppColors.verdigris.withValues(alpha: 0.18)
+            : AppColors.aged,
         borderRadius: BorderRadius.circular(2),
         border: Border.all(
           color: isSolved
-              ? AppColors.verdigris.withValues(alpha: 0.4)
-              : const Color(0x1F1C1410),
+              ? AppColors.verdigris.withValues(alpha: 0.5)
+              : const Color(0x591C1410),
         ),
       ),
       child: Text(
@@ -208,7 +208,7 @@ class _ConstraintChip extends StatelessWidget {
           fontFamily: 'SpecialElite',
           fontSize: 11,
           letterSpacing: 1.32,
-          color: isSolved ? AppColors.verdigris : AppColors.inkFaded,
+          color: isSolved ? AppColors.verdigris : AppColors.ink,
         ),
       ),
     );

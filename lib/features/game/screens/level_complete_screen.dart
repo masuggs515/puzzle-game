@@ -156,9 +156,7 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
 
                 // ── Level label ───────────────────────────────────────────
                 Text(
-                  widget.args.isVault
-                      ? 'VAULT V${widget.args.vaultLevel ?? widget.args.levelNumber}'
-                      : 'SIGNAL #${widget.args.levelNumber}',
+                  'SIGNAL #${widget.args.levelNumber}',
                   style: const TextStyle(
                     fontFamily: 'Oswald',
                     fontSize: 14,
@@ -247,13 +245,7 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () {
-                      if (widget.args.isVault) {
-                        final nextVault =
-                            (widget.args.vaultLevel ?? widget.args.levelNumber) + 1;
-                        context.go('/vault/$nextVault');
-                      } else {
-                        context.go('/game/${widget.args.levelNumber + 1}');
-                      }
+                      context.go('/game/${widget.args.levelNumber + 1}');
                     },
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.signal,
@@ -282,8 +274,7 @@ class _LevelCompleteScreenState extends ConsumerState<LevelCompleteScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: () =>
-                        context.go(widget.args.isVault ? '/vault' : '/home'),
+                    onPressed: () => context.go('/home'),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
                         color: AppColors.parchment.withValues(alpha: 0.2),

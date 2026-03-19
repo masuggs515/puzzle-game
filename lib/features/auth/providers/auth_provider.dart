@@ -55,12 +55,6 @@ final coinBalanceProvider = FutureProvider<int>((ref) async {
   return service.getCoinBalance(profile.id);
 });
 
-/// Current vault level — loaded from player profile. Updates when profile refreshes.
-final vaultLevelProvider = FutureProvider<int>((ref) async {
-  final profile = await ref.watch(profileProvider.future);
-  return profile?.currentVaultLevel ?? 0;
-});
-
 // ── Analytics providers (Phase 6) ─────────────────────────────────────────
 
 // Holds the Mixpanel instance. Null until initialized in main.dart.

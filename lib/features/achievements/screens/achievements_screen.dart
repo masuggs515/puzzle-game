@@ -32,8 +32,6 @@ const _allAchievements = [
   _AchievementDef(
       'puzzle_apprentice', 'Puzzle Apprentice', 'Complete 50 levels', 50),
   _AchievementDef('century', 'Century', 'Complete 100 levels', 100),
-  _AchievementDef('vault_dweller', 'Vault Dweller',
-      'Enter The Vault for the first time', 150),
   _AchievementDef(
       'boss_slayer', 'Boss Slayer', 'Complete your first boss level', 30),
   _AchievementDef(

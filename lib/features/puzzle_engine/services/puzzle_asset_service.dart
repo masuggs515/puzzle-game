@@ -19,11 +19,20 @@ class PuzzleAssetService {
 
   Future<List<Map<String, dynamic>>> loadHandCraftedPuzzles() async {
     if (_puzzles != null) return _puzzles!;
-    final jsonStr = await rootBundle.loadString(
+
+    final json1 = await rootBundle.loadString(
       'assets/puzzles/hand_crafted_001_050.json',
     );
-    final data = json.decode(jsonStr) as Map<String, dynamic>;
-    _puzzles = List<Map<String, dynamic>>.from(data['puzzles'] as List);
+    final data1 = json.decode(json1) as Map<String, dynamic>;
+    final list1 = List<Map<String, dynamic>>.from(data1['puzzles'] as List);
+
+    final json2 = await rootBundle.loadString(
+      'assets/puzzles/hand_crafted_051_100.json',
+    );
+    final data2 = json.decode(json2) as Map<String, dynamic>;
+    final list2 = List<Map<String, dynamic>>.from(data2['puzzles'] as List);
+
+    _puzzles = [...list1, ...list2];
     return _puzzles!;
   }
 

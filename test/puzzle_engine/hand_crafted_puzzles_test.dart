@@ -1,6 +1,6 @@
 // test/puzzle_engine/hand_crafted_puzzles_test.dart
 //
-// Validates all 50 hand-crafted puzzles:
+// Validates all hand-crafted puzzles (001-050 and 051-100):
 //   - Deserializes correctly from JSON
 //   - All assigned words pass PuzzleValidator
 //   - Grid coordinates are geometrically consistent (intersections map to
@@ -31,7 +31,6 @@ List<String> _geometryErrors(Puzzle puzzle) {
   final errors = <String>[];
   final slots = {for (final s in puzzle.wordSlots) s.id: s};
 
-  // Check every declared intersection maps to the same grid cell.
   for (final ix in puzzle.intersections) {
     final slotA = slots[ix.slotAId]!;
     final slotB = slots[ix.slotBId]!;
@@ -45,7 +44,6 @@ List<String> _geometryErrors(Puzzle puzzle) {
     }
   }
 
-  // Check no undeclared cell overlaps.
   final declaredPairs = <(int, int)>{};
   for (final ix in puzzle.intersections) {
     declaredPairs.add((ix.slotAId, ix.slotBId));
@@ -87,10 +85,10 @@ List<String> _geometryErrors(Puzzle puzzle) {
 void main() {
   late PuzzleValidator validator;
   late PuzzleSerializer serializer;
-  late List<Map<String, dynamic>> rawPuzzles;
+  late List<Map<String, dynamic>> rawPuzzles1;
+  late List<Map<String, dynamic>> rawPuzzles2;
 
   setUpAll(() {
-    // Load word lists using dart:io (test environment, not Flutter assets).
     final loader = WordListLoader.fromFiles();
     final answerSet = loader.answerWords.toSet();
     final allWords = loader.allValidWords;
@@ -100,30 +98,30 @@ void main() {
     final library = ConstraintLibrary.build(validWords: allWords);
     serializer = PuzzleSerializer(library: library);
 
-    final jsonStr = File('assets/puzzles/hand_crafted_001_050.json').readAsStringSync();
-    final decoded = jsonDecode(jsonStr) as Map<String, dynamic>;
-    rawPuzzles = (decoded['puzzles'] as List).cast<Map<String, dynamic>>();
+    final jsonStr1 = File('assets/puzzles/hand_crafted_001_050.json').readAsStringSync();
+    final decoded1 = jsonDecode(jsonStr1) as Map<String, dynamic>;
+    rawPuzzles1 = (decoded1['puzzles'] as List).cast<Map<String, dynamic>>();
+
+    final jsonStr2 = File('assets/puzzles/hand_crafted_051_100.json').readAsStringSync();
+    final decoded2 = jsonDecode(jsonStr2) as Map<String, dynamic>;
+    rawPuzzles2 = (decoded2['puzzles'] as List).cast<Map<String, dynamic>>();
   });
 
-  group('Hand-crafted puzzles — all 50', () {
+  group('Hand-crafted puzzles — levels 001–050', () {
     test('file contains exactly 50 puzzles', () {
-      expect(rawPuzzles.length, equals(50));
+      expect(rawPuzzles1.length, equals(50));
     });
 
     for (int idx = 0; idx < 50; idx++) {
-      // Use a closure to capture the index correctly.
       final capturedIdx = idx;
-
       test('puzzle ${capturedIdx + 1} deserializes, validates, and has consistent geometry', () {
-        final raw = rawPuzzles[capturedIdx];
+        final raw = rawPuzzles1[capturedIdx];
         final levelNumber = raw['level_number'] as int;
 
-        // Deserialize.
         final puzzle = serializer.fromJson(raw);
         expect(puzzle.wordSlots.isNotEmpty, isTrue,
             reason: 'Level $levelNumber has no word slots');
 
-        // Every slot must have an assigned word.
         for (final slot in puzzle.wordSlots) {
           expect(slot.assignedWord, isNotNull,
               reason: 'Level $levelNumber slot ${slot.id} missing assigned_word');
@@ -131,13 +129,43 @@ void main() {
               reason: 'Level $levelNumber slot ${slot.id} has empty assigned_word');
         }
 
-        // PuzzleValidator checks: word list, constraints, intersection letters,
-        // duplicate words, letter pool coverage.
         final result = validator.validate(puzzle);
         expect(result.isValid, isTrue,
             reason: 'Level $levelNumber failed validation: ${result.issues.join('; ')}');
 
-        // Geometry: intersections must map to the same grid cell; no accidental overlaps.
+        final geoErrors = _geometryErrors(puzzle);
+        expect(geoErrors, isEmpty,
+            reason: 'Level $levelNumber geometry errors: ${geoErrors.join('; ')}');
+      });
+    }
+  });
+
+  group('Hand-crafted puzzles — levels 051–100', () {
+    test('file contains exactly 50 puzzles', () {
+      expect(rawPuzzles2.length, equals(50));
+    });
+
+    for (int idx = 0; idx < 50; idx++) {
+      final capturedIdx = idx;
+      test('puzzle ${capturedIdx + 51} deserializes, validates, and has consistent geometry', () {
+        final raw = rawPuzzles2[capturedIdx];
+        final levelNumber = raw['level_number'] as int;
+
+        final puzzle = serializer.fromJson(raw);
+        expect(puzzle.wordSlots.isNotEmpty, isTrue,
+            reason: 'Level $levelNumber has no word slots');
+
+        for (final slot in puzzle.wordSlots) {
+          expect(slot.assignedWord, isNotNull,
+              reason: 'Level $levelNumber slot ${slot.id} missing assigned_word');
+          expect(slot.assignedWord, isNotEmpty,
+              reason: 'Level $levelNumber slot ${slot.id} has empty assigned_word');
+        }
+
+        final result = validator.validate(puzzle);
+        expect(result.isValid, isTrue,
+            reason: 'Level $levelNumber failed validation: ${result.issues.join('; ')}');
+
         final geoErrors = _geometryErrors(puzzle);
         expect(geoErrors, isEmpty,
             reason: 'Level $levelNumber geometry errors: ${geoErrors.join('; ')}');
